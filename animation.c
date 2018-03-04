@@ -29,6 +29,7 @@ void animation_free(animation_t* anim) {
 		cycle = cycle_next;
 	}
 	
+	free(anim);
 }
 
 

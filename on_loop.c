@@ -2,12 +2,14 @@
 #include "collisions.h"
 #include "movements.h"
 #include "animation.h"
+#include "waypoints.h"
 
 void on_loop(object_t* obj, short* keys, unsigned long frame) {
 	
 	collisions(obj);
 	movements(obj, keys);
 	on_loop_animations(obj, keys, frame);
+	on_loop_waypoints(obj, frame);
 	
 }
 
@@ -15,7 +17,7 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 	
 	obj = object_get_first(obj);
 	
-	while (obj->next_object != NULL) {
+	while (obj != NULL) {
 		
 		// select animation:
 		if (obj->id == OBJECT_HERO_ID) {
@@ -38,6 +40,25 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 				obj->surface = animation_get_next_surface(obj->anim, frame);
 			}
 		}
+		obj = obj->next_object;
+	}
+	
+}
+
+void on_loop_waypoints(object_t* obj, unsigned long frame) {
+	
+	obj = object_get_first(obj);
+	
+	while (obj != NULL) {
+			
+		if (obj->ways != NULL && obj->ways->active && !obj->vel_lock) {
+
+			object_get_next_waypoint(obj);
+			printf("obj->ways->n: %d\n", obj->ways->n);
+			object_aim_for_waypoint(obj);
+			
+		}
+	
 		obj = obj->next_object;
 	}
 	

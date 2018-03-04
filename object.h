@@ -4,8 +4,10 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
 #include "animation.h"
+#include "waypoints.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <math.h>
 
 typedef struct object object_t;
 typedef struct collision collision_t;
@@ -37,8 +39,9 @@ struct object {
 	
 	// animations:
 	animation_t* anim;
-	animation_t* anim_next;
-	animation_t* anim_prev;
+
+	// waypoints:
+	waypoints_t* ways;
 	
 	// properties:
 	float pos_x;
@@ -85,6 +88,14 @@ void object_add_animation(object_t* obj, unsigned int id);
 void object_select_animation(object_t* obj, unsigned int id);
 void object_remove_animation(object_t* obj, unsigned int id);
 void object_remove_selected_animation(object_t* obj);
+
+void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways);
+void object_select_waypoints(object_t* obj, unsigned int id);
+void object_remove_waypoints(object_t* obj, unsigned int id);
+void object_remove_selected_waypoints(object_t* obj);
+void object_activate_waypoints(object_t* obj);
+void object_get_next_waypoint(object_t* obj);
+void object_aim_for_waypoint(object_t* obj);
 
 collision_t* object_add_collision(object_t* obj, object_t* partner);
 void object_remove_collision(object_t* obj, object_t* partner);

@@ -7,7 +7,7 @@ void load_config(object_t* obj) {
 	data = conf_load_data(data, "config.txt");
 
 	if (data == NULL) {
-		printf("Warning: Unable to load config file. Use Default Settings.");
+		printf("Warning: Unable to load config file. Use Default Settings.\n");
 		free(data);
 		return;
 	}

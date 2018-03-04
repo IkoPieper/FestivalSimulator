@@ -17,5 +17,6 @@ struct n {
 
 void on_loop(object_t* obj, short* keys, unsigned long frame);
 void on_loop_animations(object_t* obj, short* keys, unsigned long frame);
+void on_loop_waypoints(object_t* obj, unsigned long frame);
 
 #endif

@@ -233,6 +233,27 @@ short on_init_score(object_t* obj) {
 		return(0);
 	}
 	
+	// waypoints:
+	unsigned int num_ways = 5;
+	object_add_waypoints(obj, 1, num_ways);
+	obj->ways->pos_are_relative = 1;
+	obj->ways->pos_x[0] = 0.0;
+	obj->ways->pos_y[0] = 0.0;
+	obj->ways->vel_abs[0] = 1.5;
+	obj->ways->pos_x[1] = 4.0;
+	obj->ways->pos_y[1] = 400.0;
+	obj->ways->vel_abs[1] = 1.0;
+	obj->ways->pos_x[2] = -20.0;
+	obj->ways->pos_y[2] = 0.0;
+	obj->ways->vel_abs[2] = 3.0;
+	obj->ways->pos_x[3] = 20.0;
+	obj->ways->pos_y[3] = 20.0;
+	obj->ways->vel_abs[3] = 1.0;
+	obj->ways->pos_x[4] = -20.0;
+	obj->ways->pos_y[4] = 20.0;
+	obj->ways->vel_abs[4] = 3.0;
+	object_activate_waypoints(obj);
+	
 	return(1);
 	
 }

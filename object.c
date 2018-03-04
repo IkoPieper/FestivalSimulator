@@ -52,8 +52,8 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	obj_new->id = id;
 	
 	obj_new->anim = NULL;
-	obj_new->anim_prev = NULL;
-	obj_new->anim_next = NULL;
+
+	obj_new->ways = NULL;
 	
 	obj_new->mass = 1.0;
 	obj_new->pos_x = 1.0;
@@ -224,6 +224,199 @@ void object_remove_selected_animation(object_t* obj) {
 	
 	animation_free(anim);
 }
+
+
+void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways) {
+	
+	waypoints_t* ways = waypoints_init(id, num_ways);
+	
+	// place at first place in list:
+	ways->next = obj->ways;
+	
+	if (obj->ways != NULL) {
+		obj->ways->prev = ways;
+	}
+	
+	// set as current waypoints:
+	obj->ways = ways;
+	
+}
+
+void object_select_waypoints(object_t* obj, unsigned int id) {
+	
+	waypoints_t* ways = obj->ways;
+	
+	// get first waypoints:
+	while (ways->prev != NULL) {
+		ways = ways->prev;
+	}
+	// find waypoints:
+	while (ways->id != id) {
+		ways = ways->next;
+	}
+	// select waypoints:
+	obj->ways = ways;
+}
+
+void object_remove_waypoints(object_t* obj, unsigned int id) {
+	
+	if (obj->ways->id == id) {
+		object_remove_selected_waypoints(obj);
+		return;
+	}
+	
+	waypoints_t* ways = obj->ways;
+	
+	// get first waypoints:
+	while (ways->prev != NULL) {
+		ways = ways->prev;
+	}
+	// find waypoints:
+	while (ways->id != id) {
+		ways = ways->next;
+	}
+	// update waypoints list:
+	if (ways->prev != NULL) {
+		ways->prev = ways->next;
+	}
+	if (ways->next != NULL) {
+		ways->next->prev = ways->prev;
+	}
+	
+	waypoints_free(ways);
+}
+
+void object_remove_selected_waypoints(object_t* obj) {
+	
+	waypoints_t* ways = obj->ways;
+	
+	// update waypoints list:
+	if (ways->prev != NULL) {
+		ways->prev = ways->next;
+	}
+	if (ways->next != NULL) {
+		ways->next->prev = ways->prev;
+	}
+	// choose new selected waypoints:
+	if (ways->prev != NULL) {
+		obj->ways = ways->prev;
+	} else if (ways->next != NULL) {
+		obj->ways = ways->next;
+	} else {
+		obj->ways = NULL;
+	}
+	
+	waypoints_free(ways);
+}
+
+void object_activate_waypoints(object_t* obj) {
+	
+	int n;
+	
+	if (obj->ways->pos_are_relative == 1) {
+		// if activated the first time
+		if (obj->ways->pos_x_relative == NULL) {
+			
+			// copy positions to relative positions:
+			obj->ways->pos_x_relative = malloc(obj->ways->num_ways * sizeof(float));
+			obj->ways->pos_y_relative = malloc(obj->ways->num_ways * sizeof(float));
+			for (n = 0; n < obj->ways->num_ways; n++) {
+				obj->ways->pos_x_relative[n] = obj->ways->pos_x[n];
+				obj->ways->pos_y_relative[n] = obj->ways->pos_y[n];
+			}
+			// convert relative positions to absolute positions in 
+			// relation to any object position:
+			for (n = 1; n < obj->ways->num_ways; n++) {
+				obj->ways->pos_x_relative[n] += obj->ways->pos_x_relative[n-1];
+				obj->ways->pos_y_relative[n] += obj->ways->pos_y_relative[n-1];
+			}
+		}
+		// calculate absolute positions:
+		for (n = 0; n < obj->ways->num_ways; n++) {
+			obj->ways->pos_x[n] = obj->ways->pos_x_relative[n] + obj->pos_x;
+			obj->ways->pos_y[n] = obj->ways->pos_y_relative[n] + obj->pos_y;
+		}
+	} else if (obj->ways->pos_are_relative == -1) {
+		// pos are screen positions
+		printf("Warning: waypoints for screen positions not implemented!\n");
+	}
+	
+	// activate:
+	obj->ways->active = 1;
+	
+}
+
+void object_get_next_waypoint(object_t* obj) {
+	
+	float pos_x_wp = obj->ways->pos_x[obj->ways->n];
+	float pos_y_wp = obj->ways->pos_y[obj->ways->n];
+	float border_x = fabsf(obj->vel_x) + 2.0;
+	float border_y = fabsf(obj->vel_y) + 2.0;
+	
+	printf("obj->pos_x: %f, pos_x_wp: %f, obj->vel_x: %f\n", obj->pos_x, pos_x_wp, obj->vel_x);
+	printf("obj->pos_y: %f, pos_y_wp: %f, obj->vel_y: %f\n", obj->pos_y, pos_y_wp, obj->vel_y);
+	
+	// object close enough to waypoint?
+	if (obj->pos_x > pos_x_wp - border_x && 
+		obj->pos_x < pos_x_wp + border_x &&
+		obj->pos_y > pos_y_wp - border_y && 
+		obj->pos_y < pos_y_wp + border_y ) {
+		
+		// select next waypoint:
+		obj->ways->n++;
+		
+		// cycle: TODO: make optional
+		if (obj->ways->n == obj->ways->num_ways) {
+			obj->ways->n = 0;
+		}
+		
+	}
+	printf("obj->ways->n: %d\n", obj->ways->n);
+}
+
+void object_aim_for_waypoint(object_t* obj) {
+
+	float pos_x_wp = obj->ways->pos_x[obj->ways->n];
+	float pos_y_wp = obj->ways->pos_y[obj->ways->n];
+	float vel_x_wanted = 0.0;
+	float vel_y_wanted = 0.0;
+	
+	
+	vel_x_wanted = pos_x_wp - obj->pos_x;
+	vel_y_wanted = pos_y_wp - obj->pos_y;
+	
+	//printf("vel_x_wanted: %f\n", vel_x_wanted);
+	//printf("vel_y_wanted: %f\n", vel_y_wanted);
+			
+	// normalize:
+	float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
+	vel_x_wanted /= norm;
+	vel_y_wanted /= norm;
+	
+	//printf("vel_x_wanted: %f\n", vel_x_wanted);
+	//printf("vel_y_wanted: %f\n", vel_y_wanted);
+	
+	vel_x_wanted *= obj->ways->vel_abs[obj->ways->n];
+	vel_y_wanted *= obj->ways->vel_abs[obj->ways->n];
+	
+	//printf("obj->ways->vel_abs[obj->ways->n]: %f\n", obj->ways->vel_abs[obj->ways->n]);
+	
+	// modify current velocity a step towards the velocity wanted:
+	if (obj->vel_x < vel_x_wanted - 0.2) {
+		obj->vel_x += 0.2;
+	} else if (obj->vel_x > vel_x_wanted + 0.2) {
+		obj->vel_x -= 0.2;
+	}
+	if (obj->vel_y < vel_y_wanted - 0.2) {
+		obj->vel_y += 0.2;
+	} else if (obj->vel_y > vel_y_wanted + 0.2) {
+		obj->vel_y -= 0.2;
+	}
+	//printf("norm: %f\n", norm);
+	//printf("vel_x_wanted: %f\n", vel_x_wanted);
+	//printf("vel_y_wanted: %f\n", vel_y_wanted);
+}
+
 
 collision_t* object_add_collision(object_t* obj, object_t* partner) {
 	
