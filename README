@@ -1,0 +1,70 @@
+Hi Tammo,
+
+-----------------
+Programmstruktur:
+-----------------
+
+Main-Funktion ist in festival.c
+
+(Fast) Alles soll über die object_t Strukturen geregelt werden.
+Der Held ist ein Objekt, der Hintergrund ist ein Objekt, andere Figuren,
+Zelte, Bühnen, ...., selbst der Bildschirm ist ein Objekt.
+Grundsätzlich kann jedes Objekt alles, was auch andere Objekte können.
+In Objekten bereits implementiert:
+- physikalische Eigenschaften 
+(Variablen für Position, Geschwindigkeit, Beschleunigung, ...), 
+- Kollisionen mit anderen Objekten (Listen)
+- beliebig viele Animationen (Listen), 
+Geplant:
+- automatisierte Bewegungen (Listen, vorgegeben und random), 
+- Sprechblasen ("Textboxen")
+- Live-Bars wie Alkoholpegel (Listen)
+- Quests/Events (Ich stelle mir einzelne Funktionen vor, die Quests oder 
+auch nur kurze Sachen die passieren können, beschreiben. Im Objekt ist 
+dann nur gespeichert, welche Quests es anbietet und wie deren Zustand ist)
+- Items (Listen, sind aber vielleicht das gleiche wie Quests)
+- Und natürlich Sounds. SDL bietet da wohl auch was an.
+Weil so ziemlich alles was komplexer ist mit Listen geregelt wird, ist
+der Speicher den ein Objekt benötigt das nur dumm rumsteht, 
+überschaubar.
+
+
+In config_entwurf ist ein Entwurf von mir, wie eine Konfigurationsdatei 
+für ein Objekt aussehen könnte und wie das dann mit den Quests 
+funktionieren könnte. Kann aber auch gerne anders gemacht werden.
+Da alles noch in einem frühen Stadium ist habe ich auch kein großes
+Problem damit bei den implementierten Sachen weitreichende Änderungen 
+vorzunehmen ... außer alles auf c++ zu switchen.
+
+
+-------
+Grafik:
+-------
+WICHTIG, damit du kein Schock nach dem ersten Programmstart bekommst:
+- Nintendo-Optik geplant.
+- Nein, es werden zukünftig keine Fotos für die Grafiken benutzt. 
+- Nein, kein Top-Down-View sondern süße isometrische Perspektive.
+- Nein, keine engen Gassen sondern weit begehbare Flächen. Bei sehr
+  engen Gassen können Objekte auch hart glitchen.
+- Nein, der Held ist kein Ball
+- Fullscreen ist möglich. Für die Entwicklung aber unpraktisch.
+- Wenn du genau hinschaust wechselt der Held bereits die Animation 
+  wenn du nach rechts läuft. Die Null kannst du durch die Gegend 
+  schubsen. Die Null benutzt einen Fall-Back-Mode für die 
+  Kollisionszonen. Der Ball hat gezeichnete Kollisionszonen.
+  Beide Kollisionszonen entsprechen noch nicht der isometrischen 
+  Perspektive. Das ist aber nicht unser Problem, sondern das der 
+  Grafiker.
+
+-------------
+Installation:
+-------------
+
+Im Moment Linux. Hab aber mal ein anderes Programm, das ebenfalls die 
+SDL library benutzt auf Windows portiert. Sollte also gehen.
+
+Pakete: gcc, libsdl1.2-dev, libsdl-ttf2.0-dev, was ich so vergessen habe
+
+Dann:
+make
+./FestivalSimulator

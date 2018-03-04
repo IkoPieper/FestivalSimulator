@@ -85,7 +85,7 @@ void movements_background(object_t* obj, object_t* obj_hero) {
 	obj->vel_x = 0.0;
 	obj->vel_y = 0.0;
 	
-	// let the bg move instead of the hero if he reaches his screen
+	// let the bg move instead of the hero if he reaches its screen
 	// limits:
 	if (obj_hero->scr_pos_x == obj_hero->max_scr_pos_x ||
 		obj_hero->scr_pos_x == obj_hero->min_scr_pos_x) {

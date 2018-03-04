@@ -14,10 +14,10 @@ short on_init(object_t* obj) {
 	if (on_init_surfdisplay(obj) == 0) {	// inits video incl. openGL
 		return(0);
 	}
-	if (on_init_background(obj) == 0) {
+	if (on_init_hero(obj) == 0) {
 		return(0);
 	}
-	if (on_init_hero(obj) == 0) {
+	if (on_init_background(obj) == 0) {
 		return(0);
 	}
 	if (on_init_score(obj) == 0) {
@@ -111,6 +111,14 @@ short on_init_surfdisplay(object_t* obj) {
 short on_init_background(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
+	object_t* obj_hero = object_get(obj, OBJECT_HERO_ID);
+	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
+	
+	
+	obj->pos_x = -obj_hero->pos_x + obj_dsp->surface->w / 2;
+	obj->pos_y = -obj_hero->pos_y + obj_dsp->surface->w / 2;
+	obj->scr_pos_x = round(obj->pos_x);
+	obj->scr_pos_y = round(obj->pos_y);
 	
 	obj->mass = 99999999999.0;
 	obj->damping = 1.0;
@@ -143,8 +151,8 @@ short on_init_hero(object_t* obj) {
 	obj->mass = 1.0;
 	
 	// start position:
-	obj->pos_x = 290;
-	obj->pos_y = 120;
+	obj->pos_x = 915;
+	obj->pos_y = 720;
 	obj->scr_pos_x = round(obj->pos_x);
 	obj->scr_pos_y = round(obj->pos_y);
 	
@@ -220,8 +228,8 @@ short on_init_score(object_t* obj) {
 	obj->mass = 0.2;
 	obj->damping = 0.03;
 	
-	obj->pos_x = 150;
-	obj->pos_y = 300;
+	obj->pos_x = 1112;
+	obj->pos_y = 680;
 	obj->scr_pos_x = round(obj->pos_x);
 	obj->scr_pos_y = round(obj->pos_y);
 	
@@ -241,7 +249,7 @@ short on_init_score(object_t* obj) {
 	obj->ways->pos_y[0] = 0.0;
 	obj->ways->vel_abs[0] = 1.5;
 	obj->ways->pos_x[1] = 4.0;
-	obj->ways->pos_y[1] = 400.0;
+	obj->ways->pos_y[1] = 300.0;
 	obj->ways->vel_abs[1] = 1.0;
 	obj->ways->pos_x[2] = -20.0;
 	obj->ways->pos_y[2] = 0.0;
