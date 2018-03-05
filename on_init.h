@@ -14,5 +14,6 @@ short on_init_surfdisplay(object_t* obj);
 short on_init_background(object_t* obj);
 short on_init_hero(object_t* obj);
 short on_init_score(object_t* obj);
+short on_init_buden(object_t* obj);
 
 #endif

@@ -23,6 +23,10 @@ short on_init(object_t* obj) {
 	if (on_init_score(obj) == 0) {
 		return(0);
 	}
+	if (on_init_buden(obj) == 0) {
+		return(0);
+	}
+	
 	
 	// init old positions:
 	obj = object_get_first(obj);
@@ -126,7 +130,8 @@ short on_init_background(object_t* obj) {
 	if((obj->surface = surface_on_load("background_walls.bmp")) == NULL) {
 		return(0);
 	}
-	obj->walls = (unsigned int*) obj->surface->pixels;
+	obj->wall = object_init_walls(obj->surface);
+	
 	if((obj->surface = surface_on_load("background.bmp")) == NULL) {
 		return(0);
 	}
@@ -156,57 +161,114 @@ short on_init_hero(object_t* obj) {
 	obj->scr_pos_x = round(obj->pos_x);
 	obj->scr_pos_y = round(obj->pos_y);
 	
-	// default surface and collision walls:
+	// collision walls:
+	if((surf = surface_on_load("ball_walls.bmp")) == NULL) {
+		return(0);
+	}
+	obj->wall = object_init_walls(surf);
+	
+	// default surface:
 	if((surf = surface_on_load("ball.bmp")) == NULL) {
 		return(0);
 	}
-	
 	obj->surface = surf;
-	obj->walls = (unsigned int*) surf->pixels;
 	
 	// animation walk:
 	object_add_animation(obj, 1);
 	
 	animation_add_surface(obj->anim, surf);
 	
-	if((surf = surface_on_load("ball2.bmp")) == NULL) {
+	if((surf = surface_on_load("ball_n_1.bmp")) == NULL) {
 		return(0);
 	}
 	animation_add_surface(obj->anim, surf);
 	
-	if((surf = surface_on_load("ball3.bmp")) == NULL) {
+	if((surf = surface_on_load("ball_n_2.bmp")) == NULL) {
 		return(0);
 	}
 	animation_add_surface(obj->anim, surf);
 	
-	if((surf = surface_on_load("ball4.bmp")) == NULL) {
+	if((surf = surface_on_load("ball_n_3.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_4.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_5.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_6.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_7.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_8.bmp")) == NULL) {
 		return(0);
 	}
 	animation_add_surface(obj->anim, surf);
 
-	obj->anim->delay_frames = 5;
+	obj->anim->delay_frames = 2;
 	
 	// animation walk west:
 	object_add_animation(obj, 2);
 	
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("ball4.bmp")) == NULL) {
+	if((surf = surface_on_load("ball.bmp")) == NULL) {
 		return(0);
 	}
 	animation_add_surface(obj->anim, surf);
 	
-	if((surf = surface_on_load("ball4.bmp")) == NULL) {
+	if((surf = surface_on_load("ball_n_8.bmp")) == NULL) {
 		return(0);
 	}
 	animation_add_surface(obj->anim, surf);
 	
-	if((surf = surface_on_load("ball2.bmp")) == NULL) {
+	if((surf = surface_on_load("ball_n_7.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_6.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_5.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_4.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_3.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_2.bmp")) == NULL) {
+		return(0);
+	}
+	animation_add_surface(obj->anim, surf);
+	
+	if((surf = surface_on_load("ball_n_1.bmp")) == NULL) {
 		return(0);
 	}
 	animation_add_surface(obj->anim, surf);
 
-	obj->anim->delay_frames = 5;
+	obj->anim->delay_frames = 2;
 	
 	// min/max screen positions:
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
@@ -261,6 +323,42 @@ short on_init_score(object_t* obj) {
 	obj->ways->pos_y[4] = 20.0;
 	obj->ways->vel_abs[4] = 3.0;
 	object_activate_waypoints(obj);
+	
+	return(1);
+	
+}
+
+short on_init_buden(object_t* obj) {
+	
+	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
+	
+	time_t t;
+	srand((unsigned) time(&t));
+	
+	for (int n = 1; n <= 10; n++) {
+		obj = object_get(obj, OBJECT_SCORE_ID + n);
+		
+		obj->collision_stop = 1;
+		obj->mass = 99999999999.0;
+		obj->damping = 1.0;
+		
+		obj->pos_x = rand() % obj_bg->surface->w;
+		obj->pos_y = rand() % obj_bg->surface->h;
+		obj->scr_pos_x = round(obj->pos_x);
+		obj->scr_pos_y = round(obj->pos_y);
+		
+		printf("obj->pos_x: %f\n", obj->pos_x);
+		printf("obj->pos_y: %f\n\n", obj->pos_y);
+		
+		if((obj->surface = surface_on_load("bude_walls.bmp")) == NULL) {
+			return(0);
+		}
+		obj->wall = object_init_walls(obj->surface);
+	
+		if((obj->surface = surface_on_load("bude.bmp")) == NULL) {
+			return(0);
+		}
+	}
 	
 	return(1);
 	

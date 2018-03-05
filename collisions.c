@@ -24,15 +24,17 @@ void collisions(object_t* obj) {
 				
 				collision = collisions_check(obj, obj_b);
 				
-				// update collision and render lists:
+				// update collision and render lists: TODO: maybe better 
+				// performance if boundary boxes of surfaces are checked 
+				// first:
+				if (obj->id != OBJECT_SURFDISPLAY_ID &&
+					obj->id != OBJECT_BACKGROUND_ID &&
+					obj_b->id != OBJECT_SURFDISPLAY_ID &&
+					obj_b->id != OBJECT_BACKGROUND_ID) {
+					collisions_update_render(obj, obj_b);
+				}
 				if (collision == 1) {
 					
-					if (obj->id != OBJECT_SURFDISPLAY_ID &&
-						obj->id != OBJECT_BACKGROUND_ID &&
-						obj_b->id != OBJECT_SURFDISPLAY_ID &&
-						obj_b->id != OBJECT_BACKGROUND_ID) {
-						collisions_update_render(obj, obj_b);
-					}
 				} else {
 					object_remove_collision(obj, obj_b);
 					object_remove_collision(obj_b, obj);
@@ -56,18 +58,55 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 	int collision = 0;
 	collision_t* col1 = NULL;
 	collision_t* col2 = NULL;
+	
+	// current position in overlapping area:
 	int x1 = 0;
 	int y1 = 0;
 	int x2 = 0;
 	int y2 = 0;
-	int w1 = obj1->surface->w;
-	int h1 = obj1->surface->h;
-	int w2 = obj2->surface->w;
-	int h2 = obj2->surface->h;
-	int xw1 = obj1->scr_pos_x + w1;
-	int yh1 = obj1->scr_pos_y + h1;
-	int xw2 = obj2->scr_pos_x + w2;
-	int yh2 = obj2->scr_pos_y + h2;
+	
+	
+	// boundary boxes base positions:
+	int x01;
+	int y01;
+	int x02;
+	int y02;
+	
+	// boundary boxes widths and heights:
+	int w1;
+	int h1;
+	int w2;
+	int h2;
+	
+	
+	if (obj1->wall != NULL) {
+		w1 = obj1->wall->w;
+		h1 = obj1->wall->h;
+		x01 = obj1->scr_pos_x;
+		y01 = obj1->scr_pos_y + obj1->surface->h - h1;
+	} else {
+		w1 = obj1->surface->w;
+		h1 = obj1->surface->h;
+		x01 = obj1->scr_pos_x;
+		y01 = obj1->scr_pos_y;
+	}
+	if (obj2->wall != NULL) {
+		w2 = obj2->wall->w;
+		h2 = obj2->wall->h;
+		x02 = obj2->scr_pos_x;
+		y02 = obj2->scr_pos_y + obj2->surface->h - h2;
+	} else {
+		w2 = obj2->surface->w;
+		h2 = obj2->surface->h;
+		x02 = obj2->scr_pos_x;
+		y02 = obj2->scr_pos_y;
+	}
+	
+	int xw1 = x01 + w1;
+	int yh1 = y01 + h1;
+	int xw2 = x02 + w2;
+	int yh2 = y02 + h2;
+	
 	int x_min = 0;
 	int x_max = 0;
 	int y_min = 0;
@@ -86,10 +125,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			
 	// check for collision of boundary boxes:
 	if (obj2->disable_collision == 0 &&
-		xw2 > obj1->scr_pos_x && 
-		obj2->scr_pos_x < xw1 && 
-		yh2 > obj1->scr_pos_y && 
-		obj2->scr_pos_y < yh1) {
+		xw2 > x01 && x02 < xw1 && 
+		yh2 > y01 && y02 < yh1) {
 		collision = 1;
 	}
 	
@@ -99,15 +136,19 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 		collision = 0;
 		
 		// overlapping area of boundary boxes:
-		if (obj1->scr_pos_x < obj2->scr_pos_x) {
-			x_min = obj2->scr_pos_x - obj1->scr_pos_x;
+		if (x01 < x02) {
+			x_min = x02 - x01;
+			x2_min = 0;
 		} else {
 			x_min = 0;
+			x2_min = x01 - x02;
 		}
-		if (obj1->scr_pos_y < obj2->scr_pos_y) {
-			y_min = obj2->scr_pos_y - obj1->scr_pos_y;
+		if (y01 < y02) {
+			y_min = y02 - y01;
+			y2_min = 0;
 		} else {
 			y_min = 0;
+			y2_min = y01 - y02;
 		}
 		if (xw1 < xw2) {
 			x_max = w1;
@@ -120,12 +161,9 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			y_max = h1 - (yh1 - yh2);
 		}
 		
-		x2_min = obj1->scr_pos_x - obj2->scr_pos_x;
-		y2_min = obj1->scr_pos_y - obj2->scr_pos_y;
 		
-		/*
 		// debug:
-		if (obj1->id != OBJECT_BACKGROUND_ID) {
+		/*if (obj1->id == OBJECT_HERO_ID || obj2->id == OBJECT_HERO_ID) {
 			fprintf(stderr, "\n\n\n");
 			fprintf(stderr, "obj1->id = %d, obj2->id = %d\n", 
 				obj1->id, obj2->id);
@@ -147,25 +185,21 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			
 			for (x1 = x_min; x1 < x_max; x1++) {
 				
-				if (obj1->walls != NULL) {
-					obj1_pxl = obj1->walls[(y1 * w1) + x1];
+				if (obj1->wall != NULL) {
+					obj1_pxl = obj1->wall->pxl[(y1 * w1) + x1];
 				} else { // use rectangular boundaries
 					obj1_pxl = 1;
 				}
 				if (obj1_pxl != 0 && obj1_pxl != 16711935) {
 					
-					x2 = x2_min + x1;
-					y2 = y2_min + y1;
-					if (obj2->walls != NULL) {
-						obj2_pxl = obj2->walls[(y2 * w2) + x2];
+					x2 = x2_min + x1 - x_min;
+					y2 = y2_min + y1 - y_min;
+					if (obj2->wall != NULL) {
+						obj2_pxl = obj2->wall->pxl[(y2 * w2) + x2];
 					} else { // use rectangular boundaries
 						obj2_pxl = 1;
 					}
 					if (obj2_pxl != 0 && obj2_pxl != 16711935) {
-						
-						/*if (obj1->id != OBJECT_BACKGROUND_ID) {
-							fprintf(stderr, "X");
-						}*/
 						
 						// one pixel is shared by both objects
 						
@@ -185,49 +219,73 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 						// calculate direction of collision:
 						if (x1 >= w1 / 2) {
 							if (x1 >= w1 / 2 + w1 % 2) {
-								x1_dir += x1 - w1 / 2;
+								//x1_dir += x1 - w1 / 2;
+								x1_dir++;
 							}
 						} else {
-							x1_dir -= w1 / 2 - x1;
+							//x1_dir -= w1 / 2 - x1;
+							x1_dir--;
 						}
 						if (y1 >= h1 / 2) {
 							if (y1 >= h1 / 2 + h1 % 2) {
-								y1_dir += y1 - h1 / 2;
+								//y1_dir += y1 - h1 / 2;
+								y1_dir++;
 							}
 						} else {
-							y1_dir -= h1 / 2 - y1;
+							//y1_dir -= h1 / 2 - y1;
+							y1_dir--;
 						}
 						if (x2 >= w2 / 2) {
 							if (x2 >= w2 / 2 + w2 % 2) {
-								x2_dir += x2 - w2 / 2;
+								//x2_dir += x2 - w2 / 2;
+								x2_dir++;
 							}
 						} else {
-							x2_dir -= w2 / 2 - x2;
+							//x2_dir -= w2 / 2 - x2;
+							x2_dir--;
 						}
 						if (y2 >= h2 / 2) {
 							if (y2 >= h2 / 2 + h2 % 2) {
-								y2_dir += y2 - h2 / 2;
+								//y2_dir += y2 - h2 / 2;
+								y2_dir++;
 							}
 						} else {
-							y2_dir -= h2 / 2 - y2;
+							//y2_dir -= h2 / 2 - y2;
+							y2_dir--;
 						}
 					} else {
-						/*if (obj1->id != OBJECT_BACKGROUND_ID) {
+						/*if (obj2->id == OBJECT_HERO_ID) {
 							fprintf(stderr, "o");
 						}*/
 					}
 				} else {
-					/*if (obj1->id != OBJECT_BACKGROUND_ID) {
+					/*if (obj2->id == OBJECT_HERO_ID) {
 						fprintf(stderr, "0");
 					}*/
 				}
 			}
-			/*if (obj1->id != OBJECT_BACKGROUND_ID) {
+			/*if (obj2->id == OBJECT_HERO_ID) {
 				fprintf(stderr, "\n");
 			}*/
 		}
 		
 		if (collision) {
+			
+			
+			/*printf("\n");
+			printf("x01: %d, x02: %d\n", x01, x02);
+			printf("y01: %d, y02: %d\n", y01, y02);
+			printf("x_max: %d\n", x_max);
+			printf("y_max: %d\n", y_max);
+			printf("\n");
+			printf("x_min: %d, x2_min: %d\n", x_min, x2_min);
+			printf("y_min: %d, y2_min: %d\n", y_min, y2_min);
+			printf("x_max: %d, x2: %d\n", x2);
+			printf("y_max: %d, y2: %d\n", y2);
+			printf("\n");
+			printf("x1_dir: %d, x2_dir: %d\n", x1_dir, x2_dir);
+			printf("y1_dir: %d, y2_dir: %d\n", y1_dir, y2_dir);
+			printf("\n");*/
 			
 			// save direction of collision:
 			col1->c_x_old = col1->c_x;
@@ -273,6 +331,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 				if (col1->area >= col1->area_old || 
 					col2->area >= col2->area_old) {
 					
+					//printf("collision area increase\n");
 					
 					float vel_abs1 = sqrtf(obj1->vel_x * obj1->vel_x + obj1->vel_y * obj1->vel_y);
 					float vel_abs2 = sqrtf(obj2->vel_x * obj2->vel_x + obj2->vel_y * obj2->vel_y);
@@ -290,6 +349,11 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 						obj2->vel_x -= col2->c_x * 0.1;
 						obj2->vel_y -= col2->c_y * 0.1;
 					}
+					
+					/*printf("col1->c_x: %f, col2->c_x: %f\n", col1->c_x, col2->c_x);
+					printf("col1->c_y: %f, col2->c_y: %f\n", col1->c_y, col2->c_y);
+					printf("obj1->vel_x: %f, obj2->vel_x: %f\n", obj1->vel_x, obj2->vel_x);
+					printf("obj1->vel_y: %f, obj2->vel_y: %f\n", obj1->vel_y, obj2->vel_y);*/
 					
 					// forbid all velocity changes:
 					obj1->vel_lock = 1;	
@@ -405,8 +469,8 @@ void collisions_impulse(
 	}
 	
 	// for debuging:
-	/*
-	fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
+	
+	/*fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
 	fprintf(stderr, "scr_pos_x = %d, c1x = %e, v1x = %e, vel_x = %e, acc_x = %e\n", obj1->scr_pos_x, c1x, v1x, obj1->vel_x, obj1->acc_x);
 	fprintf(stderr, "scr_pos_y = %d, c1y = %e, v1y = %e, vel_y = %e, acc_y = %e\n", obj1->scr_pos_y, c1y, v1y, obj1->vel_y, obj1->acc_y);
 	fprintf(stderr, "m1 = %e, v1n_pre = %e, v1r = %e, v1n = %e\n", m1, v1n_pre, v1r, v1n);
@@ -436,7 +500,7 @@ void collisions_impulse(
 void collisions_update_render(object_t* obj, object_t* obj_b) {
 
 	// update render list:
-	if (obj->scr_pos_y < obj_b->scr_pos_y) {
+	if (obj->scr_pos_y + obj->surface->h < obj_b->scr_pos_y + obj_b->surface->h) {
 		// render obj_b right after obj:
 		if (obj->next_render != NULL) {
 			obj->next_render->prev_render = obj_b;

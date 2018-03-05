@@ -77,7 +77,7 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	obj_new->min_scr_pos_y = -99999;
 	obj_new->max_scr_pos_y = 99999;
 	obj_new->surface = NULL;
-	obj_new->walls = NULL;
+	obj_new->wall = NULL;
 	obj_new->font = NULL;
 	
 	obj_new->col = NULL;
@@ -85,6 +85,16 @@ object_t* object_add(object_t* obj, unsigned int id) {
     obj_new->collision_stop = 0;
 	
 	return(obj_new);
+}
+
+walls_t* object_init_walls(SDL_Surface* surf) {
+	walls_t* wall = (walls_t*) malloc(sizeof(walls_t));
+	if (surf != NULL) {
+		wall->pxl = (unsigned int*) surf->pixels;
+		wall->w = surf->w;
+		wall->h = surf->h;
+	}
+	return(wall);
 }
 
 object_t* object_remove(object_t* obj, unsigned int id) {
@@ -353,9 +363,6 @@ void object_get_next_waypoint(object_t* obj) {
 	float border_x = fabsf(obj->vel_x) + 2.0;
 	float border_y = fabsf(obj->vel_y) + 2.0;
 	
-	printf("obj->pos_x: %f, pos_x_wp: %f, obj->vel_x: %f\n", obj->pos_x, pos_x_wp, obj->vel_x);
-	printf("obj->pos_y: %f, pos_y_wp: %f, obj->vel_y: %f\n", obj->pos_y, pos_y_wp, obj->vel_y);
-	
 	// object close enough to waypoint?
 	if (obj->pos_x > pos_x_wp - border_x && 
 		obj->pos_x < pos_x_wp + border_x &&
@@ -371,7 +378,6 @@ void object_get_next_waypoint(object_t* obj) {
 		}
 		
 	}
-	printf("obj->ways->n: %d\n", obj->ways->n);
 }
 
 void object_aim_for_waypoint(object_t* obj) {

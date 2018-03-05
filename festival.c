@@ -16,6 +16,10 @@ int on_execute() {
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	obj = object_add(obj, OBJECT_HERO_ID);			// hero
 	obj = object_add(obj, OBJECT_SCORE_ID);			// score
+	for (int n = 1; n <= 10; n++) {
+		obj = object_add(obj, OBJECT_SCORE_ID + n);			// bude
+	}
+	
 	
 	short* keys = (short*) malloc(256 * sizeof(short));
 	int i;

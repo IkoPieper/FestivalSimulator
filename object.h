@@ -11,6 +11,13 @@
 
 typedef struct object object_t;
 typedef struct collision collision_t;
+typedef struct walls walls_t;
+
+struct walls {
+	unsigned int* pxl;
+	unsigned int w;
+	unsigned int h;
+};
 
 struct collision {
 	collision_t* next;
@@ -64,8 +71,11 @@ struct object {
 	int max_scr_pos_y;
 	int min_scr_pos_x;
 	int min_scr_pos_y;
+	
+	
 	SDL_Surface* surface;	// current picture
-	unsigned int* walls;	// aka collision zones
+	//unsigned int* walls;	// aka collision zones
+	walls_t* wall;	// aka collision zones
 	TTF_Font* font;
 	
 	// collisions:
@@ -74,6 +84,8 @@ struct object {
     short collision_stop;
     
 };
+
+walls_t* object_init_walls(SDL_Surface* surf);
 
 object_t* object_get_last(object_t* obj);
 object_t* object_get_first(object_t* obj);

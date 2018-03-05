@@ -21,10 +21,10 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 		
 		// select animation:
 		if (obj->id == OBJECT_HERO_ID) {
-			if (keys[SDLK_d]) {
-				object_select_animation(obj, 2);
-			} else if (keys[SDLK_w] || keys[SDLK_a] || keys[SDLK_s]) {
+			if (keys[SDLK_w] || keys[SDLK_d]) {
 				object_select_animation(obj, 1);
+			} else if (keys[SDLK_s] || keys[SDLK_a]) {
+				object_select_animation(obj, 2);
 			} else {
 				// stop animation
 			}
@@ -54,7 +54,6 @@ void on_loop_waypoints(object_t* obj, unsigned long frame) {
 		if (obj->ways != NULL && obj->ways->active && !obj->vel_lock) {
 
 			object_get_next_waypoint(obj);
-			printf("obj->ways->n: %d\n", obj->ways->n);
 			object_aim_for_waypoint(obj);
 			
 		}
