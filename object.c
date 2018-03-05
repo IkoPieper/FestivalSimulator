@@ -87,12 +87,58 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	return(obj_new);
 }
 
-walls_t* object_init_walls(SDL_Surface* surf) {
+walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 	walls_t* wall = (walls_t*) malloc(sizeof(walls_t));
-	if (surf != NULL) {
-		wall->pxl = (unsigned int*) surf->pixels;
+	if (surf_wall != NULL) {
+		wall->pxl = (unsigned int*) surf_wall->pixels;
+		wall->x = 0;
+		wall->y = surf->h - surf_wall->h;
+		wall->w = surf_wall->w;
+		wall->h = surf_wall->h;
+		// find most left pixel:
+		short pixel_found = 0;
+		for (wall->lx = 0; wall->lx < wall->w; wall->lx++) {
+			for (wall->ly = wall->h - 1; wall->ly > 0; wall->ly--) {
+				if (wall->pxl[(wall->ly * wall->w) + wall->lx] != 0) {
+					pixel_found = 1;
+					break;
+				}
+			}
+			if (pixel_found) {
+				break;
+			}
+		}
+		// find most right pixel:
+		pixel_found = 0;
+		for (wall->rx = wall->w - 1; wall->rx >= 0; wall->rx--) {
+			for (wall->ry = wall->h - 1; wall->ry > 0; wall->ry--) {
+				if (wall->pxl[(wall->ry * wall->w) + wall->rx] != 0) {
+					pixel_found = 1;
+					break;
+				}
+			}
+			if (pixel_found) {
+				break;
+			}
+		}
+		wall->slope = 
+			((float) wall->ry - (float) wall->ly) / 
+			((float) wall->rx - (float) wall->lx);
+		wall->offset = 
+			(float) wall->ly - 
+			(float) wall->lx * wall->slope;
+			
+	} else {
+		wall->x = 0;
+		wall->y = 0;
 		wall->w = surf->w;
 		wall->h = surf->h;
+		wall->rx = surf->w;
+		wall->ry = surf->h;
+		wall->lx = 0;
+		wall->ly = surf->h;
+		wall->slope = 0;
+		wall->offset = surf->h;
 	}
 	return(wall);
 }

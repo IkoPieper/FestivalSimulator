@@ -127,14 +127,15 @@ short on_init_background(object_t* obj) {
 	obj->mass = 99999999999.0;
 	obj->damping = 1.0;
 	
-	if((obj->surface = surface_on_load("background_walls.bmp")) == NULL) {
+	SDL_Surface* surf_wall;
+	if((surf_wall = surface_on_load("background_walls.bmp")) == NULL) {
 		return(0);
 	}
-	obj->wall = object_init_walls(obj->surface);
-	
 	if((obj->surface = surface_on_load("background.bmp")) == NULL) {
 		return(0);
 	}
+	obj->wall = object_init_walls(surf_wall, obj->surface);
+	
 	obj->min_scr_pos_x = -99999;
 	obj->max_scr_pos_x = 99999;
 	obj->min_scr_pos_y = -99999;
@@ -162,16 +163,18 @@ short on_init_hero(object_t* obj) {
 	obj->scr_pos_y = round(obj->pos_y);
 	
 	// collision walls:
-	if((surf = surface_on_load("ball_walls.bmp")) == NULL) {
+	SDL_Surface* surf_wall;
+	if((surf_wall = surface_on_load("ball_walls.bmp")) == NULL) {
 		return(0);
 	}
-	obj->wall = object_init_walls(surf);
 	
 	// default surface:
 	if((surf = surface_on_load("ball.bmp")) == NULL) {
 		return(0);
 	}
 	obj->surface = surf;
+	
+	obj->wall = object_init_walls(surf_wall, surf);
 	
 	// animation walk:
 	object_add_animation(obj, 1);
@@ -303,8 +306,10 @@ short on_init_score(object_t* obj) {
 		return(0);
 	}
 	
+	obj->wall = object_init_walls(NULL, obj->surface);
+	
 	// waypoints:
-	unsigned int num_ways = 5;
+	/*unsigned int num_ways = 5;
 	object_add_waypoints(obj, 1, num_ways);
 	obj->ways->pos_are_relative = 1;
 	obj->ways->pos_x[0] = 0.0;
@@ -323,7 +328,7 @@ short on_init_score(object_t* obj) {
 	obj->ways->pos_y[4] = 20.0;
 	obj->ways->vel_abs[4] = 3.0;
 	object_activate_waypoints(obj);
-	
+	*/
 	return(1);
 	
 }
@@ -334,6 +339,8 @@ short on_init_buden(object_t* obj) {
 	
 	time_t t;
 	srand((unsigned) time(&t));
+	
+	SDL_Surface* surf_wall;
 	
 	for (int n = 1; n <= 10; n++) {
 		obj = object_get(obj, OBJECT_SCORE_ID + n);
@@ -347,17 +354,14 @@ short on_init_buden(object_t* obj) {
 		obj->scr_pos_x = round(obj->pos_x);
 		obj->scr_pos_y = round(obj->pos_y);
 		
-		printf("obj->pos_x: %f\n", obj->pos_x);
-		printf("obj->pos_y: %f\n\n", obj->pos_y);
-		
-		if((obj->surface = surface_on_load("bude_walls.bmp")) == NULL) {
+		if((surf_wall = surface_on_load("bude_walls.bmp")) == NULL) {
 			return(0);
 		}
-		obj->wall = object_init_walls(obj->surface);
-	
 		if((obj->surface = surface_on_load("bude.bmp")) == NULL) {
 			return(0);
 		}
+		obj->wall = object_init_walls(surf_wall, obj->surface);
+		
 	}
 	
 	return(1);

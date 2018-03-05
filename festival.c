@@ -20,13 +20,6 @@ int on_execute() {
 		obj = object_add(obj, OBJECT_SCORE_ID + n);			// bude
 	}
 	
-	
-	short* keys = (short*) malloc(256 * sizeof(short));
-	int i;
-	for (i = 0; i < 256; i++) {
-		keys[i] = 0;
-	}
-		
 	load_config(obj); // TODO: sollte in on_init sein oder danach
 	
 	if(on_init(obj) == 0) {
@@ -40,6 +33,29 @@ int on_execute() {
  	// TODO: on_load_game_state()
  	// objekte, frame, mit gespeicherten informationen 
  	// fuellen
+ 	
+ 	
+ 	verletbox_t* vbox = verletbox_init(obj);
+ 	
+ 	printf("\n");
+ 	fprintf(stderr, "vbox->num_w: %d, vbox->num_h: %d\n", vbox->num_w, vbox->num_h);
+ 	for (int x = 0; x < vbox->num_w; x++) {
+		for (int y = 0; y < vbox->num_h; y++) {
+			object_t* obj_tmp = vbox->boxes[x][y];
+			while (obj_tmp != NULL) {
+				printf("%d, ", obj_tmp->id);
+				obj_tmp = obj_tmp->next_vbox;
+			}
+		}
+		printf("\n");
+	}
+ 	printf("\n");
+ 	
+ 	short* keys = (short*) malloc(256 * sizeof(short));
+	int i;
+	for (i = 0; i < 256; i++) {
+		keys[i] = 0;
+	}
  	
 	SDL_Event event;
 	//SDL_EnableKeyRepeat(10, 10);

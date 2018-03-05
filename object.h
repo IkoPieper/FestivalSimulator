@@ -14,9 +14,23 @@ typedef struct collision collision_t;
 typedef struct walls walls_t;
 
 struct walls {
+	// collision pixels:
 	unsigned int* pxl;
+	// x and y relative to main sprite position:
+	unsigned int x;
+	unsigned int y;
+	// width and height:
 	unsigned int w;
 	unsigned int h;
+	// position of most left pixel:
+	unsigned int lx;
+	unsigned int ly;
+	// position of most right pixel:
+	unsigned int rx;
+	unsigned int ry;
+	// line between those pixels:
+	float slope;
+	float offset;
 };
 
 struct collision {
@@ -43,6 +57,10 @@ struct object {
 	object_t* next_render;
 	object_t* prev_render;
 	GLuint render_id;
+	
+	// verlet boxes:
+	object_t* next_vbox;
+	object_t* prev_vbox;
 	
 	// animations:
 	animation_t* anim;
@@ -85,7 +103,7 @@ struct object {
     
 };
 
-walls_t* object_init_walls(SDL_Surface* surf);
+walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);
 
 object_t* object_get_last(object_t* obj);
 object_t* object_get_first(object_t* obj);

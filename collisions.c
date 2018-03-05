@@ -2,15 +2,12 @@
 
 void collisions(object_t* obj) {
 	
-	// collect objects that collide in collision sublists. these lists
-	// are like clusters. objects of a cluster might - not - collide 
-	// with another object directly but with an object that collides 
-	// with another object
-	
 	short collision = 0;
 	object_t* obj_b = NULL;
 	
 	obj = object_get_first(obj);
+	
+	
 	while (obj != NULL) {		
 		
 		obj->vel_lock = 0;	// allow all velocity changes
@@ -24,18 +21,7 @@ void collisions(object_t* obj) {
 				
 				collision = collisions_check(obj, obj_b);
 				
-				// update collision and render lists: TODO: maybe better 
-				// performance if boundary boxes of surfaces are checked 
-				// first:
-				if (obj->id != OBJECT_SURFDISPLAY_ID &&
-					obj->id != OBJECT_BACKGROUND_ID &&
-					obj_b->id != OBJECT_SURFDISPLAY_ID &&
-					obj_b->id != OBJECT_BACKGROUND_ID) {
-					collisions_update_render(obj, obj_b);
-				}
-				if (collision == 1) {
-					
-				} else {
+				if (collision == 0) {
 					object_remove_collision(obj, obj_b);
 					object_remove_collision(obj_b, obj);
 				}
@@ -56,84 +42,102 @@ void collisions(object_t* obj) {
 short collisions_check(object_t* obj1, object_t* obj2) {
 	
 	int collision = 0;
-	collision_t* col1 = NULL;
-	collision_t* col2 = NULL;
-	
-	// current position in overlapping area:
-	int x1 = 0;
-	int y1 = 0;
-	int x2 = 0;
-	int y2 = 0;
-	
 	
 	// boundary boxes base positions:
-	int x01;
-	int y01;
-	int x02;
-	int y02;
+	int x01 = obj1->scr_pos_x;
+	int y01 = obj1->scr_pos_y;
+	int x02 = obj2->scr_pos_x;
+	int y02 = obj2->scr_pos_y;
+	
+	int xw1 = x01 + obj1->surface->w;
+	int yh1 = y01 + obj1->surface->h;
+	int xw2 = x02 + obj2->surface->w;
+	int yh2 = y02 + obj2->surface->h;
 	
 	// boundary boxes widths and heights:
 	int w1;
 	int h1;
 	int w2;
-	int h2;
+	int h2;	
 	
-	
-	if (obj1->wall != NULL) {
-		w1 = obj1->wall->w;
-		h1 = obj1->wall->h;
-		x01 = obj1->scr_pos_x;
-		y01 = obj1->scr_pos_y + obj1->surface->h - h1;
-	} else {
-		w1 = obj1->surface->w;
-		h1 = obj1->surface->h;
-		x01 = obj1->scr_pos_x;
-		y01 = obj1->scr_pos_y;
-	}
-	if (obj2->wall != NULL) {
-		w2 = obj2->wall->w;
-		h2 = obj2->wall->h;
-		x02 = obj2->scr_pos_x;
-		y02 = obj2->scr_pos_y + obj2->surface->h - h2;
-	} else {
-		w2 = obj2->surface->w;
-		h2 = obj2->surface->h;
-		x02 = obj2->scr_pos_x;
-		y02 = obj2->scr_pos_y;
-	}
-	
-	int xw1 = x01 + w1;
-	int yh1 = y01 + h1;
-	int xw2 = x02 + w2;
-	int yh2 = y02 + h2;
-	
-	int x_min = 0;
-	int x_max = 0;
-	int y_min = 0;
-	int y_max = 0;
-	int x2_min = 0;
-	int y2_min = 0;
-	unsigned int obj1_pxl = 0;
-	unsigned int obj2_pxl = 0;
-	float norm = 1.0;
-	
-	// collision directions:
-	int x1_dir = 0;
-	int y1_dir = 0;
-	int x2_dir = 0;
-	int y2_dir = 0;
-			
+	// check collision of surfaces first:
 	// check for collision of boundary boxes:
 	if (obj2->disable_collision == 0 &&
 		xw2 > x01 && x02 < xw1 && 
 		yh2 > y01 && y02 < yh1) {
+		
 		collision = 1;
+		
+	}
+	
+	
+	
+	if (collision) {
+		
+		collision = 0;
+		
+		x01 = obj1->scr_pos_x + obj1->wall->x;
+		y01 = obj1->scr_pos_y + obj1->wall->y;
+		x02 = obj2->scr_pos_x + obj2->wall->x;
+		y02 = obj2->scr_pos_y + obj2->wall->y;
+
+		w1 = obj1->wall->w;
+		h1 = obj1->wall->h;
+		w2 = obj2->wall->w;
+		h2 = obj2->wall->h;
+		
+		xw1 = x01 + w1;
+		yh1 = y01 + h1;
+		xw2 = x02 + w2;
+		yh2 = y02 + h2;
+
+		
+		if (obj1->id != OBJECT_SURFDISPLAY_ID &&
+			obj1->id != OBJECT_BACKGROUND_ID &&
+			obj2->id != OBJECT_SURFDISPLAY_ID &&
+			obj2->id != OBJECT_BACKGROUND_ID) {
+			
+			collisions_update_render(obj1, obj2);
+		}
+		
+		
+		// check for collision of boundary boxes:
+		if (obj2->disable_collision == 0 &&
+			xw2 > x01 && x02 < xw1 && 
+			yh2 > y01 && y02 < yh1) {
+			collision = 1;
+		}
 	}
 	
 	// check for pixel wise collision:
 	if (collision == 1) {
 		
 		collision = 0;
+		
+		collision_t* col1 = NULL;
+		collision_t* col2 = NULL;
+		
+		// current position in overlapping area:
+		int x1 = 0;
+		int y1 = 0;
+		int x2 = 0;
+		int y2 = 0;
+		int x_min = 0;
+		int x_max = 0;
+		int y_min = 0;
+		int y_max = 0;
+		int x2_min = 0;
+		int y2_min = 0;
+		unsigned int obj1_pxl = 0;
+		unsigned int obj2_pxl = 0;
+		float norm = 1.0;
+	
+		// collision directions:
+		int x1_dir = 0;
+		int y1_dir = 0;
+		int x2_dir = 0;
+		int y2_dir = 0;
+		
 		
 		// overlapping area of boundary boxes:
 		if (x01 < x02) {
@@ -190,7 +194,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 				} else { // use rectangular boundaries
 					obj1_pxl = 1;
 				}
-				if (obj1_pxl != 0 && obj1_pxl != 16711935) {
+				if (obj1_pxl != 0) {
 					
 					x2 = x2_min + x1 - x_min;
 					y2 = y2_min + y1 - y_min;
@@ -199,7 +203,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 					} else { // use rectangular boundaries
 						obj2_pxl = 1;
 					}
-					if (obj2_pxl != 0 && obj2_pxl != 16711935) {
+					if (obj2_pxl != 0) {
 						
 						// one pixel is shared by both objects
 						
@@ -497,52 +501,108 @@ void collisions_impulse(
 	
 }
 
-void collisions_update_render(object_t* obj, object_t* obj_b) {
-
+void collisions_update_render(object_t* obj1, object_t* obj2) {
+	
+	// calculate points on lines between most left and most right 
+	// collision pixel:
+	
+	unsigned int x01 = obj1->scr_pos_x + obj1->wall->x;
+	unsigned int y01 = obj1->scr_pos_y + obj1->wall->y;
+	unsigned int x02 = obj2->scr_pos_x + obj2->wall->x;
+	unsigned int y02 = obj2->scr_pos_y + obj2->wall->y;
+	
+	unsigned int offset1 = y01 + obj1->wall->offset;
+	unsigned int offset2 = y02 + obj2->wall->offset;
+	
+	// x coordinates on lines:
+	
+	// absolute x values of most left/right collision pixel:
+	unsigned int xl1 = x01 + obj1->wall->lx;
+	unsigned int xr1 = x01 + obj1->wall->rx;
+	unsigned int xl2 = x02 + obj2->wall->lx;
+	unsigned int xr2 = x02 + obj2->wall->rx;
+	
+	// use collision pixel in overlapping area:
+	unsigned int xl = xl1;
+	unsigned int xr = xr1;
+	if (xl1 < xl2) {
+		xl = xl2;
+	}
+	if (xr1 > xr2) {
+		xr = xr2;
+	}
+	
+	// line equation needs x values relative to wall coordinates:
+	xl1 = xl - x01;
+	xr1 = xr - x01;
+	xl2 = xl - x02;
+	xr2 = xr - x02;
+	
+	// y coordinates on lines:
+	unsigned int yl1 = offset1 + obj1->wall->slope * xl1;
+	unsigned int yr1 = offset1 + obj1->wall->slope * xr2;
+	unsigned int yl2 = offset2 + obj2->wall->slope * xl1;
+	unsigned int yr2 = offset2 + obj2->wall->slope * xr2;
+	
+	
+	/*printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
+	printf("obj1->wall->lx: %d, obj1->wall->rx: %d\n", obj1->wall->lx, obj1->wall->rx);
+	printf("obj1->wall->ly: %d, obj1->wall->ry: %d\n", obj1->wall->ly, obj1->wall->ry);
+	printf("obj2->wall->lx: %d, obj2->wall->rx: %d\n", obj2->wall->lx, obj2->wall->rx);
+	printf("obj2->wall->ly: %d, obj2->wall->ry: %d\n", obj2->wall->ly, obj2->wall->ry);
+	printf("obj1->wall->offset: %f, offset1: %d\n", obj1->wall->offset, offset1);
+	printf("obj2->wall->offset: %f, offset2: %d\n", obj2->wall->offset, offset2);
+	printf("obj1->wall->slope: %f\n", obj1->wall->slope);
+	printf("obj2->wall->slope: %f\n", obj2->wall->slope);
+	printf("yl1: %d, yr1: %d\n", yl1, yr1);
+	printf("yl2: %d, yr2: %d\n", yl2, yr2);
+	printf("\n");*/
+	
 	// update render list:
-	if (obj->scr_pos_y + obj->surface->h < obj_b->scr_pos_y + obj_b->surface->h) {
-		// render obj_b right after obj:
-		if (obj->next_render != NULL) {
-			obj->next_render->prev_render = obj_b;
+	if (yl2 >= yl1 && yr2 >= yr1) {
+	//if (obj1->scr_pos_y + obj1->surface->h < obj2->scr_pos_y + obj2->surface->h) {
+		// render obj2 right after obj1:
+		if (obj1->next_render != NULL) {
+			obj1->next_render->prev_render = obj2;
 		}
-		if (obj_b->next_render != NULL) {
-			obj_b->next_render->prev_render = obj_b->prev_render;
+		if (obj2->next_render != NULL) {
+			obj2->next_render->prev_render = obj2->prev_render;
 		}
-		if (obj_b->prev_render != NULL) {
-			obj_b->prev_render->next_render = obj_b->next_render;
+		if (obj2->prev_render != NULL) {
+			obj2->prev_render->next_render = obj2->next_render;
 		}
-		if (obj->next_render != NULL) {
-			if (obj->next_render != obj_b) {
-				obj_b->next_render = obj->next_render;
+		if (obj1->next_render != NULL) {
+			if (obj1->next_render != obj2) {
+				obj2->next_render = obj1->next_render;
 			} else {
-				obj_b->next_render = obj->next_render->next_render;
+				obj2->next_render = obj1->next_render->next_render;
 			}
 		} else {
-			obj_b->next_render = NULL;
+			obj2->next_render = NULL;
 		}
-		obj->next_render = obj_b;
-		obj_b->prev_render = obj;
+		obj1->next_render = obj2;
+		obj2->prev_render = obj1;
 	} else {
-		// render obj_b right before obj:
-		if (obj->prev_render != NULL) {
-			obj->prev_render->next_render = obj_b;
+		// render obj2 right before obj1:
+		if (obj1->prev_render != NULL) {
+			obj1->prev_render->next_render = obj2;
 		}
-		if (obj_b->prev_render != NULL) {
-			obj_b->prev_render->next_render = obj_b->next_render;
+		if (obj2->prev_render != NULL) {
+			obj2->prev_render->next_render = obj2->next_render;
 		}
-		if (obj_b->next_render != NULL) {
-			obj_b->next_render->prev_render = obj_b->prev_render;
+		if (obj2->next_render != NULL) {
+			obj2->next_render->prev_render = obj2->prev_render;
 		}
-		if (obj->prev_render != NULL) {
-			if (obj->prev_render != obj_b) {
-				obj_b->prev_render = obj->prev_render;
+		if (obj1->prev_render != NULL) {
+			if (obj1->prev_render != obj2) {
+				obj2->prev_render = obj1->prev_render;
 			} else {
-				obj_b->prev_render = obj->prev_render->prev_render;
+				obj2->prev_render = obj1->prev_render->prev_render;
 			}
 		} else {
-			obj_b->prev_render = NULL;
+			obj2->prev_render = NULL;
 		}
-		obj->prev_render = obj_b;
-		obj_b->next_render = obj;
+		obj1->prev_render = obj2;
+		obj2->next_render = obj1;
 	}
 }
