@@ -49,12 +49,18 @@ object_t* object_add(object_t* obj, unsigned int id) {
 		obj->next_render = obj_new;
 	} 
 	
+	obj_new->prev_vbox = NULL;
+	obj_new->next_vbox = NULL;
+	obj_new->vbox_x = 0;
+	obj_new->vbox_y = 0;
+	
 	obj_new->id = id;
 	
 	obj_new->anim = NULL;
 
 	obj_new->ways = NULL;
 	
+	obj_new->can_move = 0;
 	obj_new->mass = 1.0;
 	obj_new->pos_x = 1.0;
 	obj_new->pos_x = 0.0;
@@ -82,7 +88,6 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	
 	obj_new->col = NULL;
     obj_new->disable_collision = 0;
-    obj_new->collision_stop = 0;
 	
 	return(obj_new);
 }

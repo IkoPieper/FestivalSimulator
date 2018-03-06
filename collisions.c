@@ -1,41 +1,141 @@
 #include "collisions.h"
 
-void collisions(object_t* obj) {
+void collisions(object_t* obj, verletbox_t* vbox) {
 	
 	short collision = 0;
-	object_t* obj_b = NULL;
+	int x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
+	
+	Uint32 time;
+	
+	time = SDL_GetTicks();
+	verletbox_update(vbox, obj);
+	printf("time for verletbox_update: %d\n", SDL_GetTicks() - time);
+	time = SDL_GetTicks();
+	/*printf("\nVERLETBOX_UPDATE\n");
+	for (int y = 0; y < vbox->num_h; y++) {
+		for (int x = 0; x < vbox->num_w; x++) {
+			object_t* obj_tmp = vbox->boxes[x][y];
+			while (obj_tmp != NULL) {
+				printf("%d:", obj_tmp->id);
+				obj_tmp = obj_tmp->next_vbox;
+			}
+			printf(", ");
+		}
+		printf("\n");
+	}
+	printf("\n");*/
+	
+	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	obj = object_get_first(obj);
-	
-	
-	while (obj != NULL) {		
-		
-		obj->vel_lock = 0;	// allow all velocity changes
-		
-		if (obj->disable_collision == 0) {
 			
-			// only check and update collisions of obj with objects 
-			// obj_b that are later in the list:
-			obj_b = obj->next_object;
-			while (obj_b != NULL) {
+	while (obj != NULL) {
 				
-				collision = collisions_check(obj, obj_b);
+		if (obj->can_move) {
+		
+			obj->vel_lock = 0;	// allow all velocity changes TODO: move up?
+			
+			collision = collisions_check(obj_bg, obj);
 				
-				if (collision == 0) {
-					object_remove_collision(obj, obj_b);
-					object_remove_collision(obj_b, obj);
-				}
-				
-				// get next object obj_b:
-				obj_b = obj_b->next_object;
+			if (collision == 0) {
+				object_remove_collision(obj_bg, obj);
+				object_remove_collision(obj, obj_bg);
 			}
+		
 		}
 		
-		// get next object obj:
 		obj = obj->next_object;
 	}
 	
 	
+	printf("time for background collisions: %d\n", SDL_GetTicks() - time);
+	time = SDL_GetTicks();
+	
+	object_t* obj_b = NULL;
+	
+	for (x = 0; x < vbox->num_w; x++) {
+		for (y = 0; y < vbox->num_h; y++) {
+			
+			obj = verletbox_get_first_object(vbox->boxes[x][y]);
+			
+			while (obj != NULL) {
+				
+				if (obj->disable_collision == 0) {
+					
+					obj->vel_lock = 0;	// allow all velocity changes TODO: move up?
+					
+					// iterate over verlet box of obj and surounding ones:
+					if (y == 0) {
+						y2_min = 0;
+					} else {
+						//y2_min = y - 1;
+						y2_min = y;
+					}
+					if (y == vbox->num_h-1) {
+						y2_max = vbox->num_h-1;
+					} else {
+						y2_max = y + 1;
+					}
+					if (x == vbox->num_w-1) {
+						x2_max = vbox->num_w-1;
+					} else {
+						x2_max = x + 1;
+					}
+					
+					for (y2 = y2_min; y2 <= y2_max; y2++) {
+						
+						if (x == 0) {
+							x2_min = 0;
+						} else {
+							if (y == y2) {
+								x2_min = x; // omit previous box already iterated
+							} else {
+								x2_min = x - 1;
+							}
+						}
+					
+						for (x2 = x2_min; x2 <= x2_max; x2++) {
+						
+							if (x2 == x && y2 == y) {   // same vbox as obj
+								obj_b = obj->next_vbox; // only objects after obj
+							} else {                    // neighbor vbox
+								obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
+							}
+						
+							while (obj_b != NULL) {
+						
+								//if (obj != obj_b) {
+				
+									// TODO: nur objekte checken, die
+									// noch nicht in vorheriger verlet_box waren
+									//obj_b = obj->next_vbox;
+									
+									//printf("obj->id: %d, obj_b->id: %d\n", obj->id, obj_b->id);
+									
+									collision = collisions_check(obj, obj_b);
+					
+									if (collision == 0) {
+										object_remove_collision(obj, obj_b);
+										object_remove_collision(obj_b, obj);
+									}
+					
+								//}
+								// get next object obj_b:
+								obj_b = obj_b->next_vbox;
+							}
+							//printf("\n");
+						}
+					}
+				
+				}
+				// get next object obj:
+				obj = obj->next_vbox;
+			}
+			
+		}					
+	}
+	printf("time for other collisions: %d\n", SDL_GetTicks() - time);
+	time = SDL_GetTicks();
 	
 }
 
@@ -165,6 +265,10 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			y_max = h1 - (yh1 - yh2);
 		}
 		
+		if (obj1->id == OBJECT_BACKGROUND_ID) {
+			printf("x_min: %d, x_max: %d\n", x_min, x_max);
+			printf("y_min: %d, y_max: %d\n", y_min, y_max);
+		}
 		
 		// debug:
 		/*if (obj1->id == OBJECT_HERO_ID || obj2->id == OBJECT_HERO_ID) {
@@ -189,7 +293,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			
 			for (x1 = x_min; x1 < x_max; x1++) {
 				
-				if (obj1->wall != NULL) {
+				if (obj1->wall->pxl != NULL) {
 					obj1_pxl = obj1->wall->pxl[(y1 * w1) + x1];
 				} else { // use rectangular boundaries
 					obj1_pxl = 1;
@@ -198,7 +302,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 					
 					x2 = x2_min + x1 - x_min;
 					y2 = y2_min + y1 - y_min;
-					if (obj2->wall != NULL) {
+					if (obj2->wall->pxl != NULL) {
+						//fprintf(stderr, "obj2->id: %d\n", obj2->id);
 						obj2_pxl = obj2->wall->pxl[(y2 * w2) + x2];
 					} else { // use rectangular boundaries
 						obj2_pxl = 1;
@@ -340,18 +445,31 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 					float vel_abs1 = sqrtf(obj1->vel_x * obj1->vel_x + obj1->vel_y * obj1->vel_y);
 					float vel_abs2 = sqrtf(obj2->vel_x * obj2->vel_x + obj2->vel_y * obj2->vel_y);
 					
-					if (obj1->id == OBJECT_BACKGROUND_ID || obj2->id == OBJECT_BACKGROUND_ID) {
+					//if (obj1->id == OBJECT_BACKGROUND_ID || obj2->id == OBJECT_BACKGROUND_ID) {
+					if (!obj1->can_move || !obj2->can_move) {
 						// move away faster than approached:
-						obj1->vel_x = -vel_abs1 * col1->c_x * 1.1;
-						obj1->vel_y = -vel_abs1 * col1->c_y * 1.1;
-						obj2->vel_x = -vel_abs2 * col2->c_x * 1.1;
-						obj2->vel_y = -vel_abs2 * col2->c_y * 1.1;
+						if (obj1->can_move) {
+							obj1->pos_x = obj1->pos_x_old;
+							obj1->pos_y = obj1->pos_y_old;
+							obj1->vel_x = -vel_abs1 * col1->c_x * 1.1 - col1->c_x * 0.3;
+							obj1->vel_y = -vel_abs1 * col1->c_y * 1.1 - col1->c_y * 0.3;
+						}
+						if (obj2->can_move) {
+							obj2->pos_x = obj2->pos_x_old;
+							obj2->pos_y = obj2->pos_y_old;
+							obj2->vel_x = -vel_abs2 * col2->c_x * 1.1 - col1->c_x * 0.3;
+							obj2->vel_y = -vel_abs2 * col2->c_y * 1.1 - col1->c_y * 0.3;
+						}
 					} else {
 						// move away:
-						obj1->vel_x -= col1->c_x * 0.1;
-						obj1->vel_y -= col1->c_y * 0.1;
-						obj2->vel_x -= col2->c_x * 0.1;
-						obj2->vel_y -= col2->c_y * 0.1;
+						if (obj1->can_move) {
+							obj1->vel_x -= col1->c_x * 0.1;
+							obj1->vel_y -= col1->c_y * 0.1;
+						}
+						if (obj2->can_move) {
+							obj2->vel_x -= col2->c_x * 0.1;
+							obj2->vel_y -= col2->c_y * 0.1;
+						}
 					}
 					
 					/*printf("col1->c_x: %f, col2->c_x: %f\n", col1->c_x, col2->c_x);
@@ -400,26 +518,26 @@ void collisions_impulse(
 	float x12 = (float) (obj2->scr_pos_x - obj1->scr_pos_x);
 	float y12 = (float) (obj2->scr_pos_y - obj1->scr_pos_y);
 	
-	if (obj1->id != OBJECT_BACKGROUND_ID) {
+	//if (obj1->id != OBJECT_BACKGROUND_ID) {
+	if (obj1->can_move) {
 		v1x = obj1->vel_x;
 		v1y = obj1->vel_y;
-	}
-	if (obj2->id != OBJECT_BACKGROUND_ID) {
-		v2x = obj2->vel_x;
-		v2y = obj2->vel_y;
-	}
-	
-	if (obj1->id == OBJECT_BACKGROUND_ID) {
+	} else {
 		c1x = -c2x;
 		c1y = -c2y;
 	}
-	if (obj2->id == OBJECT_BACKGROUND_ID) {
+	//if (obj2->id != OBJECT_BACKGROUND_ID) {
+	if (obj2->can_move) {
+		v2x = obj2->vel_x;
+		v2y = obj2->vel_y;
+	} else {
 		c2x = -c1x;
 		c2y = -c1y;
 	}
 	
 	// make shure surface vectors point directly toward each other:
-	if (obj2->id != OBJECT_BACKGROUND_ID && obj1->id != OBJECT_BACKGROUND_ID) {
+	//if (obj2->id != OBJECT_BACKGROUND_ID && obj1->id != OBJECT_BACKGROUND_ID) {
+	if (obj2->can_move && obj1->can_move) {
 		if (c1x != -c2x && c1y != c2y) {
 			tmp = -(c2y + c1y) / (c1x + c2x);
 			if (tmp != 0.0) {
@@ -449,7 +567,8 @@ void collisions_impulse(
 	// in 2D an object with smaller velocity can accelerate an object 
 	// with higher velocity. To solve this: switch v1n and v2n depending
 	// on object positions relative to the hit location:
-	if (obj2->id != OBJECT_BACKGROUND_ID && obj1->id != OBJECT_BACKGROUND_ID) {
+	//if (obj2->id != OBJECT_BACKGROUND_ID && obj1->id != OBJECT_BACKGROUND_ID) {
+	if (obj2->can_move && obj1->can_move) {
 		if (x12 * c1x + y12 * c1y < 0.0) {
 			tmp = v1n;
 			v1n = v2n;
@@ -462,19 +581,19 @@ void collisions_impulse(
 	v1r = c1y * v1x - c1x * v1y;
 	v2r = c2y * v2x - c2x * v2y;
 	
-	if (obj1->collision_stop) {
+	if (obj1->can_move) {
 		obj1->vel_x = c1x * v1n + c1y * v1r;
 		obj1->vel_y = c1y * v1n - c1x * v1r;
 	}
 	
-	if (obj2->collision_stop) {
+	if (obj2->can_move) {
 		obj2->vel_x = c1x * v2n + c2y * v2r;
 		obj2->vel_y = c1y * v2n - c2x * v2r;
 	}
 	
 	// for debuging:
-	
-	/*fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
+	/*
+	fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
 	fprintf(stderr, "scr_pos_x = %d, c1x = %e, v1x = %e, vel_x = %e, acc_x = %e\n", obj1->scr_pos_x, c1x, v1x, obj1->vel_x, obj1->acc_x);
 	fprintf(stderr, "scr_pos_y = %d, c1y = %e, v1y = %e, vel_y = %e, acc_y = %e\n", obj1->scr_pos_y, c1y, v1y, obj1->vel_y, obj1->acc_y);
 	fprintf(stderr, "m1 = %e, v1n_pre = %e, v1r = %e, v1n = %e\n", m1, v1n_pre, v1r, v1n);
@@ -497,8 +616,8 @@ void collisions_impulse(
 		fprintf(stderr, "%d, ", col->partner->id);
 		col = col->next;
 	}
-	fprintf(stderr, "\n");*/
-	
+	fprintf(stderr, "\n");
+	*/
 }
 
 void collisions_update_render(object_t* obj1, object_t* obj2) {

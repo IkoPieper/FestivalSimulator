@@ -106,28 +106,32 @@ void movements_background(object_t* obj, object_t* obj_hero) {
 
 void movements_accelerate(object_t* obj) {
 	
-	const float vel_min = 0.1;
+	if (obj->can_move) {
 	
-	// derive velocity from acceleration:
-	if (!obj->vel_lock) {
-		obj->vel_x += obj->acc_x;
-		obj->vel_y += obj->acc_y;
+		const float vel_min = 0.1;
+		
+		// derive velocity from acceleration:
+		if (!obj->vel_lock) {
+			obj->vel_x += obj->acc_x;
+			obj->vel_y += obj->acc_y;
+		
+			// add linear damping:
+			obj->vel_x -= obj->damping * obj->vel_x;
+			obj->vel_y -= obj->damping * obj->vel_y;
+			// set small velocities to zero:
+			if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
+				obj->vel_x = 0.0;
+			}
+			if (-vel_min < obj->vel_y && obj->vel_y < vel_min) {
+				obj->vel_y = 0.0;
+			}
+		}
+		
+		// derive position from velovity:
+		obj->pos_x += obj->vel_x;
+		obj->pos_y += obj->vel_y;
 	
-		// add linear damping:
-		obj->vel_x -= obj->damping * obj->vel_x;
-		obj->vel_y -= obj->damping * obj->vel_y;
-		// set small velocities to zero:
-		if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
-			obj->vel_x = 0.0;
-		}
-		if (-vel_min < obj->vel_y && obj->vel_y < vel_min) {
-			obj->vel_y = 0.0;
-		}
 	}
-	
-	// derive position from velovity:
-	obj->pos_x += obj->vel_x;
-	obj->pos_y += obj->vel_y;
 }
 
 void movements_screen_position(object_t* obj, object_t* obj_bg) {

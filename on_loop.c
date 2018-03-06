@@ -4,11 +4,18 @@
 #include "animation.h"
 #include "waypoints.h"
 
-void on_loop(object_t* obj, short* keys, unsigned long frame) {
+void on_loop(object_t* obj, verletbox_t* vbox, short* keys, unsigned long frame) {
 	
-	collisions(obj);
+	Uint32 time;
+	
+	time = SDL_GetTicks();
+	collisions(obj, vbox);
+	printf("time for collisions: %d\n", SDL_GetTicks() - time);
+	
 	movements(obj, keys);
+	
 	on_loop_animations(obj, keys, frame);
+	
 	on_loop_waypoints(obj, frame);
 	
 }

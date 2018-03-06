@@ -18,6 +18,6 @@ struct verletbox {
 
 verletbox_t* verletbox_init(object_t* obj);
 void verletbox_update(verletbox_t* vbox, object_t* obj);
-object_t* verletbox_get_objects(verletbox_t* vbox, unsigned int x, unsigned int y);
+object_t* verletbox_get_first_object(object_t* obj);
 
 #endif

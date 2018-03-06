@@ -46,7 +46,7 @@ short on_init_surfdisplay(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	obj->disable_collision = 1;
-	obj->collision_stop = 0;
+	obj->can_move = 0;
 	
 	// init SDL video and openGL:
 	
@@ -151,9 +151,9 @@ short on_init_hero(object_t* obj) {
 	obj = object_get(obj, OBJECT_HERO_ID);
 	
 	// physics and collisions:
+	obj->can_move = 1;
 	obj->acc_abs = 0.5;	// determines the acceleration on key press
 	obj->damping = 0.1;
-	obj->collision_stop = 1;
 	obj->mass = 1.0;
 	
 	// start position:
@@ -289,7 +289,7 @@ short on_init_score(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_SCORE_ID);
 	
-	obj->collision_stop = 1;
+	obj->can_move = 1;
 	obj->mass = 0.2;
 	obj->damping = 0.03;
 	
@@ -309,7 +309,7 @@ short on_init_score(object_t* obj) {
 	obj->wall = object_init_walls(NULL, obj->surface);
 	
 	// waypoints:
-	/*unsigned int num_ways = 5;
+	unsigned int num_ways = 5;
 	object_add_waypoints(obj, 1, num_ways);
 	obj->ways->pos_are_relative = 1;
 	obj->ways->pos_x[0] = 0.0;
@@ -328,7 +328,7 @@ short on_init_score(object_t* obj) {
 	obj->ways->pos_y[4] = 20.0;
 	obj->ways->vel_abs[4] = 3.0;
 	object_activate_waypoints(obj);
-	*/
+	
 	return(1);
 	
 }
@@ -342,10 +342,10 @@ short on_init_buden(object_t* obj) {
 	
 	SDL_Surface* surf_wall;
 	
-	for (int n = 1; n <= 10; n++) {
+	for (int n = 1; n <= 300; n++) {
 		obj = object_get(obj, OBJECT_SCORE_ID + n);
 		
-		obj->collision_stop = 1;
+		obj->can_move = 0;
 		obj->mass = 99999999999.0;
 		obj->damping = 1.0;
 		

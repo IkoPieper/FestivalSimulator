@@ -2,9 +2,10 @@
     #define _COLLISION_H_
 
 #include "object.h"
+#include "verletbox.h"
 #include <math.h>
 
-void collisions(object_t* obj);
+void collisions(object_t* obj, verletbox_t* vbox);
 short collisions_check(object_t* obj1, object_t* obj2);
 void collisions_impulse(
 	object_t* obj1, object_t* obj2, 

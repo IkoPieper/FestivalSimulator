@@ -61,6 +61,8 @@ struct object {
 	// verlet boxes:
 	object_t* next_vbox;
 	object_t* prev_vbox;
+	unsigned int vbox_x;
+	unsigned int vbox_y;
 	
 	// animations:
 	animation_t* anim;
@@ -69,6 +71,7 @@ struct object {
 	waypoints_t* ways;
 	
 	// properties:
+	short can_move;
 	float pos_x;
 	float pos_y;
 	float pos_x_old;
@@ -99,7 +102,6 @@ struct object {
 	// collisions:
 	collision_t* col;
     short disable_collision;
-    short collision_stop;
     
 };
 

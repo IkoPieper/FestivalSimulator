@@ -5,6 +5,7 @@ int on_execute() {
     short running = 1;					// program running?
 	const int FPS = 60;					// frames per second
     Uint32 time_start, time_end;		// to measure time per frame
+    //Uint32 time;						// to measure time for debug
     unsigned long frame = 0;			// current frame
 	
 	object_t* obj = NULL;
@@ -16,7 +17,7 @@ int on_execute() {
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	obj = object_add(obj, OBJECT_HERO_ID);			// hero
 	obj = object_add(obj, OBJECT_SCORE_ID);			// score
-	for (int n = 1; n <= 10; n++) {
+	for (int n = 1; n <= 300; n++) {
 		obj = object_add(obj, OBJECT_SCORE_ID + n);			// bude
 	}
 	
@@ -72,8 +73,12 @@ int on_execute() {
 			}
 		}
 
-		on_loop(obj, keys, frame);
+		//time = SDL_GetTicks();
+		on_loop(obj, vbox, keys, frame);
+		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
+		//time = SDL_GetTicks();
 		on_render(obj);
+		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
 		// ensure constant frame rate:
 		time_end = SDL_GetTicks();
