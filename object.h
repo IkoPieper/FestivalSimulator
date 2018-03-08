@@ -91,7 +91,6 @@ struct object {
 	float min_scr_pos_x;
 	float min_scr_pos_y;
 	
-	
 	SDL_Surface* surface;	// current picture
 	//unsigned int* walls;	// aka collision zones
 	walls_t* wall;	// aka collision zones
@@ -110,7 +109,7 @@ object_t* object_get_first(object_t* obj);
 object_t* object_get_first_render(object_t* obj);
 object_t* object_add(object_t* obj, unsigned int id);
 object_t* object_remove(object_t* obj, unsigned int id);
-void object_clear(object_t* obj);
+void object_clean_up(object_t* obj);
 object_t* object_get(object_t* obj, unsigned int id);
 unsigned int object_get_count(object_t* obj);
 

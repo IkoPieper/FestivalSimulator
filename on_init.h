@@ -9,7 +9,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-short on_init(object_t* obj);
+object_t* on_init();
 short on_init_surfdisplay(object_t* obj);
 short on_init_background(object_t* obj);
 short on_init_hero(object_t* obj);

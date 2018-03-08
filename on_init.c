@@ -1,44 +1,60 @@
 #include "on_init.h"
  
-short on_init(object_t* obj) {
+object_t* on_init() {
 	
 	// init SDL:
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		return(0);
+		return(NULL);
 	}
 	// init SDL fonts TTF:
 	if(TTF_Init() == -1) {
-		return(0);
+		return(NULL);
 	}
+	
 	// init objects:
+	object_t* obj = NULL;
+	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
+	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
+	obj = object_add(obj, OBJECT_HERO_ID);			// hero
+	obj = object_add(obj, OBJECT_SCORE_ID);			// score
+	for (int n = 1; n <= 200; n++) {
+		obj = object_add(obj, OBJECT_SCORE_ID + n); // buden
+	}
+	
+	
 	if (on_init_surfdisplay(obj) == 0) {	// inits video incl. openGL
-		return(0);
+		object_clean_up(obj);
+		return(NULL);
 	}
 	if (on_init_background(obj) == 0) {
-		return(0);
+		object_clean_up(obj);
+		return(NULL);
 	}
 	if (on_init_hero(obj) == 0) {
-		return(0);
+		object_clean_up(obj);
+		return(NULL);
 	}
 	if (on_init_score(obj) == 0) {
-		return(0);
+		object_clean_up(obj);
+		return(NULL);
 	}
 	if (on_init_buden(obj) == 0) {
-		return(0);
+		object_clean_up(obj);
+		return(NULL);
 	}
 	
 	// init old positions:
-	obj = object_get_first(obj);
-	while (obj != NULL) {
+	object_t* obj_tmp = object_get_first(obj);
+	while (obj_tmp != NULL) {
 		
-		obj->pos_x_old = obj->pos_x;
-		obj->pos_y_old = obj->pos_y;
+		obj_tmp->pos_x_old = obj_tmp->pos_x;
+		obj_tmp->pos_y_old = obj_tmp->pos_y;
 		
 		// get next object obj:
-		obj = obj->next_object;
+		obj_tmp = obj_tmp->next_object;
 	}	
-
-	return(1);
+	
+	return(object_get_first(obj));
 }
 
 short on_init_surfdisplay(object_t* obj) {

@@ -167,14 +167,16 @@ object_t* object_remove(object_t* obj, unsigned int id) {
 		ret = obj->prev_object;
 	}
 	
+	// TODO: clean other things (animations, movements, ...)
+	
 	free(obj);
 	
 	return(ret);
 }
 
-void object_clear(object_t* obj) {
-	
-	while (obj->id != 0) {
+void object_clean_up(object_t* obj) {
+	obj = object_get_last(obj);
+	while (obj != NULL) {
 		obj = object_remove(obj, obj->id);
 	}
 }

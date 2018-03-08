@@ -8,23 +8,12 @@ int on_execute() {
     Uint32 time;						// to measure time for debug
     unsigned long frame = 0;			// current frame
 	
-	object_t* obj = NULL;
 	
-	// TODO: sollte definitiv in on_init sein. jeweils, wenn das 
-	// entsprechende Objekt initialisiert wird. Dafuer muesste aber die
-	// object Liste neu gedacht werden.
-	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
-	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
-	obj = object_add(obj, OBJECT_HERO_ID);			// hero
-	obj = object_add(obj, OBJECT_SCORE_ID);			// score
-	for (int n = 1; n <= 200; n++) {
-		obj = object_add(obj, OBJECT_SCORE_ID + n);			// bude
-	}
+	//load_config(obj); // TODO: sollte in on_init sein oder danach
 	
-	load_config(obj); // TODO: sollte in on_init sein oder danach
-	
-	if(on_init(obj) == 0) {
-		on_cleanup(obj);
+	object_t* obj = on_init(obj);
+	if(obj == NULL) {
+		fprintf(stderr, "Initialization of objects failed!\n");
 		return(-1);
 	}
 	

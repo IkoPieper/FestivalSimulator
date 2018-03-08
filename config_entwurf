@@ -100,7 +100,7 @@ text_invite = "Hello Festi! Wanna Flunk? That would be awesome!"
 
 textbox = 3
 quest_id = 666     # gehoert zu quest 666, damit quest 666 die textbox findet
-id = 1             # ist die textbox nr. 2 im quest
+id = 2             # ist die textbox nr. 2 im quest
 language    = de
 text        = "Börp!!!"
 language    = en
