@@ -11,7 +11,8 @@ void on_render(object_t* obj) {
 		
 		if (obj->id != OBJECT_SURFDISPLAY_ID) {
 			surface_on_draw(
-			obj_dsp->surface, obj->surface, obj->scr_pos_x, obj->scr_pos_y);
+			obj_dsp->surface, obj->surface, 
+			(int) obj->scr_pos_x, (int) obj->scr_pos_y);
 		}
 		
 		obj = obj->next_render;

@@ -74,14 +74,12 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	obj_new->acc_y = 0.0;
 	obj_new->acc_abs = 0.01;
 	obj_new->damping = 0.0;
-	obj_new->scr_pos_x = 0;
-	obj_new->scr_pos_y = 0;
-	obj_new->scr_pos_x_old = 0;
-	obj_new->scr_pos_y_old = 0;
-	obj_new->min_scr_pos_x = -99999;
-	obj_new->max_scr_pos_x = 99999;
-	obj_new->min_scr_pos_y = -99999;
-	obj_new->max_scr_pos_y = 99999;
+	obj_new->scr_pos_x = 0.0;
+	obj_new->scr_pos_y = 0.0;
+	obj_new->min_scr_pos_x = -99999.0;
+	obj_new->max_scr_pos_x = 99999.0;
+	obj_new->min_scr_pos_y = -99999.0;
+	obj_new->max_scr_pos_y = 99999.0;
 	obj_new->surface = NULL;
 	obj_new->wall = NULL;
 	obj_new->font = NULL;
@@ -129,6 +127,8 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->slope = 
 			((float) wall->ry - (float) wall->ly) / 
 			((float) wall->rx - (float) wall->lx);
+		printf("wall->lx: %d, wall->rx: %d\n", wall->lx, wall->rx);
+		printf("wall->ly: %d, wall->ry: %d\n", wall->ly, wall->ry);
 		wall->offset = 
 			(float) wall->ly - 
 			(float) wall->lx * wall->slope;

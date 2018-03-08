@@ -9,8 +9,8 @@ verletbox_t* verletbox_init(object_t* obj) {
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	// width and height wanted:
-	vbox->w = 400;
-	vbox->h = 400;
+	vbox->w = obj->surface->w;
+	vbox->h = obj->surface->h;
 	
 	// number of boxes:
 	vbox->num_w = obj->surface->w / vbox->w + 1;

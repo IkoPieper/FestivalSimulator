@@ -17,7 +17,7 @@ int on_execute() {
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	obj = object_add(obj, OBJECT_HERO_ID);			// hero
 	obj = object_add(obj, OBJECT_SCORE_ID);			// score
-	for (int n = 1; n <= 300; n++) {
+	for (int n = 1; n <= 200; n++) {
 		obj = object_add(obj, OBJECT_SCORE_ID + n);			// bude
 	}
 	
@@ -44,9 +44,10 @@ int on_execute() {
 		for (int y = 0; y < vbox->num_h; y++) {
 			object_t* obj_tmp = vbox->boxes[x][y];
 			while (obj_tmp != NULL) {
-				printf("%d, ", obj_tmp->id);
+				printf("%3d,", obj_tmp->id);
 				obj_tmp = obj_tmp->next_vbox;
 			}
+			printf(":");
 		}
 		printf("\n");
 	}

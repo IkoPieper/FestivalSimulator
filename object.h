@@ -72,9 +72,9 @@ struct object {
 	
 	// properties:
 	short can_move;
-	float pos_x;
+	float pos_x;        // position in relation to background
 	float pos_y;
-	float pos_x_old;
+	float pos_x_old;    // position in previous frame
 	float pos_y_old;
 	float vel_x;
 	float vel_y;
@@ -84,14 +84,12 @@ struct object {
 	float acc_abs;
 	float damping;
 	float mass;
-	int scr_pos_x;
-	int scr_pos_y;
-	int scr_pos_x_old;
-	int scr_pos_y_old;
-	int max_scr_pos_x;
-	int max_scr_pos_y;
-	int min_scr_pos_x;
-	int min_scr_pos_y;
+	float scr_pos_x;      // pos in relation to top left corner of screen
+	float scr_pos_y;
+	float max_scr_pos_x;
+	float max_scr_pos_y;
+	float min_scr_pos_x;
+	float min_scr_pos_y;
 	
 	
 	SDL_Surface* surface;	// current picture

@@ -12,13 +12,9 @@ void movements(object_t* obj, short* keys) {
 	
 	obj_hero->pos_x_old = obj_hero->pos_x;
 	obj_hero->pos_y_old = obj_hero->pos_y;
-	obj_hero->scr_pos_x_old = obj_hero->scr_pos_x;
-	obj_hero->scr_pos_y_old = obj_hero->scr_pos_y;
 	
 	obj_bg->pos_x_old = obj_bg->pos_x;
 	obj_bg->pos_y_old = obj_bg->pos_y;
-	obj_bg->scr_pos_x_old = obj_bg->scr_pos_x;
-	obj_bg->scr_pos_y_old = obj_bg->scr_pos_y;
 	
 	// hero movements first:
 	movements_hero(obj_hero, keys);
@@ -39,8 +35,6 @@ void movements(object_t* obj, short* keys) {
 				
 			obj->pos_x_old = obj->pos_x;
 			obj->pos_y_old = obj->pos_y;
-			obj->scr_pos_x_old = obj->scr_pos_x;
-			obj->scr_pos_y_old = obj->scr_pos_y;
 			
 			movements_accelerate(obj);
 			movements_screen_position(obj, obj_bg);
@@ -87,20 +81,18 @@ void movements_background(object_t* obj, object_t* obj_hero) {
 	
 	// let the bg move instead of the hero if he reaches its screen
 	// limits:
-	if (obj_hero->scr_pos_x == obj_hero->max_scr_pos_x ||
-		obj_hero->scr_pos_x == obj_hero->min_scr_pos_x) {
+	if (obj_hero->scr_pos_x > obj_hero->max_scr_pos_x ||
+		obj_hero->scr_pos_x < obj_hero->min_scr_pos_x) {
 		obj->vel_x = -obj_hero->vel_x;
 	}
-	if (obj_hero->scr_pos_y == obj_hero->max_scr_pos_y ||
-		obj_hero->scr_pos_y == obj_hero->min_scr_pos_y) {
+	if (obj_hero->scr_pos_y > obj_hero->max_scr_pos_y ||
+		obj_hero->scr_pos_y < obj_hero->min_scr_pos_y) {
 		obj->vel_y = -obj_hero->vel_y;
 	}
 	
 	// new background positions:
-	obj->pos_x += obj->vel_x;
-	obj->pos_y += obj->vel_y;
-	obj->scr_pos_x = lroundf(obj->pos_x);
-	obj->scr_pos_y = lroundf(obj->pos_y);
+	obj->scr_pos_x += obj->vel_x;
+	obj->scr_pos_y += obj->vel_y;
 	
 }
 
@@ -137,19 +129,19 @@ void movements_accelerate(object_t* obj) {
 void movements_screen_position(object_t* obj, object_t* obj_bg) {
 	
 	// derive screen position:
-	obj->scr_pos_x = lroundf(obj->pos_x + obj_bg->pos_x);
-	obj->scr_pos_y = lroundf(obj->pos_y + obj_bg->pos_y);
+	obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
+	obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
 	
 	// object borders on screen:
-	if (obj->scr_pos_x >= obj->max_scr_pos_x && obj->vel_x >= 0.0) {
-		obj->scr_pos_x = obj->max_scr_pos_x;		  // limit object position
-	} else if (obj->scr_pos_x <= obj->min_scr_pos_x && obj->vel_x <= 0.0) {
-		obj->scr_pos_x = obj->min_scr_pos_x;
+	if (obj->scr_pos_x > obj->max_scr_pos_x && obj->vel_x >= 0.0) {
+		obj->scr_pos_x = obj->max_scr_pos_x + 0.1;  // limit object position
+	} else if (obj->scr_pos_x < obj->min_scr_pos_x && obj->vel_x <= 0.0) {
+		obj->scr_pos_x = obj->min_scr_pos_x - 0.1;
 	}
-	if (obj->scr_pos_y >= obj->max_scr_pos_y && obj->vel_y >= 0.0) {
-		obj->scr_pos_y = obj->max_scr_pos_y;
-	} else if (obj->scr_pos_y <= obj->min_scr_pos_y && obj->vel_y <= 0.0) {
-		obj->scr_pos_y = obj->min_scr_pos_y;
+	if (obj->scr_pos_y > obj->max_scr_pos_y && obj->vel_y >= 0.0) {
+		obj->scr_pos_y = obj->max_scr_pos_y + 0.1;
+	} else if (obj->scr_pos_y < obj->min_scr_pos_y && obj->vel_y <= 0.0) {
+		obj->scr_pos_y = obj->min_scr_pos_y - 0.1;
 	}
 	
 }

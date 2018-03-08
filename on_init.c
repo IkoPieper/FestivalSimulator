@@ -14,10 +14,10 @@ short on_init(object_t* obj) {
 	if (on_init_surfdisplay(obj) == 0) {	// inits video incl. openGL
 		return(0);
 	}
-	if (on_init_hero(obj) == 0) {
+	if (on_init_background(obj) == 0) {
 		return(0);
 	}
-	if (on_init_background(obj) == 0) {
+	if (on_init_hero(obj) == 0) {
 		return(0);
 	}
 	if (on_init_score(obj) == 0) {
@@ -26,7 +26,6 @@ short on_init(object_t* obj) {
 	if (on_init_buden(obj) == 0) {
 		return(0);
 	}
-	
 	
 	// init old positions:
 	obj = object_get_first(obj);
@@ -115,14 +114,7 @@ short on_init_surfdisplay(object_t* obj) {
 short on_init_background(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
-	object_t* obj_hero = object_get(obj, OBJECT_HERO_ID);
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
-	
-	
-	obj->pos_x = -obj_hero->pos_x + obj_dsp->surface->w / 2;
-	obj->pos_y = -obj_hero->pos_y + obj_dsp->surface->w / 2;
-	obj->scr_pos_x = round(obj->pos_x);
-	obj->scr_pos_y = round(obj->pos_y);
 	
 	obj->mass = 99999999999.0;
 	obj->damping = 1.0;
@@ -136,10 +128,20 @@ short on_init_background(object_t* obj) {
 	}
 	obj->wall = object_init_walls(surf_wall, obj->surface);
 	
-	obj->min_scr_pos_x = -99999;
-	obj->max_scr_pos_x = 99999;
-	obj->min_scr_pos_y = -99999;
-	obj->max_scr_pos_y = 99999;
+	/*for (int y = 0; y < obj->wall->h; y++) {
+		printf("%d, ", obj->wall->pxl[(y * obj->wall->w) + 1500]);
+	}
+	printf("\n");*/
+	
+	obj->pos_x = 0.0;	// the background defines the positions
+	obj->pos_y = 0.0;
+	obj->scr_pos_x = -obj->surface->w / 2 + obj_dsp->surface->w / 2;
+	obj->scr_pos_y = -obj->surface->h / 2 + obj_dsp->surface->h / 2;
+	
+	obj->min_scr_pos_x = -99999.0;
+	obj->max_scr_pos_x = 99999.0;
+	obj->min_scr_pos_y = -99999.0;
+	obj->max_scr_pos_y = 99999.0;
 	
 	return(1);
 }
@@ -149,18 +151,8 @@ short on_init_hero(object_t* obj) {
 	SDL_Surface* surf = NULL;
 	
 	obj = object_get(obj, OBJECT_HERO_ID);
-	
-	// physics and collisions:
-	obj->can_move = 1;
-	obj->acc_abs = 0.5;	// determines the acceleration on key press
-	obj->damping = 0.1;
-	obj->mass = 1.0;
-	
-	// start position:
-	obj->pos_x = 915;
-	obj->pos_y = 720;
-	obj->scr_pos_x = round(obj->pos_x);
-	obj->scr_pos_y = round(obj->pos_y);
+	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
+	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
 	// collision walls:
 	SDL_Surface* surf_wall;
@@ -175,6 +167,31 @@ short on_init_hero(object_t* obj) {
 	obj->surface = surf;
 	
 	obj->wall = object_init_walls(surf_wall, surf);
+	
+	// physics and collisions:
+	obj->can_move = 1;
+	obj->acc_abs = 0.5;	// determines the acceleration on key press
+	obj->damping = 0.1;
+	obj->mass = 1.0;
+	
+	// start position is middle of screen:
+	obj->scr_pos_x = obj_dsp->surface->w / 2;
+	obj->scr_pos_y = obj_dsp->surface->h / 2;
+	obj->pos_x = obj->scr_pos_x - obj_bg->scr_pos_x;
+	obj->pos_y = obj->scr_pos_y - obj_bg->scr_pos_y;
+	
+	//printf("obj->pos_x: %f, obj->scr_pos_x: %f\n", obj->pos_x, obj->scr_pos_x);
+	//printf("obj->pos_y: %f, obj->scr_pos_y: %f\n", obj->pos_y, obj->scr_pos_y);
+	
+	// min/max screen positions:
+	obj->min_scr_pos_x = (float) (0 + obj_dsp->surface->w / 5);
+	obj->max_scr_pos_x = (float) (obj_dsp->surface->w 
+		- obj_dsp->surface->w / 5 - obj->surface->w);
+	obj->min_scr_pos_y = (float) (0 + obj_dsp->surface->h / 5);
+	obj->max_scr_pos_y = (float) (obj_dsp->surface->h 
+		- obj_dsp->surface->h / 5 - obj->surface->h);
+	
+
 	
 	// animation walk:
 	object_add_animation(obj, 1);
@@ -273,14 +290,7 @@ short on_init_hero(object_t* obj) {
 
 	obj->anim->delay_frames = 2;
 	
-	// min/max screen positions:
-	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
-	obj->min_scr_pos_x = 0 + obj_dsp->surface->w / 5;
-	obj->max_scr_pos_x = obj_dsp->surface->w - obj_dsp->surface->w / 5 
-		- (int) obj->surface->w;
-	obj->min_scr_pos_y = 0 + obj_dsp->surface->h / 5;
-	obj->max_scr_pos_y = obj_dsp->surface->h - obj_dsp->surface->h / 5 
-		- (int) obj->surface->h;
+	
 	
 	return(1);
 }
@@ -288,15 +298,16 @@ short on_init_hero(object_t* obj) {
 short on_init_score(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_SCORE_ID);
+	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	obj->can_move = 1;
 	obj->mass = 0.2;
 	obj->damping = 0.03;
 	
-	obj->pos_x = 1112;
-	obj->pos_y = 680;
-	obj->scr_pos_x = round(obj->pos_x);
-	obj->scr_pos_y = round(obj->pos_y);
+	obj->pos_x = 1112.0;
+	obj->pos_y = 680.0;
+	obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
+	obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
 	
 	if((obj->font = TTF_OpenFont("FreeSansBold.ttf", 20)) == NULL) {
 		return(0);
@@ -309,7 +320,7 @@ short on_init_score(object_t* obj) {
 	obj->wall = object_init_walls(NULL, obj->surface);
 	
 	// waypoints:
-	unsigned int num_ways = 5;
+	/*unsigned int num_ways = 5;
 	object_add_waypoints(obj, 1, num_ways);
 	obj->ways->pos_are_relative = 1;
 	obj->ways->pos_x[0] = 0.0;
@@ -327,7 +338,7 @@ short on_init_score(object_t* obj) {
 	obj->ways->pos_x[4] = -20.0;
 	obj->ways->pos_y[4] = 20.0;
 	obj->ways->vel_abs[4] = 3.0;
-	object_activate_waypoints(obj);
+	object_activate_waypoints(obj);*/
 	
 	return(1);
 	
@@ -342,17 +353,35 @@ short on_init_buden(object_t* obj) {
 	
 	SDL_Surface* surf_wall;
 	
-	for (int n = 1; n <= 300; n++) {
+	int x = 1;
+	int y = 1;
+	
+	for (int n = 1; n <= 200; n++) {
 		obj = object_get(obj, OBJECT_SCORE_ID + n);
 		
 		obj->can_move = 0;
 		obj->mass = 99999999999.0;
 		obj->damping = 1.0;
 		
-		obj->pos_x = rand() % obj_bg->surface->w;
-		obj->pos_y = rand() % obj_bg->surface->h;
-		obj->scr_pos_x = round(obj->pos_x);
-		obj->scr_pos_y = round(obj->pos_y);
+		//obj->pos_x = rand() % obj_bg->surface->w;
+		//obj->pos_y = rand() % obj_bg->surface->h;
+		
+		obj->pos_x = x * 160;
+		x++;
+		
+		if (obj->pos_x >= obj_bg->surface->w - 160) {
+			x = 2;
+			obj->pos_x = 160;
+			y++;
+		}
+		
+		obj->pos_y = y * 120;
+		
+		//obj->pos_x = rand() % obj_bg->surface->w;
+		//obj->pos_y = rand() % obj_bg->surface->h;
+		
+		obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
+		obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
 		
 		if((surf_wall = surface_on_load("bude_walls.bmp")) == NULL) {
 			return(0);
@@ -361,6 +390,8 @@ short on_init_buden(object_t* obj) {
 			return(0);
 		}
 		obj->wall = object_init_walls(surf_wall, obj->surface);
+		
+		printf("obj->pos_x: %f, obj->pos_y: %f\n", obj->pos_x, obj->pos_y);
 		
 	}
 	

@@ -6,11 +6,11 @@
 
 void on_loop(object_t* obj, verletbox_t* vbox, short* keys, unsigned long frame) {
 	
-	Uint32 time;
+	//Uint32 time;
 	
-	time = SDL_GetTicks();
+	//time = SDL_GetTicks();
 	collisions(obj, vbox);
-	printf("time for collisions: %d\n", SDL_GetTicks() - time);
+	//printf("time for collisions: %d\n", SDL_GetTicks() - time);
 	
 	movements(obj, keys);
 	
