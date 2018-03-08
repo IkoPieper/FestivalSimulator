@@ -5,25 +5,12 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	short collision = 0;
 	int x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
 	
-	//Uint32 time;
+	Uint32 time;
+	time = SDL_GetTicks();
 	
-	//time = SDL_GetTicks();
 	verletbox_update(vbox, obj);
 	//printf("time for verletbox_update: %d\n", SDL_GetTicks() - time);
 	//time = SDL_GetTicks();
-	/*printf("\nVERLETBOX_UPDATE\n");
-	for (int y = 0; y < vbox->num_h; y++) {
-		for (int x = 0; x < vbox->num_w; x++) {
-			object_t* obj_tmp = vbox->boxes[x][y];
-			while (obj_tmp != NULL) {
-				printf("%d:", obj_tmp->id);
-				obj_tmp = obj_tmp->next_vbox;
-			}
-			printf(", ");
-		}
-		printf("\n");
-	}
-	printf("\n");*/
 	
 	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
@@ -48,8 +35,8 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	}
 	
 	
-	//printf("time for background collisions: %d\n", SDL_GetTicks() - time);
-	//time = SDL_GetTicks();
+	printf("time for background collisions: %d\n", SDL_GetTicks() - time);
+	time = SDL_GetTicks();
 	
 	object_t* obj_b = NULL;
 	
@@ -64,11 +51,10 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 					
 					obj->vel_lock = 0;	// allow all velocity changes TODO: move up?
 					
-					// iterate over verlet box of obj and surounding ones:
+					// iterate over verlet box of obj and surrounding ones:
 					if (y == 0) {
 						y2_min = 0;
 					} else {
-						//y2_min = y - 1;
 						y2_min = y;
 					}
 					if (y == vbox->num_h-1) {
@@ -104,26 +90,19 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						
 							while (obj_b != NULL) {
 						
-								//if (obj != obj_b) {
-				
-									// TODO: nur objekte checken, die
-									// noch nicht in vorheriger verlet_box waren
-									//obj_b = obj->next_vbox;
-									
-									//printf("obj->id: %d, obj_b->id: %d\n", obj->id, obj_b->id);
-									
+								if (obj->can_move || obj_b->can_move) {
 									collision = collisions_check(obj, obj_b);
 					
 									if (collision == 0) {
 										object_remove_collision(obj, obj_b);
 										object_remove_collision(obj_b, obj);
 									}
-					
-								//}
+								}
+
 								// get next object obj_b:
 								obj_b = obj_b->next_vbox;
 							}
-							//printf("\n");
+
 						}
 					}
 				
@@ -134,15 +113,11 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 		}					
 	}
-	//printf("time for other collisions: %d\n", SDL_GetTicks() - time);
+	printf("time for other collisions: %d\n", SDL_GetTicks() - time);
 	
 }
 
 short collisions_check(object_t* obj1, object_t* obj2) {
-	
-	/*if (obj1->id == OBJECT_HERO_ID || obj2->id == OBJECT_HERO_ID) {
-		fprintf(stderr, "CHECK! ");
-	}*/
 	
 	int collision = 0;
 	
@@ -584,13 +559,11 @@ void collisions_impulse(
 	// in 2D an object with smaller velocity can accelerate an object 
 	// with higher velocity. To solve this: switch v1n and v2n depending
 	// on object positions relative to the hit location:
-	//if (obj2->id != OBJECT_BACKGROUND_ID && obj1->id != OBJECT_BACKGROUND_ID) {
 	if (obj2->can_move && obj1->can_move) {
 		if (x12 * c1x + y12 * c1y < 0.0) {
 			tmp = v1n;
 			v1n = v2n;
 			v2n = tmp;
-			fprintf(stderr, "v1n and v2n switched! x12 = %f, y12 = %f\n", x12, y12);
 		}
 	}
 	
@@ -679,25 +652,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	float yr1 = offset1 + obj1->wall->slope * xr1;
 	float yl2 = offset2 + obj2->wall->slope * xl2;
 	float yr2 = offset2 + obj2->wall->slope * xr2;
-	
-	printf("\n");
-	printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
-	printf("x01: %f, x02: %f\n", x01, x02);
-	printf("y01: %f, y02: %f\n", y01, y02);
-	printf("obj1->wall->lx: %d, obj1->wall->rx: %d\n", obj1->wall->lx, obj1->wall->rx);
-	printf("obj1->wall->ly: %d, obj1->wall->ry: %d\n", obj1->wall->ly, obj1->wall->ry);
-	printf("obj2->wall->lx: %d, obj2->wall->rx: %d\n", obj2->wall->lx, obj2->wall->rx);
-	printf("obj2->wall->ly: %d, obj2->wall->ry: %d\n", obj2->wall->ly, obj2->wall->ry);
-	printf("obj1->wall->offset: %f, offset1: %f\n", obj1->wall->offset, offset1);
-	printf("obj2->wall->offset: %f, offset2: %f\n", obj2->wall->offset, offset2);
-	printf("obj1->wall->slope: %f\n", obj1->wall->slope);
-	printf("obj2->wall->slope: %f\n", obj2->wall->slope);
-	printf("xl: %f, xr: %f\n", xl, xr);
-	printf("xl1: %f, xr1: %f\n", xl1, xr1);
-	printf("xl2: %f, xr2: %f\n", xl2, xr2);
-	printf("yl1: %f, yr1: %f\n", yl1, yr1);
-	printf("yl2: %f, yr2: %f\n", yl2, yr2);
-	printf("\n");
 	
 	// update render list:
 	if (yl2 >= yl1 && yr2 >= yr1) {

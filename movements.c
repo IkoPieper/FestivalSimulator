@@ -23,7 +23,6 @@ void movements(object_t* obj, short* keys) {
 	
 	// display / background movements:
 	movements_background(obj_bg, obj_hero);
-	//movements_screen_position(obj_hero, obj_bg);
 	
 	// all objects:
 	obj = obj_first;

@@ -182,7 +182,6 @@ void object_clear(object_t* obj) {
 object_t* object_get(object_t* obj, unsigned int id) {
 	
 	obj = object_get_last(obj);
-	//fprintf(stderr, "object id = %d\n");
 	while (obj->id != id) {
 		obj = obj->prev_object;
 	}
@@ -194,7 +193,6 @@ unsigned int object_get_count(object_t* obj) {
 	
 	obj = object_get_last(obj);
 	unsigned int count = 0;
-	
 	while (obj != NULL) {
 		count++;
 		obj = obj->prev_object;
@@ -441,22 +439,13 @@ void object_aim_for_waypoint(object_t* obj) {
 	
 	vel_x_wanted = pos_x_wp - obj->pos_x;
 	vel_y_wanted = pos_y_wp - obj->pos_y;
-	
-	//printf("vel_x_wanted: %f\n", vel_x_wanted);
-	//printf("vel_y_wanted: %f\n", vel_y_wanted);
 			
 	// normalize:
 	float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
 	vel_x_wanted /= norm;
 	vel_y_wanted /= norm;
-	
-	//printf("vel_x_wanted: %f\n", vel_x_wanted);
-	//printf("vel_y_wanted: %f\n", vel_y_wanted);
-	
 	vel_x_wanted *= obj->ways->vel_abs[obj->ways->n];
 	vel_y_wanted *= obj->ways->vel_abs[obj->ways->n];
-	
-	//printf("obj->ways->vel_abs[obj->ways->n]: %f\n", obj->ways->vel_abs[obj->ways->n]);
 	
 	// modify current velocity a step towards the velocity wanted:
 	if (obj->vel_x < vel_x_wanted - 0.2) {
@@ -469,9 +458,7 @@ void object_aim_for_waypoint(object_t* obj) {
 	} else if (obj->vel_y > vel_y_wanted + 0.2) {
 		obj->vel_y -= 0.2;
 	}
-	//printf("norm: %f\n", norm);
-	//printf("vel_x_wanted: %f\n", vel_x_wanted);
-	//printf("vel_y_wanted: %f\n", vel_y_wanted);
+	
 }
 
 

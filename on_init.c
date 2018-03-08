@@ -52,10 +52,12 @@ short on_init_surfdisplay(object_t* obj) {
 	SDL_WM_SetCaption("Festival Simulator", "Festival Simulator");
 	SDL_ShowCursor(SDL_DISABLE);
 	
+	//SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0); // disable vsync
+	
 	SDL_Surface* surf = NULL;
 	if((surf = SDL_SetVideoMode(
-		800, 600, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
-			// add SDL_FULLSCREEN for fullscreen SDL_HWSURFACE | SDL_DOUBLEBUF
+		0, 0, 32, SDL_FULLSCREEN | SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
+			// add 0,0,32 for native resolution and SDL_FULLSCREEN for fullscreen
 		return(0);
 	}
 	

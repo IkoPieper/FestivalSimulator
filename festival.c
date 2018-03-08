@@ -5,7 +5,7 @@ int on_execute() {
     short running = 1;					// program running?
 	const int FPS = 60;					// frames per second
     Uint32 time_start, time_end;		// to measure time per frame
-    //Uint32 time;						// to measure time for debug
+    Uint32 time;						// to measure time for debug
     unsigned long frame = 0;			// current frame
 	
 	object_t* obj = NULL;
@@ -28,8 +28,7 @@ int on_execute() {
 		return(-1);
 	}
 	
-	// TODO: on_start aufraeumen. Wird vielleicht nichts von benoetigt.
- 	on_start(obj);
+ 	on_start(obj);  // does nothing
  	
  	// TODO: on_load_game_state()
  	// objekte, frame, mit gespeicherten informationen 
@@ -60,7 +59,7 @@ int on_execute() {
 	}
  	
 	SDL_Event event;
-	//SDL_EnableKeyRepeat(10, 10);
+	//SDL_EnableKeyRepeat(10, 10); // needed for windows port?
 	while (running) {
 		
 		time_start = SDL_GetTicks();
@@ -74,12 +73,12 @@ int on_execute() {
 			}
 		}
 
-		//time = SDL_GetTicks();
+		time = SDL_GetTicks();
 		on_loop(obj, vbox, keys, frame);
-		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
-		//time = SDL_GetTicks();
+		printf("time for on_loop: %d\n", SDL_GetTicks() - time);
+		time = SDL_GetTicks();
 		on_render(obj);
-		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
+		printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
 		// ensure constant frame rate:
 		time_end = SDL_GetTicks();
