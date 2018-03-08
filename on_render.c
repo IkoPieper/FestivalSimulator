@@ -20,9 +20,7 @@ void on_render(object_t* obj) {
 		obj = obj->next_render;
 	}
 	
-	
-	
-	
+
 	glBindTexture(GL_TEXTURE_2D, obj_dsp->render_id);
 	glEnable(GL_TEXTURE_2D);
 	
@@ -68,8 +66,6 @@ void on_render(object_t* obj) {
 		0, textureFormat, GL_UNSIGNED_BYTE, 
 		obj_dsp->surface->pixels);
 	
-	
-	
 	// make a rectangle
 	glBegin(GL_QUADS);
 
@@ -99,4 +95,5 @@ void on_render(object_t* obj) {
 	
 	//glDeleteTextures(1, &textureid);
 	printf("time for openGL: %d\n", SDL_GetTicks() - time);
+
 }

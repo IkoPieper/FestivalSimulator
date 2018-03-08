@@ -11,14 +11,17 @@ void on_loop(object_t* obj, verletbox_t* vbox, short* keys, unsigned long frame)
 	time = SDL_GetTicks();
 	collisions(obj, vbox);
 	printf("time for collisions: %d\n", SDL_GetTicks() - time);
+	
 	time = SDL_GetTicks();
 	movements(obj, keys);
 	printf("time for movements: %d\n", SDL_GetTicks() - time);
+	
 	time = SDL_GetTicks();
 	on_loop_animations(obj, keys, frame);
 	
 	on_loop_waypoints(obj, frame);
 	printf("time for animations and waypoints: %d\n", SDL_GetTicks() - time);
+
 }
 
 void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {

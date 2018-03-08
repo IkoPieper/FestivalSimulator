@@ -56,7 +56,7 @@ short on_init_surfdisplay(object_t* obj) {
 	
 	SDL_Surface* surf = NULL;
 	if((surf = SDL_SetVideoMode(
-		0, 0, 32, SDL_FULLSCREEN | SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
+		800, 600, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
 			// add 0,0,32 for native resolution and SDL_FULLSCREEN for fullscreen
 		return(0);
 	}
@@ -130,11 +130,6 @@ short on_init_background(object_t* obj) {
 	}
 	obj->wall = object_init_walls(surf_wall, obj->surface);
 	
-	/*for (int y = 0; y < obj->wall->h; y++) {
-		printf("%d, ", obj->wall->pxl[(y * obj->wall->w) + 1500]);
-	}
-	printf("\n");*/
-	
 	obj->pos_x = 0.0;	// the background defines the positions
 	obj->pos_y = 0.0;
 	obj->scr_pos_x = -obj->surface->w / 2 + obj_dsp->surface->w / 2;
@@ -144,6 +139,7 @@ short on_init_background(object_t* obj) {
 	obj->max_scr_pos_x = 99999.0;
 	obj->min_scr_pos_y = -99999.0;
 	obj->max_scr_pos_y = 99999.0;
+
 	
 	return(1);
 }
@@ -181,10 +177,7 @@ short on_init_hero(object_t* obj) {
 	obj->scr_pos_y = obj_dsp->surface->h / 2;
 	obj->pos_x = obj->scr_pos_x - obj_bg->scr_pos_x;
 	obj->pos_y = obj->scr_pos_y - obj_bg->scr_pos_y;
-	
-	//printf("obj->pos_x: %f, obj->scr_pos_x: %f\n", obj->pos_x, obj->scr_pos_x);
-	//printf("obj->pos_y: %f, obj->scr_pos_y: %f\n", obj->pos_y, obj->scr_pos_y);
-	
+		
 	// min/max screen positions:
 	obj->min_scr_pos_x = (float) (0 + obj_dsp->surface->w / 5);
 	obj->max_scr_pos_x = (float) (obj_dsp->surface->w 
@@ -194,7 +187,6 @@ short on_init_hero(object_t* obj) {
 		- obj_dsp->surface->h / 5 - obj->surface->h);
 	
 
-	
 	// animation walk:
 	object_add_animation(obj, 1);
 	
@@ -292,8 +284,6 @@ short on_init_hero(object_t* obj) {
 
 	obj->anim->delay_frames = 2;
 	
-	
-	
 	return(1);
 }
 
@@ -324,6 +314,7 @@ short on_init_score(object_t* obj) {
 	// waypoints:
 	/*unsigned int num_ways = 5;
 	object_add_waypoints(obj, 1, num_ways);
+	* 
 	obj->ways->pos_are_relative = 1;
 	obj->ways->pos_x[0] = 0.0;
 	obj->ways->pos_y[0] = 0.0;
@@ -340,6 +331,7 @@ short on_init_score(object_t* obj) {
 	obj->ways->pos_x[4] = -20.0;
 	obj->ways->pos_y[4] = 20.0;
 	obj->ways->vel_abs[4] = 3.0;
+
 	object_activate_waypoints(obj);*/
 	
 	return(1);
@@ -359,6 +351,7 @@ short on_init_buden(object_t* obj) {
 	int y = 1;
 	
 	for (int n = 1; n <= 200; n++) {
+
 		obj = object_get(obj, OBJECT_SCORE_ID + n);
 		
 		obj->can_move = 0;
@@ -384,6 +377,7 @@ short on_init_buden(object_t* obj) {
 		
 		obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
 		obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
+
 		
 		if((surf_wall = surface_on_load("bude_walls.bmp")) == NULL) {
 			return(0);
@@ -392,8 +386,6 @@ short on_init_buden(object_t* obj) {
 			return(0);
 		}
 		obj->wall = object_init_walls(surf_wall, obj->surface);
-		
-		printf("obj->pos_x: %f, obj->pos_y: %f\n", obj->pos_x, obj->pos_y);
 		
 	}
 	
