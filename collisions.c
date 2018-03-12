@@ -5,8 +5,8 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	short collision = 0;
 	int x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
 	
-	Uint32 time;
-	time = SDL_GetTicks();
+	//Uint32 time;
+	//time = SDL_GetTicks();
 	
 	verletbox_update(vbox, obj);
 	//printf("time for verletbox_update: %d\n", SDL_GetTicks() - time);
@@ -35,8 +35,8 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	}
 	
 	
-	printf("time for background collisions: %d\n", SDL_GetTicks() - time);
-	time = SDL_GetTicks();
+	//printf("time for background collisions: %d\n", SDL_GetTicks() - time);
+	//time = SDL_GetTicks();
 	
 	object_t* obj_b = NULL;
 	
@@ -113,7 +113,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 		}					
 	}
-	printf("time for other collisions: %d\n", SDL_GetTicks() - time);
+	//printf("time for other collisions: %d\n", SDL_GetTicks() - time);
 	
 }
 

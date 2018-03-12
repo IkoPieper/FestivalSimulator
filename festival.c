@@ -62,12 +62,12 @@ int on_execute() {
 			}
 		}
 
-		time = SDL_GetTicks();
+		//time = SDL_GetTicks();
 		on_loop(obj, vbox, keys, frame);
-		printf("time for on_loop: %d\n", SDL_GetTicks() - time);
-		time = SDL_GetTicks();
+		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
+		//time = SDL_GetTicks();
 		on_render(obj);
-		printf("time for on_render: %d\n", SDL_GetTicks() - time);
+		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
 		// ensure constant frame rate:
 		time_end = SDL_GetTicks();

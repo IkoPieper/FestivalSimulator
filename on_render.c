@@ -2,7 +2,7 @@
  
 void on_render(object_t* obj) {
 	
-	Uint32 time;
+	//Uint32 time;
 	
 	// draw objects on surf display:
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
@@ -89,11 +89,11 @@ void on_render(object_t* obj) {
  
 	glDisable(GL_TEXTURE_2D);
  
-	time = SDL_GetTicks();
+	//time = SDL_GetTicks();
  
     SDL_GL_SwapBuffers();
 	
 	//glDeleteTextures(1, &textureid);
-	printf("time for openGL: %d\n", SDL_GetTicks() - time);
+	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
 
 }
