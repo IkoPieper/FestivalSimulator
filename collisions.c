@@ -448,6 +448,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 							obj2->vel_x = -vel_abs2 * col2->c_x * 1.1 - col1->c_x * 0.3;
 							obj2->vel_y = -vel_abs2 * col2->c_y * 1.1 - col1->c_y * 0.3;
 						}
+						
 					} else {
 						// move away:
 						if (obj1->can_move) {

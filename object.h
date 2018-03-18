@@ -50,6 +50,7 @@ struct collision {
 };
 
 struct object {
+	
 	// list variables:
 	object_t* next_object;
 	object_t* prev_object;
@@ -66,16 +67,10 @@ struct object {
 	unsigned int vbox_x;
 	unsigned int vbox_y;
 	
-	// animations:
-	animation_t* anim;
-	short anim_first_call;	// free surface if animation is called for 
-							// the first time
-
-	// waypoints:
-	waypoints_t* ways;
-	
-	// properties:
+	// physics:
 	short can_move;
+	float mass;
+	float damping;
 	float pos_x;        // position in relation to background
 	float pos_y;
 	float pos_x_old;    // position in previous frame
@@ -86,8 +81,8 @@ struct object {
 	float acc_x;
 	float acc_y;
 	float acc_abs;
-	float damping;
-	float mass;
+	
+	// screen positions:
 	float scr_pos_x;      // pos in relation to top left corner of screen
 	float scr_pos_y;
 	float max_scr_pos_x;
@@ -95,10 +90,19 @@ struct object {
 	float min_scr_pos_x;
 	float min_scr_pos_y;
 	
+	// bitmaps:
 	SDL_Surface* surface;	// current picture
 	//unsigned int* walls;	// aka collision zones
-	walls_t* wall;	// aka collision zones
+	walls_t* wall;	        // aka collision zones
 	TTF_Font* font;
+	
+	// animations:
+	animation_t* anim;
+	short anim_first_call;	// free surface if animation is called for 
+							// the first time
+	
+	// waypoints:
+	waypoints_t* ways;
 	
 	// collisions:
 	collision_t* col;

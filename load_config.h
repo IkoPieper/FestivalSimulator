@@ -3,8 +3,10 @@
 
 #include "own_config.h"
 #include "object.h"
+#include "surface.h"
 #include <stdlib.h>
 
-void load_config(object_t* obj);
+configentry* load_config_defaults(configentry* entry, char* path, object_t* obj);
+//void load_config_animation(object_t* obj);
 
 #endif

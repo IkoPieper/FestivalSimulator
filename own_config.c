@@ -1,7 +1,9 @@
 #include "own_config.h"
 
-configentry *conf_load_data(configentry *data, const char *filename) {
+configentry *conf_load_data(const char *filename) {
+	configentry *data = NULL;
 	configentry *entry;
+	configentry *entry_tmp;
 	char line [LINESIZE];
 	int i, j, lineSize;	
 	FILE *file;
@@ -23,18 +25,30 @@ configentry *conf_load_data(configentry *data, const char *filename) {
 			key[j] = '\0';
 			i++;
 			j = 0;
-			while (line[i] != ';' && j < VALUESIZE && i < lineSize-1) { // value auslesen
+			while (line[i] != '#' && j < VALUESIZE && i < lineSize-1) { // value auslesen
 				if (line[i] != ' ') // leerzeichen streichen
 					value[j++] = line[i];
 				i++;
 			} 
 			value[j] = '\0';
 			// eintrag mit key und value erzeugen und hinten an liste anfuegen
+			
+			// get previous entry:
+			entry_tmp = entry; 
+			
+			// create new entry:
 			entry = (configentry *) malloc(sizeof(configentry));
 			entry->key = key;
 			entry->value = value;
-			entry->next = data;
-			data = entry;
+			entry->next = NULL;
+			
+			
+			if (data == NULL) {
+				data = entry;            // first place in list
+			} else {
+				entry_tmp->next = entry; // last place in list
+			}
+			
 		}
 	}
 	fclose(file);
@@ -74,16 +88,30 @@ char *conf_get_string(configentry *data, char *key) {
 	while (entry != NULL && !strstr(key, entry->key)) {
 		entry = entry->next;
 	}
-	return (entry->value);
+	if (entry != NULL) {
+		return(entry->value);
+	} else {
+		return(NULL);
+	}
 }
 
 
 int conf_get_int(configentry *data, char *key) {
-	return (atoi(conf_get_string(data, key)));
+	char *str = conf_get_string(data, key);
+	if (str != NULL) {
+		return(atoi(str));
+	} else {
+		return(-666);
+	}
 }
 
 double conf_get_double(configentry *data, char *key) {
-	return (atof(conf_get_string(data, key)));
+	char *str = conf_get_string(data, key);
+	if (str != NULL) {
+		return(atof(str));
+	} else {
+		return(-666.0);
+	}
 }
 
 int conf_set_string(configentry *data, char *key, char *value) {

@@ -4,7 +4,6 @@
 #include <SDL/SDL.h>
 #include "object.h"
 #include "verletbox.h"
-#include "load_config.h"
 #include "on_init.h"
 #include "surface.h"
 #include "font.h"

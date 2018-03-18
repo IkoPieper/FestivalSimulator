@@ -6,9 +6,11 @@
 #include "font.h"
 #include "object.h"
 #include "animation.h"
-#include "own_config.h"
+#include "own_config.h"  // TODO: check if still needed
+#include "load_config.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <dirent.h>
 
 object_t* on_init();
 short on_init_surfdisplay(object_t* obj);

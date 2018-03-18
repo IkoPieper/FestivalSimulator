@@ -42,8 +42,10 @@ void quest_boerp(accociated_objects) {
 -------------------------------------------------------------------
 
 object = 4
+surface = stone.bmp
+walls = stone_walls.bmp
 pos_x     = 40
-pos_y     = 80
+pos_y     = 80.5
 
 # quest ids müssen eindeutig sein, um informationen zwischen objekten austauschen zu können, sagen wir 666 ist "quest_play_flunkyball()"
 quest    = 666

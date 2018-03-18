@@ -37,6 +37,10 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	
 	object_t* obj_new = (object_t*) malloc(sizeof(object_t));
 	
+	// object id:
+	obj_new->id = id;
+	
+	// object list:
 	obj = object_get_last(obj);
 	obj_new->prev_object = obj;
 	obj_new->prev_render = obj;
@@ -44,25 +48,22 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	obj_new->next_render = NULL;
 	obj_new->render_id = 0;
 	
+	// render list:
 	if (obj != NULL) {
 		obj->next_object = obj_new;
 		obj->next_render = obj_new;
 	} 
 	
+	// verlet boxes:
 	obj_new->prev_vbox = NULL;
 	obj_new->next_vbox = NULL;
 	obj_new->vbox_x = 0;
 	obj_new->vbox_y = 0;
 	
-	obj_new->id = id;
-	
-	obj_new->anim = NULL;
-	obj_new->anim_first_call = 1;
-
-	obj_new->ways = NULL;
-	
+	// physics:
 	obj_new->can_move = 0;
 	obj_new->mass = 1.0;
+	obj_new->damping = 0.2;
 	obj_new->pos_x = 1.0;
 	obj_new->pos_x = 0.0;
 	obj_new->pos_y = 0.0;
@@ -74,17 +75,28 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	obj_new->acc_x = 0.0;
 	obj_new->acc_y = 0.0;
 	obj_new->acc_abs = 0.01;
-	obj_new->damping = 0.0;
+	
+	// screen positions:
 	obj_new->scr_pos_x = 0.0;
 	obj_new->scr_pos_y = 0.0;
 	obj_new->min_scr_pos_x = -99999.0;
 	obj_new->max_scr_pos_x = 99999.0;
 	obj_new->min_scr_pos_y = -99999.0;
 	obj_new->max_scr_pos_y = 99999.0;
+	
+	// bitmaps:
 	obj_new->surface = NULL;
 	obj_new->wall = NULL;
 	obj_new->font = NULL;
 	
+	// animations:
+	obj_new->anim = NULL;
+	obj_new->anim_first_call = 1;
+
+	// waypoints:
+	obj_new->ways = NULL;
+	
+	// collisions:
 	obj_new->col = NULL;
     obj_new->disable_collision = 0;
 	

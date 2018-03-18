@@ -720,25 +720,49 @@ short on_init_buden(object_t* obj) {
 
 short on_init_objects(object_t* obj) {
 	
-	configentry *data;
-	data = NULL;
-	data = conf_load_data(data, "objects/stone.txt");
-
-	if (data == NULL) {
-		printf("Warning: Unable to load config file. Use Default Settings.\n");
-		free(data);
-		return(0);
-	}
+	DIR *hdl_dir;
+	struct dirent *dir;
+	char path[100];
 	
-	obj = object_add(obj, conf_get_int(data, "object"));
-	obj->pos_x = conf_get_double(data, "pos_x");
-	obj->pos_y = conf_get_double(data, "pos_y");
+	hdl_dir = opendir("objects");
+	
+	while ((dir = readdir(hdl_dir)) != NULL) {
+      
+		if (strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..") &&
+			strstr(dir->d_name, ".txt") != NULL) {
 
-	printf("\nid: %d\n\n", obj->id);
-	printf("pos_x: %f\n", obj->pos_x);
-	printf("pos_y: %f\n", obj->pos_y);
+	
+			// build path to file:
+			strncpy(path, "objects", 100);
+			strncat(path, "/", 100);		// TODO: Windows compatible
+			strncat(path, dir->d_name, 100);
+	
+			configentry* data = conf_load_data(path);
+			configentry* entry = data;
 
-	conf_free_data(data);
+			if (data == NULL) {
+				printf("Warning: Unable to load config file. Use Default Settings.\n");
+				return(0);
+			}
+			
+			obj = object_add(obj, 666666666);
+			
+			while (entry != NULL) {
+			
+				if        (strcmp(entry->key, "object") == 0) {
+					entry = load_config_defaults(entry, path, obj);
+				} else if (strcmp(entry->key, "animation") == 0) {
+					// entry = load_config_animation(entry, path, obj);
+				} 
+				
+				if (entry != NULL) {
+					entry = entry->next;
+				}
+			}
+			
+			conf_free_data(data);
+		}
+	}
 	
 	return(1);
 }

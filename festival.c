@@ -8,9 +8,6 @@ int on_execute() {
     //Uint32 time;						// to measure time for debug
     unsigned long frame = 0;			// current frame
 	
-	
-	//load_config(obj); // TODO: sollte in on_init sein oder danach
-	
 	object_t* obj = NULL;
 	obj = on_init(obj);
 	if(obj == NULL) {

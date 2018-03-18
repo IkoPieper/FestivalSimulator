@@ -28,7 +28,7 @@ typedef struct configstruct configentry;
 #define LINESIZE 512 
 #endif
 
-configentry *conf_load_data(configentry *data, const char *filename);
+configentry *conf_load_data(const char *filename);
 void conf_write_data(configentry *data, const char *filename);
 void conf_print_data(configentry *data);
 void conf_free_data(configentry *data);
