@@ -57,6 +57,7 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	obj_new->id = id;
 	
 	obj_new->anim = NULL;
+	obj_new->anim_first_call = 1;
 
 	obj_new->ways = NULL;
 	
@@ -127,8 +128,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->slope = 
 			((float) wall->ry - (float) wall->ly) / 
 			((float) wall->rx - (float) wall->lx);
-		printf("wall->lx: %d, wall->rx: %d\n", wall->lx, wall->rx);
-		printf("wall->ly: %d, wall->ry: %d\n", wall->ly, wall->ry);
+		
 		wall->offset = 
 			(float) wall->ly - 
 			(float) wall->lx * wall->slope;
@@ -145,7 +145,15 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->slope = 0;
 		wall->offset = surf->h;
 	}
+	
+	wall->surf = surf_wall;
+	
 	return(wall);
+}
+
+void object_free_walls(walls_t* wall) {
+	SDL_FreeSurface(wall->surf);
+	free(wall);
 }
 
 object_t* object_remove(object_t* obj, unsigned int id) {
@@ -168,6 +176,19 @@ object_t* object_remove(object_t* obj, unsigned int id) {
 	}
 	
 	// TODO: clean other things (animations, movements, ...)
+	
+	if (obj->surface != NULL && obj->anim_first_call) {
+		SDL_FreeSurface(obj->surface);
+	}
+	if (obj->font != NULL) {
+		TTF_CloseFont(obj->font);
+	}
+	if (obj->wall != NULL) {
+		object_free_walls(obj->wall);
+	}
+	if (obj->anim != NULL) {
+		object_free_animations(obj->anim);
+	}
 	
 	free(obj);
 	
@@ -235,7 +256,21 @@ void object_select_animation(object_t* obj, unsigned int id) {
 	obj->anim = anim;
 }
 
-void object_remove_animation(object_t* obj, unsigned int id) {
+void object_animate(object_t* obj, unsigned long frame) {
+	
+	// free original surface if it is not part of the animation:
+	if (obj->anim_first_call) {
+		obj->anim_first_call = 0;
+		SDL_FreeSurface(obj->surface);
+	}
+	
+	// get next picture:
+	obj->surface = animation_get_next_surface(obj->anim, frame);
+	
+	
+}
+
+/*void object_remove_animation(object_t* obj, unsigned int id) {
 	
 	if (obj->anim->id == id) {
 		object_remove_selected_animation(obj);
@@ -261,9 +296,9 @@ void object_remove_animation(object_t* obj, unsigned int id) {
 	}
 	
 	animation_free(anim);
-}
+}*/
 
-void object_remove_selected_animation(object_t* obj) {
+/*void object_remove_selected_animation(object_t* obj) {
 	
 	animation_t* anim = obj->anim;
 	
@@ -284,8 +319,24 @@ void object_remove_selected_animation(object_t* obj) {
 	}
 	
 	animation_free(anim);
-}
+}*/
 
+void object_free_animations(animation_t* anim) {
+	
+	animation_t* anim_tmp;
+	
+	// get first animation:
+	while (anim->prev != NULL) {
+		anim = anim->prev;
+	}
+	
+	while (anim != NULL) {
+		anim_tmp = anim;
+		anim = anim->next;
+		animation_free(anim_tmp);
+	}
+	
+}
 
 void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways) {
 	

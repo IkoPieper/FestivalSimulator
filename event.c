@@ -10,6 +10,8 @@ void on_event(SDL_Event* event, short* keys) {
 			break;
 		case SDL_QUIT: 
             break;
+        default: 
+			break;
 	}
 }
 
@@ -25,6 +27,7 @@ void on_key_down(short* keys, SDLKey sym) {
 		case SDLK_s: keys[SDLK_s] = 1; break;
 		case SDLK_d: keys[SDLK_d] = 1; break;
 		case SDLK_ESCAPE: keys[SDLK_ESCAPE] = 1; break;
+		default: break;
 	}
 	
 }
@@ -40,6 +43,7 @@ void on_key_up(short* keys, SDLKey sym) {
 		case SDLK_s: keys[SDLK_s] = 0; break;
 		case SDLK_d: keys[SDLK_d] = 0; break;
 		case SDLK_SPACE: keys[SDLK_SPACE] = 1; break;
+		default: break;
 	}
 	
 }

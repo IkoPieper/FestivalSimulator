@@ -25,6 +25,7 @@ void animation_free(animation_t* anim) {
 	
 	while (cycle != NULL) {
 		cycle_next = cycle->next;
+		SDL_FreeSurface(cycle->surf);
 		free(cycle);
 		cycle = cycle_next;
 	}

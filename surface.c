@@ -12,7 +12,7 @@ SDL_Surface* surface_on_load(const char* File) {
 	SDL_SetColorKey(surf_tmp, SDL_SRCCOLORKEY, SDL_MapRGB(surf_tmp->format, 255, 0, 255));
 	// function allocates memory for a new surface in display format
 	surf = SDL_DisplayFormat(surf_tmp);	
-	free(surf_tmp);
+	SDL_FreeSurface(surf_tmp);
  
 	/*fprintf(stderr, "Rmask: %x\n", surf->format->Rmask);
 	fprintf(stderr, "Gmask: %x\n", surf->format->Gmask);
@@ -26,7 +26,7 @@ SDL_Surface* surface_on_load(const char* File) {
 		Uint8 pxl_tmp;
 		int n;
 		for (n = 0; n < surf->w * surf->h; n++) {
-			pxl8 = &pxl[n];
+			pxl8 = (Uint8*) &pxl[n];
 			pxl_tmp = pxl8[0];
 			pxl8[0] = pxl8[2];
 			pxl8[2] = pxl_tmp;

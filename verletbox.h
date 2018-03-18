@@ -17,6 +17,7 @@ struct verletbox {
 };
 
 verletbox_t* verletbox_init(object_t* obj);
+void verletbox_free(verletbox_t* vbox);
 void verletbox_update(verletbox_t* vbox, object_t* obj);
 object_t* verletbox_get_first_object(object_t* obj);
 

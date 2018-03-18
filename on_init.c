@@ -11,6 +11,12 @@ object_t* on_init() {
 		return(NULL);
 	}
 	
+	if (SDL_VideoInit(NULL, 0) != 0) {
+		printf("Error initializing SDL video:  %s\n", SDL_GetError());
+		return(NULL);
+	}
+
+	
 	// init objects:
 	object_t* obj = NULL;
 	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
@@ -42,6 +48,13 @@ object_t* on_init() {
 		object_clean_up(obj);
 		return(NULL);
 	}
+	if (on_init_objects(obj) == 0) {
+		object_clean_up(obj);
+		return(NULL);
+	}
+	
+	
+	
 	
 	// init old positions:
 	object_t* obj_tmp = object_get_first(obj);
@@ -209,6 +222,9 @@ short on_init_hero(object_t* obj) {
 	object_add_animation(obj, 1);
 	obj->anim->delay_frames = 2;
 	
+	if((surf = surface_on_load("hero.bmp")) == NULL) {
+		return(0);
+	}
 	animation_add_surface(obj->anim, surf);
 	
 	if((surf = surface_on_load("hero_n_1.bmp")) == NULL) {
@@ -660,9 +676,6 @@ short on_init_buden(object_t* obj) {
 	
 	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
-	time_t t;
-	srand((unsigned) time(&t));
-	
 	SDL_Surface* surf_wall;
 	
 	int x = 1;
@@ -676,9 +689,6 @@ short on_init_buden(object_t* obj) {
 		obj->mass = 99999999999.0;
 		obj->damping = 1.0;
 		
-		//obj->pos_x = rand() % obj_bg->surface->w;
-		//obj->pos_y = rand() % obj_bg->surface->h;
-		
 		obj->pos_x = x * 160;
 		x++;
 		
@@ -689,9 +699,6 @@ short on_init_buden(object_t* obj) {
 		}
 		
 		obj->pos_y = y * 120;
-		
-		//obj->pos_x = rand() % obj_bg->surface->w;
-		//obj->pos_y = rand() % obj_bg->surface->h;
 		
 		obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
 		obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
@@ -709,4 +716,29 @@ short on_init_buden(object_t* obj) {
 	
 	return(1);
 	
+}
+
+short on_init_objects(object_t* obj) {
+	
+	configentry *data;
+	data = NULL;
+	data = conf_load_data(data, "objects/stone.txt");
+
+	if (data == NULL) {
+		printf("Warning: Unable to load config file. Use Default Settings.\n");
+		free(data);
+		return(0);
+	}
+	
+	obj = object_add(obj, conf_get_int(data, "object"));
+	obj->pos_x = conf_get_double(data, "pos_x");
+	obj->pos_y = conf_get_double(data, "pos_y");
+
+	printf("\nid: %d\n\n", obj->id);
+	printf("pos_x: %f\n", obj->pos_x);
+	printf("pos_y: %f\n", obj->pos_y);
+
+	conf_free_data(data);
+	
+	return(1);
 }

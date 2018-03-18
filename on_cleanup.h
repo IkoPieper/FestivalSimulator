@@ -3,7 +3,8 @@
 
 #include <SDL/SDL.h>
 #include "object.h"
+#include "verletbox.h"
 
-void on_cleanup(object_t* obj);
+void on_cleanup(object_t* obj, verletbox_t* vbox, short* keys);
 
 #endif

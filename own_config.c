@@ -2,7 +2,6 @@
 
 configentry *conf_load_data(configentry *data, const char *filename) {
 	configentry *entry;
-	configentry *newEntry;
 	char line [LINESIZE];
 	int i, j, lineSize;	
 	FILE *file;
@@ -31,11 +30,11 @@ configentry *conf_load_data(configentry *data, const char *filename) {
 			} 
 			value[j] = '\0';
 			// eintrag mit key und value erzeugen und hinten an liste anfuegen
-			newEntry = (configentry *) malloc (sizeof(configentry));
-			newEntry->key = key;
-			newEntry->value = value;
-			newEntry->next = data;
-			data = newEntry;
+			entry = (configentry *) malloc(sizeof(configentry));
+			entry->key = key;
+			entry->value = value;
+			entry->next = data;
+			data = entry;
 		}
 	}
 	fclose(file);
@@ -59,7 +58,18 @@ void conf_print_data(configentry *data) {
 	}
 }
 
-const char *conf_get_string(configentry *data, const char *key) {
+void conf_free_data(configentry *data) {
+	configentry *data_tmp;
+	while (data != NULL) {
+		free(data->key);
+		free(data->value);
+		data_tmp = data;
+		data = data->next;
+		free(data_tmp);
+	}
+}
+
+char *conf_get_string(configentry *data, char *key) {
 	configentry *entry = data;
 	while (entry != NULL && !strstr(key, entry->key)) {
 		entry = entry->next;
@@ -68,15 +78,15 @@ const char *conf_get_string(configentry *data, const char *key) {
 }
 
 
-int conf_get_int(configentry *data, const char *key) {
+int conf_get_int(configentry *data, char *key) {
 	return (atoi(conf_get_string(data, key)));
 }
 
-int conf_get_double(configentry *data, const char *key) {
+double conf_get_double(configentry *data, char *key) {
 	return (atof(conf_get_string(data, key)));
 }
 
-int conf_set_string(configentry *data, const char *key, const char *value) {
+int conf_set_string(configentry *data, char *key, char *value) {
 	configentry *entry = data;
 	while (entry != NULL && !strstr(key, entry->key)) {
 		entry = entry->next;
@@ -89,13 +99,13 @@ int conf_set_string(configentry *data, const char *key, const char *value) {
 	}
 }
 
-int conf_set_int(configentry *data, const char *key, int valueInt) {
+int conf_set_int(configentry *data, char *key, int valueInt) {
 	char value [LINESIZE];
 	sprintf(value,"%d",valueInt);
 	return conf_set_string(data, key, value);
 }
 
-int conf_set_double(configentry *data, const char *key, double valueDouble) {
+int conf_set_double(configentry *data, char *key, double valueDouble) {
 	char value [LINESIZE];
 	sprintf(value,"%f",valueDouble);
 	return conf_set_string(data, key, value);

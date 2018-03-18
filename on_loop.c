@@ -57,10 +57,10 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 		if (obj->anim != NULL) {
 			if (obj->id == OBJECT_HERO_ID) {
 				if (keys[SDLK_w] || keys[SDLK_a] || keys[SDLK_s] || keys[SDLK_d]) {
-					obj->surface = animation_get_next_surface(obj->anim, frame);
+					object_animate(obj, frame);
 				}
 			} else {
-				obj->surface = animation_get_next_surface(obj->anim, frame);
+				object_animate(obj, frame);
 			}
 		}
 		obj = obj->next_object;

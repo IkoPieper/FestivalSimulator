@@ -7,8 +7,8 @@
 #include <strings.h>
 
 struct configstruct {
-	const char *key;       	// Schluesselwort
-	const char *value;     	// Wert
+	char *key;       	// Schluesselwort
+	char *value;     	// Wert
 	struct configstruct *next;	// Zeiger
 };
 
@@ -31,11 +31,12 @@ typedef struct configstruct configentry;
 configentry *conf_load_data(configentry *data, const char *filename);
 void conf_write_data(configentry *data, const char *filename);
 void conf_print_data(configentry *data);
-const char *conf_get_string(configentry *data, const char *key);
-int conf_get_int(configentry *data, const char *key);
-int conf_get_double(configentry *data, const char *key);
-int conf_set_string(configentry *data, const char *key, const char *value);
-int conf_set_int(configentry *data, const char *key, int valueInt);
-int conf_set_double(configentry *data, const char *key, double valueDouble);
+void conf_free_data(configentry *data);
+char *conf_get_string(configentry *data, char *key);
+int conf_get_int(configentry *data, char *key);
+double conf_get_double(configentry *data, char *key);
+int conf_set_string(configentry *data, char *key, char *value);
+int conf_set_int(configentry *data, char *key, int valueInt);
+int conf_set_double(configentry *data, char *key, double valueDouble);
 
 #endif

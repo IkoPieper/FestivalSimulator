@@ -1,18 +1,17 @@
 #include "on_cleanup.h"
  
-void on_cleanup(object_t* obj) {
+void on_cleanup(object_t* obj, verletbox_t* vbox, short* keys) {
 	
-	SDL_SetVideoMode(400, 300, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+	//SDL_SetVideoMode(400, 300, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
 	
-	while (obj->prev_object != NULL) {
-		if (obj->surface != NULL) {
-			SDL_FreeSurface(obj->surface);
-		}
-		if (obj->font != NULL) {
-			TTF_CloseFont(obj->font);
-		}
-		obj = object_remove(obj, obj->id);
-	}
+	object_clean_up(obj);
+	
+	verletbox_free(vbox);
+	
+	free(keys);
+	
+	SDL_VideoQuit();
+	
 	
 	TTF_Quit();
 	SDL_Quit();

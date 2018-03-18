@@ -14,6 +14,8 @@ typedef struct collision collision_t;
 typedef struct walls walls_t;
 
 struct walls {
+	// keep the surface pointer to free the pixels later:
+	SDL_Surface* surf;
 	// collision pixels:
 	unsigned int* pxl;
 	// x and y relative to main sprite position:
@@ -66,6 +68,8 @@ struct object {
 	
 	// animations:
 	animation_t* anim;
+	short anim_first_call;	// free surface if animation is called for 
+							// the first time
 
 	// waypoints:
 	waypoints_t* ways;
@@ -103,6 +107,7 @@ struct object {
 };
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);
+void object_free_walls(walls_t* wall);
 
 object_t* object_get_last(object_t* obj);
 object_t* object_get_first(object_t* obj);
@@ -115,8 +120,10 @@ unsigned int object_get_count(object_t* obj);
 
 void object_add_animation(object_t* obj, unsigned int id);
 void object_select_animation(object_t* obj, unsigned int id);
-void object_remove_animation(object_t* obj, unsigned int id);
-void object_remove_selected_animation(object_t* obj);
+void object_animate(object_t* obj, unsigned long frame);
+/*void object_remove_animation(object_t* obj, unsigned int id);*/ // maybe broken
+/*void object_remove_selected_animation(object_t* obj);*/ // broken
+void object_free_animations(animation_t* anim);
 
 void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways);
 void object_select_waypoints(object_t* obj, unsigned int id);

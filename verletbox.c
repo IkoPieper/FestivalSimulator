@@ -63,6 +63,17 @@ verletbox_t* verletbox_init(object_t* obj) {
 	return(vbox);
 }
 
+void verletbox_free(verletbox_t* vbox) {
+	
+	int x;
+	
+	for (x = 0; x < vbox->num_w; x++) {
+		free(vbox->boxes[x]);
+	}
+	free(vbox->boxes);
+	free(vbox);
+		
+}
 
 void verletbox_update(verletbox_t* vbox, object_t* obj) {
 	
@@ -109,11 +120,6 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 					}
 				}
 				
-				fprintf(stderr, "obj->id: %d\n", obj->id);
-				fprintf(stderr, "obj->pos_x: %f, obj->pos_y: %f\n", obj->pos_x, obj->pos_y);
-				fprintf(stderr, "x: %d, y: %d\n", x, y);
-				fprintf(stderr, "vbox->num_w: %d, vbox->num_h: %d\n", vbox->num_w, vbox->num_h);
-				
 				// add to another list:
 				if (vbox->boxes[x][y] == NULL) {
 					obj->prev_vbox = NULL;
@@ -123,7 +129,6 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 					object_t* obj2 = vbox->boxes[x][y];
 					obj->prev_vbox = NULL;
 					obj->next_vbox = obj2;
-					fprintf(stderr, "obj2->id: %d\n", obj2->id);
 					obj2->prev_vbox = obj;
 					vbox->boxes[x][y] = obj;
 				}
