@@ -147,8 +147,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			// check for collision of background pixels 
 			// with corners of boundary box:
 			
-			unsigned int* pxl = obj1->wall->pxl;
-			unsigned int w = obj1->wall->w;
+			Uint8* pxl = obj1->wall->pxl;
+			unsigned int w = obj1->wall->w_bmp;
 			
 			if        (pxl[(y02 * w) + x02] != 0) {
 				collision = 1;
@@ -165,8 +165,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			// check for collision of background pixels 
 			// with boundary box:
 			
-			unsigned int* pxl = obj2->wall->pxl;
-			unsigned int w = obj2->wall->w;
+			Uint8* pxl = obj2->wall->pxl;
+			unsigned int w = obj2->wall->w_bmp;
 			
 			if        (pxl[(y01 * w) + x01] != 0) {
 				collision = 1;
@@ -208,6 +208,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 		
 		collision_t* col1 = NULL;
 		collision_t* col2 = NULL;
+		unsigned int w1_bmp = obj1->wall->w_bmp;
+		unsigned int w2_bmp = obj2->wall->w_bmp;
 		
 		x01 = (int) obj1->pos_x + obj1->wall->x;
 		y01 = (int) obj1->pos_y + obj1->wall->y;
@@ -235,8 +237,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 		int y_max = 0;
 		int x2_min = 0;
 		int y2_min = 0;
-		unsigned int obj1_pxl = 0;
-		unsigned int obj2_pxl = 0;
+		Uint8 obj1_pxl = 0;
+		Uint8 obj2_pxl = 0;
 		float norm = 1.0;
 	
 		// collision directions:
@@ -296,7 +298,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			for (x1 = x_min; x1 < x_max; x1++) {
 				
 				if (obj1->wall->pxl != NULL) {
-					obj1_pxl = obj1->wall->pxl[(y1 * w1) + x1];
+					obj1_pxl = obj1->wall->pxl[(y1 * w1_bmp) + x1];
 				} else { // use rectangular boundaries
 					obj1_pxl = 1;
 				}
@@ -306,7 +308,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 					y2 = y2_min + y1 - y_min;
 					if (obj2->wall->pxl != NULL) {
 						//fprintf(stderr, "obj2->id: %d\n", obj2->id);
-						obj2_pxl = obj2->wall->pxl[(y2 * w2) + x2];
+						obj2_pxl = obj2->wall->pxl[(y2 * w2_bmp) + x2];
 					} else { // use rectangular boundaries
 						obj2_pxl = 1;
 					}

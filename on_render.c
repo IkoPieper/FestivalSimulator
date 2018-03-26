@@ -24,27 +24,8 @@ void on_render(object_t* obj) {
 	glBindTexture(GL_TEXTURE_2D, obj_dsp->render_id);
 	glEnable(GL_TEXTURE_2D);
 	
-	GLenum textureFormat;
 	
-	/* Set the color mode */
-	switch (obj_dsp->surface->format->BytesPerPixel) {
-		case 4:
-			if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-				textureFormat = GL_BGRA;
-			} else {
-				textureFormat = GL_RGBA;
-			}
-		break;
-
-		case 3:
-			if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-				textureFormat = GL_BGR;
-			} else {
-				textureFormat = GL_RGB;
-			}
-		break;
-	}
-
+	
 	// many filters possible with the following code:
 	/*unsigned int* pxl = (unsigned int*) surf->pixels;
 	Uint8* pxl8;
@@ -63,8 +44,11 @@ void on_render(object_t* obj) {
 	glTexImage2D(
 		GL_TEXTURE_2D, 0, obj_dsp->surface->format->BytesPerPixel, 
 		obj_dsp->surface->w, obj_dsp->surface->h, 
-		0, textureFormat, GL_UNSIGNED_BYTE, 
+		0, GL_BGRA, GL_UNSIGNED_BYTE, 
 		obj_dsp->surface->pixels);
+	
+	// clear the color and depth buffers
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	
 	// make a rectangle
 	glBegin(GL_QUADS);

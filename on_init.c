@@ -83,16 +83,25 @@ short on_init_surfdisplay(object_t* obj) {
 	
 	//SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0); // disable vsync
 	
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 3);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 3);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 2);
+
+	
 	SDL_Surface* surf = NULL;
 	if((surf = SDL_SetVideoMode(
-		800, 600, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
+		800, 600, 8, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
 			// add 0,0,32 for native resolution and SDL_FULLSCREEN for fullscreen
 		return(0);
 	}
 	
-	if((obj->surface = surface_on_load("surfdisplay.bmp")) == NULL) {
+	SDL_Surface* surf_tmp = NULL;
+	
+	if((surf_tmp = surface_on_load("surfdisplay.bmp")) == NULL) {
 		return(0);
 	}
+	obj->surface = SDL_DisplayFormat(surf_tmp);
+	SDL_FreeSurface(surf_tmp);
 	
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0f);
@@ -711,7 +720,6 @@ short on_init_buden(object_t* obj) {
 			return(0);
 		}
 		obj->wall = object_init_walls(surf_wall, obj->surface);
-		
 	}
 	
 	return(1);

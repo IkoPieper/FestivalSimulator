@@ -106,16 +106,25 @@ object_t* object_add(object_t* obj, unsigned int id) {
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 	walls_t* wall = (walls_t*) malloc(sizeof(walls_t));
 	if (surf_wall != NULL) {
-		wall->pxl = (unsigned int*) surf_wall->pixels;
+		wall->pxl = (Uint8*) surf_wall->pixels;
 		wall->x = 0;
 		wall->y = surf->h - surf_wall->h;
+		
 		wall->w = surf_wall->w;
+		// bitmaps are stored as 32 bit blocks in memory. as we use
+		// 8 bit per pixel, we ahave to account for additional junk
+		// pixels that might be stored at the end of every row:
+		if (surf_wall->w % 4 == 0) {
+			wall->w_bmp = surf_wall->w;
+		} else {
+			wall->w_bmp = surf_wall->w + (4 - (surf_wall->w % 4));
+		}
 		wall->h = surf_wall->h;
 		// find most left pixel:
 		short pixel_found = 0;
-		for (wall->lx = 0; wall->lx < wall->w; wall->lx++) {
+		for (wall->lx = 0; wall->lx < wall->w_bmp; wall->lx++) {
 			for (wall->ly = wall->h - 1; wall->ly > 0; wall->ly--) {
-				if (wall->pxl[(wall->ly * wall->w) + wall->lx] != 0) {
+				if (wall->pxl[(wall->ly * wall->w_bmp) + wall->lx] != 0) {
 					pixel_found = 1;
 					break;
 				}
@@ -126,9 +135,9 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		}
 		// find most right pixel:
 		pixel_found = 0;
-		for (wall->rx = wall->w - 1; wall->rx >= 0; wall->rx--) {
+		for (wall->rx = wall->w_bmp - 1; wall->rx >= 0; wall->rx--) {
 			for (wall->ry = wall->h - 1; wall->ry > 0; wall->ry--) {
-				if (wall->pxl[(wall->ry * wall->w) + wall->rx] != 0) {
+				if (wall->pxl[(wall->ry * wall->w_bmp) + wall->rx] != 0) {
 					pixel_found = 1;
 					break;
 				}

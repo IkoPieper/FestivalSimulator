@@ -17,12 +17,13 @@ struct walls {
 	// keep the surface pointer to free the pixels later:
 	SDL_Surface* surf;
 	// collision pixels:
-	unsigned int* pxl;
+	Uint8* pxl;
 	// x and y relative to main sprite position:
 	unsigned int x;
 	unsigned int y;
 	// width and height:
 	unsigned int w;
+	unsigned int w_bmp;	// width in memory. see object_init_walls()
 	unsigned int h;
 	// position of most left pixel:
 	unsigned int lx;
