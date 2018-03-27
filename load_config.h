@@ -7,6 +7,6 @@
 #include <stdlib.h>
 
 configentry* load_config_defaults(configentry* entry, char* path, object_t* obj);
-//void load_config_animation(object_t* obj);
+configentry* load_config_animation(configentry* entry, char* path, object_t* obj);
 
 #endif

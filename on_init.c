@@ -19,9 +19,11 @@ object_t* on_init() {
 	
 	// init objects:
 	object_t* obj = NULL;
+	
+	
 	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
-	obj = object_add(obj, OBJECT_HERO_ID);			// hero
+	//obj = object_add(obj, OBJECT_HERO_ID);			// hero
 	obj = object_add(obj, OBJECT_SCORE_ID);			// score
 	for (int n = 1; n <= 200; n++) {
 		obj = object_add(obj, OBJECT_SCORE_ID + n); // buden
@@ -33,6 +35,10 @@ object_t* on_init() {
 		return(NULL);
 	}
 	if (on_init_background(obj) == 0) {
+		object_clean_up(obj);
+		return(NULL);
+	}
+	if (on_init_objects(obj) == 0) {
 		object_clean_up(obj);
 		return(NULL);
 	}
@@ -48,10 +54,8 @@ object_t* on_init() {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_objects(obj) == 0) {
-		object_clean_up(obj);
-		return(NULL);
-	}
+	
+	
 	
 	
 	
@@ -184,31 +188,11 @@ short on_init_background(object_t* obj) {
 
 short on_init_hero(object_t* obj) {
 	
-	SDL_Surface* surf = NULL;
+	// see objects/hero.txt for most of the initialization
 	
 	obj = object_get(obj, OBJECT_HERO_ID);
 	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
-	
-	// collision walls:
-	SDL_Surface* surf_wall;
-	if((surf_wall = surface_on_load("hero_walls.bmp")) == NULL) {
-		return(0);
-	}
-	
-	// default surface:
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	obj->surface = surf;
-	
-	obj->wall = object_init_walls(surf_wall, surf);
-	
-	// physics and collisions:
-	obj->can_move = 1;
-	obj->acc_abs = 0.5;	// determines the acceleration on key press
-	obj->damping = 0.1;
-	obj->mass = 1.0;
 	
 	// start position is middle of screen:
 	obj->scr_pos_x = obj_dsp->surface->w / 2;
@@ -223,409 +207,6 @@ short on_init_hero(object_t* obj) {
 	obj->min_scr_pos_y = (float) (0 + obj_dsp->surface->h / 5);
 	obj->max_scr_pos_y = (float) (obj_dsp->surface->h 
 		- obj_dsp->surface->h / 5 - obj->surface->h);
-	
-
-	// animation walk:
-	
-	// walk north:
-	object_add_animation(obj, 1);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_n_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-
-	
-	// walk south:
-	object_add_animation(obj, 2);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_s_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-
-
-	// walk west:
-	object_add_animation(obj, 3);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_w_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	
-	// walk east:
-	object_add_animation(obj, 4);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_e_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	
-	// walk north west:
-	object_add_animation(obj, 5);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_nw_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	
-	// walk north east:
-	object_add_animation(obj, 6);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_ne_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	
-	// walk south west:
-	object_add_animation(obj, 7);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_sw_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	
-	// walk south east:
-	object_add_animation(obj, 8);
-	obj->anim->delay_frames = 2;
-	
-	if((surf = surface_on_load("hero.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_1.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_2.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_3.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_4.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_5.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_6.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_7.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
-	if((surf = surface_on_load("hero_se_8.bmp")) == NULL) {
-		return(0);
-	}
-	animation_add_surface(obj->anim, surf);
-	
 	
 	return(1);
 }
@@ -760,12 +341,9 @@ short on_init_objects(object_t* obj) {
 				if        (strcmp(entry->key, "object") == 0) {
 					entry = load_config_defaults(entry, path, obj);
 				} else if (strcmp(entry->key, "animation") == 0) {
-					// entry = load_config_animation(entry, path, obj);
+					entry = load_config_animation(entry, path, obj);
 				} 
-				
-				if (entry != NULL) {
-					entry = entry->next;
-				}
+
 			}
 			
 			conf_free_data(data);

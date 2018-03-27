@@ -5,14 +5,14 @@ configentry *conf_load_data(const char *filename) {
 	configentry *entry;
 	configentry *entry_tmp;
 	char line [LINESIZE];
-	int i, j, lineSize;	
+	int i, j, lineSize;
 	FILE *file;
 	file = fopen(filename, "r");
 	if (file == NULL)
 		return NULL;
 	while (fgets(line, LINESIZE, file) != NULL) { // line-weise auslesen bis dateiende
 		lineSize = strlen(line);
-		if (lineSize > 1) { // wenn in line was steht
+		if (lineSize > 1 && line[0] != '#') { // wenn in line was steht
 			char *key = (char *) malloc(KEYSIZE * sizeof(char));
 			char *value = (char *) malloc(VALUESIZE * sizeof(char));
 			i = 0;
