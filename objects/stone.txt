@@ -2,5 +2,4 @@ object = 500
 pos_x = 1515.5
 pos_y = 815
 surface = stone.bmp
-
 walls = stone_walls.bmp

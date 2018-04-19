@@ -12,6 +12,8 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	//printf("time for verletbox_update: %d\n", SDL_GetTicks() - time);
 	//time = SDL_GetTicks();
 	
+	// check collisions with background first, 
+	// because background is too big for verlet boxes:
 	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	obj = object_get_first(obj);
@@ -37,7 +39,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	
 	//printf("time for background collisions: %d\n", SDL_GetTicks() - time);
 	//time = SDL_GetTicks();
-	
+	// iterate over verlet boxes:
 	object_t* obj_b = NULL;
 	
 	for (x = 0; x < vbox->num_w; x++) {
@@ -87,7 +89,8 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 							} else {                    // neighbor vbox
 								obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
 							}
-						
+							
+							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
 						
 								if (obj->can_move || obj_b->can_move) {
@@ -191,7 +194,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 	
 	}
 		
-	
+	// update render list:
 	if (collision &&
 		obj1->id != OBJECT_SURFDISPLAY_ID &&
 		obj1->id != OBJECT_BACKGROUND_ID &&
