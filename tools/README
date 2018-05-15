@@ -2,6 +2,10 @@
 Schablone für isometrische Perspektive erzeugen
 -----------------------------------------------
 
+0. Installiere octave (einmalig):
+Befehl:
+sudo apt-get install octave
+
 1. Male die Grundfläche des Objekts mit einem Bildbearbeitungsprogramm
 aus der Sicht von Oben:
 (ich empfehle KolourPaint: sudo apt-get install kolourpaint4)
@@ -10,7 +14,8 @@ Das Gezeichnete muss Weiß sein.
 Das Dateiformat muss .bmp sein.
 
 2. Mache das iso Skript ausführbar (einmalig):
-Befehl: chmod +x iso
+Befehl: 
+chmod +x iso
 
 3. Führe das iso Skript aus:
 Befehl: 
@@ -19,8 +24,5 @@ Beispiel:
 ./iso zeltboden.bmp 20
 
 Im Beispiel wurde eine zeltboden_20.bmp Datei erzeugt, die als Schablone
-für die Zeichnung verwendet werden kann.
-
-
-Neben der Grundfläche können so auch weitere Ebenen (zum Beispiel das
-Zeltdach) erzeugt werden. 
+für die Zeichnung verwendet werden kann. Neben der Grundfläche können so
+auch weitere Ebenen (zum Beispiel das Zeltdach) erzeugt werden. 
