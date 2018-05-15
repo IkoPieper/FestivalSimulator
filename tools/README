@@ -12,6 +12,7 @@ aus der Sicht von Oben:
 Der Hintergrund muss Schwarz sein.
 Das Gezeichnete muss Weiß sein.
 Das Dateiformat muss .bmp sein.
+Die Datei muss am Ende in diesem Ordner (tools) landen
 
 2. Mache das iso Skript ausführbar (einmalig):
 Befehl: 
