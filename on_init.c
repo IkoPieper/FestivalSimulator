@@ -46,10 +46,11 @@ object_t* on_init() {
 		object_clean_up(obj);
 		return(NULL);
 	}
+	/*
 	if (on_init_buden(obj) == 0) {
 		object_clean_up(obj);
 		return(NULL);
-	}
+	}*/
 	
 
 
