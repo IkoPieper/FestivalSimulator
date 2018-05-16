@@ -112,7 +112,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		
 		wall->w = surf_wall->w;
 		// bitmaps are stored as 32 bit blocks in memory. as we use
-		// 8 bit per pixel, we ahave to account for additional junk
+		// 8 bit per pixel, we have to account for additional junk
 		// pixels that might be stored at the end of every row:
 		if (surf_wall->w % 4 == 0) {
 			wall->w_bmp = surf_wall->w;
@@ -158,6 +158,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->x = 0;
 		wall->y = 0;
 		wall->w = surf->w;
+		wall->w_bmp = surf->w;
 		wall->h = surf->h;
 		wall->rx = surf->w;
 		wall->ry = surf->h;
