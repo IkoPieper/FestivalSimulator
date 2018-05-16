@@ -158,7 +158,11 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->x = 0;
 		wall->y = 0;
 		wall->w = surf->w;
-		wall->w_bmp = surf->w;
+		if (surf->w % 4 == 0) {
+			wall->w_bmp = surf->w;
+		} else {
+			wall->w_bmp = surf->w + (4 - (surf->w % 4));
+		}
 		wall->h = surf->h;
 		wall->rx = surf->w;
 		wall->ry = surf->h;
