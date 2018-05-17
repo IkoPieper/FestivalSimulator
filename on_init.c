@@ -22,9 +22,10 @@ object_t* on_init() {
 	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	obj = object_add(obj, OBJECT_SCORE_ID);			// score
+	/*
 	for (int n = 1; n <= 200; n++) {
 		obj = object_add(obj, OBJECT_SCORE_ID + n); // buden
-	}	
+	}*/	
 	
 	if (on_init_surfdisplay(obj) == 0) {	// inits video incl. openGL
 		object_clean_up(obj);
