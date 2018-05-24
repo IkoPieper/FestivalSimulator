@@ -71,7 +71,7 @@ endfunction
 function b = transform(x, z, ang)
 
 % constants:
-alpha = asin(tan(pi * 30 / 180));
+alpha = asin(tan(pi * 60 / 360));
 beta = pi * ang / 180;
 
 % input vector:
