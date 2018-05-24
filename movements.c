@@ -24,6 +24,15 @@ void movements(object_t* obj, short* keys) {
 	// display / background movements:
 	movements_background(obj_bg, obj_hero);
 	
+	
+	if (obj_hero->pos_x != obj_hero->pos_x_old ||
+		obj_hero->pos_y != obj_hero->pos_y_old) {
+		obj_hero->has_moved = 1;
+	} else {
+		obj_hero->has_moved = 0;
+	}
+	
+	
 	// all objects:
 	obj = obj_first;
 	while (obj != NULL) {
@@ -37,6 +46,16 @@ void movements(object_t* obj, short* keys) {
 			
 			movements_accelerate(obj);
 			movements_screen_position(obj, obj_bg);
+			
+			if (obj->can_move) {
+				if (obj->pos_x != obj->pos_x_old ||
+					obj->pos_x != obj->pos_x_old) {
+					obj->has_moved = 1;
+				} else {
+					obj->has_moved = 0;
+				}
+			}
+				
 		}
 		
 		obj = obj->next_object;

@@ -155,6 +155,7 @@ short on_init_background(object_t* obj) {
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
+	obj->has_moved = 0;
 	obj->mass = 99999999999.0;
 	obj->damping = 1.0;
 	

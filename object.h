@@ -70,6 +70,7 @@ struct object {
 	
 	// physics:
 	short can_move;
+	short has_moved;
 	float mass;
 	float damping;
 	float pos_x;        // position in relation to background
@@ -101,7 +102,6 @@ struct object {
 	animation_t* anim;
 	short anim_first_call;	// free surface if animation is called for 
 							// the first time
-	
 	// waypoints:
 	waypoints_t* ways;
 	

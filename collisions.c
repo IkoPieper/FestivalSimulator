@@ -20,7 +20,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 	while (obj != NULL) {
 				
-		if (obj->can_move) {
+		if (obj->has_moved) {
 		
 			obj->vel_lock = 0;
 			
@@ -93,7 +93,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
 						
-								if (obj->can_move || obj_b->can_move) {
+								if (obj->has_moved || obj_b->has_moved) {
 									collision = collisions_check(obj, obj_b);
 					
 									if (collision == 0) {

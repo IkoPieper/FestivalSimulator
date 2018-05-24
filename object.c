@@ -62,6 +62,7 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	
 	// physics:
 	obj_new->can_move = 0;
+	obj_new->has_moved = 1;	// init with 1 to set up render list
 	obj_new->mass = 1.0;
 	obj_new->damping = 0.2;
 	obj_new->pos_x = 1.0;
