@@ -60,6 +60,7 @@ struct object {
 	// render:
 	object_t* next_render;
 	object_t* prev_render;
+	listuint_t* render_after;
 	GLuint render_id;
 	
 	// verlet boxes:
