@@ -89,7 +89,7 @@ short on_init_surfdisplay(object_t* obj) {
 	
 	SDL_Surface* surf = NULL;
 	if((surf = SDL_SetVideoMode(
-		800, 600, 8, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
+		800, 600, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
 			// add 0,0,32 for native resolution and SDL_FULLSCREEN for fullscreen
 		return(0);
 	}

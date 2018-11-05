@@ -44,7 +44,7 @@ void on_render(object_t* obj) {
 	glTexImage2D(
 		GL_TEXTURE_2D, 0, obj_dsp->surface->format->BytesPerPixel, 
 		obj_dsp->surface->w, obj_dsp->surface->h, 
-		0, GL_BGRA, GL_UNSIGNED_BYTE, 
+		0, 0x80E1, GL_UNSIGNED_BYTE, 
 		obj_dsp->surface->pixels);
 	
 	// clear the color and depth buffers

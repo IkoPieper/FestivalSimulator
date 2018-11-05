@@ -147,9 +147,10 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 		
 		if (obj1->id == OBJECT_BACKGROUND_ID) {
 			
+			collision = 1;
+			/*
 			// check for collision of background pixels 
 			// with corners of boundary box:
-			
 			Uint8* pxl = obj1->wall->pxl;
 			unsigned int w = obj1->wall->w_bmp;
 			
@@ -162,12 +163,13 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			} else if (pxl[(yh2 * w) + xw2] != 0) {
 				collision = 1;
 			}
-			
+			*/
 		} else if (obj2->id == OBJECT_BACKGROUND_ID) {
 			
+			collision = 1;
+			/*
 			// check for collision of background pixels 
 			// with boundary box:
-			
 			Uint8* pxl = obj2->wall->pxl;
 			unsigned int w = obj2->wall->w_bmp;
 			
@@ -180,7 +182,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			} else if (pxl[(yh1 * w) + xw1] != 0) {
 				collision = 1;
 			}
-			
+			*/
 		} else {
 			
 			// check for collision of boundary boxes:

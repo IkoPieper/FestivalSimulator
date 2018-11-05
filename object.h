@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include "datatypes.h"
 #include "animation.h"
 #include "waypoints.h"
 #include <GL/gl.h>
