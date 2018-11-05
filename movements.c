@@ -49,7 +49,7 @@ void movements(object_t* obj, short* keys) {
 			
 			if (obj->can_move) {
 				if (obj->pos_x != obj->pos_x_old ||
-					obj->pos_x != obj->pos_x_old) {
+					obj->pos_y != obj->pos_y_old) {
 					obj->has_moved = 1;
 				} else {
 					obj->has_moved = 0;
