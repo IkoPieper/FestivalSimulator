@@ -35,7 +35,7 @@ int on_execute() {
 			
 			on_event(&event, keys);
 			
-			if (keys[SDLK_ESCAPE]) {
+			if (keys[SDLK_ESCAPE] || event.type == SDL_QUIT) {
 				running = 0;
 			}
 		}

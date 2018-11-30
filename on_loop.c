@@ -32,7 +32,7 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 		
 		// select animation:
 		if (obj->id == OBJECT_HERO_ID) {
-			if        (keys[SDLK_w] && keys[SDLK_a]) {  // north west
+			/*if        (keys[SDLK_w] && keys[SDLK_a]) {  // north west
 				object_select_animation(obj, 5);
 			} else if (keys[SDLK_w] && keys[SDLK_d]) {  // north east
 				object_select_animation(obj, 6);
@@ -50,18 +50,33 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 				object_select_animation(obj, 4);
 			} else {
 				// stop animation
+			}*/
+			if (keys[SDLK_w]) {         // north
+				object_select_animation(obj, 1);
+			} else if (keys[SDLK_s]) {  // south
+				object_select_animation(obj, 2);
+			} else if (keys[SDLK_a]) {  // west
+				object_select_animation(obj, 3);
+			} else if (keys[SDLK_d]) {  // east
+				object_select_animation(obj, 4);
+			} else {                    // stop animations
+				obj->anim->cycle = obj->anim->cycle_first;
+				if (obj->anim->id == 1) {
+					object_select_animation(obj, 5);
+				} else if (obj->anim->id == 2) {
+					object_select_animation(obj, 6);
+				} else if (obj->anim->id == 3) {
+					object_select_animation(obj, 7);
+				} else if (obj->anim->id == 4) {
+					object_select_animation(obj, 8);
+				}
+				obj->anim->cycle = obj->anim->cycle_first;
 			}
 		}
 		
 		// animate:
 		if (obj->anim != NULL) {
-			if (obj->id == OBJECT_HERO_ID) {
-				if (keys[SDLK_w] || keys[SDLK_a] || keys[SDLK_s] || keys[SDLK_d]) {
-					object_animate(obj, frame);
-				}
-			} else {
-				object_animate(obj, frame);
-			}
+			object_animate(obj, frame);
 		}
 		obj = obj->next_object;
 	}

@@ -663,48 +663,62 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	
 	// update render list:
 	if (yl2 >= yl1 && yr2 >= yr1) {
-		// render obj2 right after obj1:
-		if (obj1->next_render != NULL) {
-			obj1->next_render->prev_render = obj2;
+		// check if obj1 is rendered before obj2 anyway
+		object_t* obj_tmp = obj2;
+		while (obj_tmp != NULL && obj_tmp != obj1) {
+			obj_tmp = obj_tmp->prev_render;
 		}
-		if (obj2->next_render != NULL) {
-			obj2->next_render->prev_render = obj2->prev_render;
-		}
-		if (obj2->prev_render != NULL) {
-			obj2->prev_render->next_render = obj2->next_render;
-		}
-		if (obj1->next_render != NULL) {
-			if (obj1->next_render != obj2) {
-				obj2->next_render = obj1->next_render;
-			} else {
-				obj2->next_render = obj1->next_render->next_render;
+		if (obj_tmp == NULL) {
+			// render obj1 right before obj2:
+			if (obj2->prev_render != NULL) {
+				obj2->prev_render->next_render = obj1;
 			}
-		} else {
-			obj2->next_render = NULL;
+			if (obj1->prev_render != NULL) {
+				obj1->prev_render->next_render = obj1->next_render;
+			}
+			if (obj1->next_render != NULL) {
+				obj1->next_render->prev_render = obj1->prev_render;
+			}
+			if (obj2->prev_render != NULL) {
+				if (obj2->prev_render != obj1) {
+					obj1->prev_render = obj2->prev_render;
+				} else {
+					obj1->prev_render = obj2->prev_render->prev_render;
+				}
+			} else {
+				obj1->prev_render = NULL;
+			}
+			obj2->prev_render = obj1;
+			obj1->next_render = obj2;
 		}
-		obj1->next_render = obj2;
-		obj2->prev_render = obj1;
 	} else {
-		// render obj2 right before obj1:
-		if (obj1->prev_render != NULL) {
-			obj1->prev_render->next_render = obj2;
+		// check if obj1 is rendered after obj2 anyway
+		object_t* obj_tmp = obj2;
+		while (obj_tmp != NULL && obj_tmp != obj1) {
+			obj_tmp = obj_tmp->next_render;
 		}
-		if (obj2->prev_render != NULL) {
-			obj2->prev_render->next_render = obj2->next_render;
-		}
-		if (obj2->next_render != NULL) {
-			obj2->next_render->prev_render = obj2->prev_render;
-		}
-		if (obj1->prev_render != NULL) {
-			if (obj1->prev_render != obj2) {
-				obj2->prev_render = obj1->prev_render;
-			} else {
-				obj2->prev_render = obj1->prev_render->prev_render;
+		if (obj_tmp == NULL) {
+			// render obj1 right after obj2:
+			if (obj2->next_render != NULL) {
+				obj2->next_render->prev_render = obj1;
 			}
-		} else {
-			obj2->prev_render = NULL;
+			if (obj1->next_render != NULL) {
+				obj1->next_render->prev_render = obj1->prev_render;
+			}
+			if (obj1->prev_render != NULL) {
+				obj1->prev_render->next_render = obj1->next_render;
+			}
+			if (obj2->next_render != NULL) {
+				if (obj2->next_render != obj1) {
+					obj1->next_render = obj2->next_render;
+				} else {
+					obj1->next_render = obj2->next_render->next_render;
+				}
+			} else {
+				obj1->next_render = NULL;
+			}
+			obj2->next_render = obj1;
+			obj1->prev_render = obj2;
 		}
-		obj1->prev_render = obj2;
-		obj2->next_render = obj1;
 	}
 }
