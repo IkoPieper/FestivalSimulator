@@ -69,19 +69,6 @@ void movements_hero(object_t* obj, short* keys) {
 	short ay = 0;
 	float norm = 1.0;
 	
-	/*if (keys[SDLK_w] && obj->acc_y == 0) {
-		ay -= 1;
-	}
-	if (keys[SDLK_s] && obj->acc_y == 0) {
-		ay += 1;
-	}
-	if (keys[SDLK_a] && obj->acc_x == 0) {
-		ax -= 1;
-	}
-	if (keys[SDLK_d] && obj->acc_x == 0) {
-		ax += 1;
-	}*/
-	
 	if (keys[SDLK_w]) {
 		ay -= 1;
 	}
@@ -101,8 +88,6 @@ void movements_hero(object_t* obj, short* keys) {
 	
 	obj->acc_x = obj->acc_abs * (float) ax / norm;
 	obj->acc_y = obj->acc_abs * (float) ay / norm;
-	
-	fprintf(stdout, "obj->acc_x = %f, obj->acc_y = %f\n", obj->acc_x, obj->acc_y);
 	
 }
 

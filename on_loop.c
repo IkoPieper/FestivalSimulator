@@ -32,25 +32,7 @@ void on_loop_animations(object_t* obj, short* keys, unsigned long frame) {
 		
 		// select animation:
 		if (obj->id == OBJECT_HERO_ID) {
-			/*if        (keys[SDLK_w] && keys[SDLK_a]) {  // north west
-				object_select_animation(obj, 5);
-			} else if (keys[SDLK_w] && keys[SDLK_d]) {  // north east
-				object_select_animation(obj, 6);
-			} else if (keys[SDLK_s] && keys[SDLK_a]) {  // south west
-				object_select_animation(obj, 7);
-			} else if (keys[SDLK_s] && keys[SDLK_d]) {  // south east
-				object_select_animation(obj, 8);
-			} else if (keys[SDLK_w]) {  // north
-				object_select_animation(obj, 1);
-			} else if (keys[SDLK_s]) {  // south
-				object_select_animation(obj, 2);
-			} else if (keys[SDLK_a]) {  // west
-				object_select_animation(obj, 3);
-			} else if (keys[SDLK_d]) {  // east
-				object_select_animation(obj, 4);
-			} else {
-				// stop animation
-			}*/
+			
 			if (keys[SDLK_w]) {         // north
 				object_select_animation(obj, 1);
 			} else if (keys[SDLK_s]) {  // south
