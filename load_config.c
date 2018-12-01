@@ -128,3 +128,32 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 	return(entry);
 	
 }
+
+configentry* load_config_text(configentry* entry, object_t* obj) {
+	
+	while (entry != NULL) {
+		
+		if        (strcmp(entry->key, "text") == 0) {
+			
+			object_add_text(obj, atoi(entry->value));
+			printf("Text %d added\n", atoi(entry->value));
+			entry = entry->next;
+			
+		} else if (strcmp(entry->key, "de") == 0) {
+			
+			if (strcmp(obj->txt_language, "de") == 0) {
+				text_add_string(obj->txt, entry->value);
+			}
+			entry = entry->next;
+			
+			fprintf(stdout, "%s\n", obj->txt->str);
+			
+		} else {
+			break;
+		}
+		
+	}
+	
+	return(entry);
+	
+}

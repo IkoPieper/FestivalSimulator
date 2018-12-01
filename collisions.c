@@ -95,6 +95,15 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						
 								if (obj->has_moved || obj_b->has_moved) {
 									collision = collisions_check(obj, obj_b);
+									
+									if (collision) {
+										if (obj->txt != NULL) {
+											obj->txt_print = 1;
+										}
+										if (obj_b->txt != NULL) {
+											obj_b->txt_print = 1;
+										}
+									}
 					
 									if (collision == 0) {
 										object_remove_collision(obj, obj_b);
@@ -590,8 +599,8 @@ void collisions_impulse(
 	}
 	
 	// for debuging:
-	/*
-	fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
+	
+	/*fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
 	fprintf(stderr, "scr_pos_x = %d, c1x = %e, v1x = %e, vel_x = %e, acc_x = %e\n", obj1->scr_pos_x, c1x, v1x, obj1->vel_x, obj1->acc_x);
 	fprintf(stderr, "scr_pos_y = %d, c1y = %e, v1y = %e, vel_y = %e, acc_y = %e\n", obj1->scr_pos_y, c1y, v1y, obj1->vel_y, obj1->acc_y);
 	fprintf(stderr, "m1 = %e, v1n_pre = %e, v1r = %e, v1n = %e\n", m1, v1n_pre, v1r, v1n);
@@ -614,8 +623,8 @@ void collisions_impulse(
 		fprintf(stderr, "%d, ", col->partner->id);
 		col = col->next;
 	}
-	fprintf(stderr, "\n");
-	*/
+	fprintf(stderr, "\n");*/
+	
 }
 
 void collisions_update_render(object_t* obj1, object_t* obj2) {

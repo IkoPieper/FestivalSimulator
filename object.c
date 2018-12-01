@@ -88,11 +88,19 @@ object_t* object_add(object_t* obj, unsigned int id) {
 	// bitmaps:
 	obj_new->surface = NULL;
 	obj_new->wall = NULL;
-	obj_new->font = NULL;
 	
 	// animations:
 	obj_new->anim = NULL;
 	obj_new->anim_first_call = 1;
+	
+	// texts:
+	obj_new->txt_language = (char *) malloc(3 * sizeof(char));
+	obj_new->txt_language[0] = 'd';
+	obj_new->txt_language[1] = 'e';
+	obj_new->txt_language[2] = '\0';
+	obj_new->txt = NULL;
+	obj_new->txt_print = 0;
+	obj_new->txt_surface = NULL;
 
 	// waypoints:
 	obj_new->ways = NULL;
@@ -207,14 +215,17 @@ object_t* object_remove(object_t* obj, unsigned int id) {
 	if (obj->surface != NULL && obj->anim_first_call) {
 		SDL_FreeSurface(obj->surface);
 	}
-	if (obj->font != NULL) {
-		TTF_CloseFont(obj->font);
+	if (obj->txt_surface != NULL) {
+		SDL_FreeSurface(obj->txt_surface);
 	}
 	if (obj->wall != NULL) {
 		object_free_walls(obj->wall);
 	}
 	if (obj->anim != NULL) {
 		object_free_animations(obj->anim);
+	}
+	if (obj->txt != NULL) {
+		object_free_texts(obj->txt);
 	}
 	
 	free(obj);
@@ -264,7 +275,6 @@ void object_add_animation(object_t* obj, unsigned int id) {
 	
 	// set as current animation:
 	obj->anim = anim;
-	
 }
 
 void object_select_animation(object_t* obj, unsigned int id) {
@@ -293,8 +303,6 @@ void object_animate(object_t* obj, unsigned long frame) {
 	
 	// get next picture:
 	obj->surface = animation_get_next_surface(obj->anim, frame);
-	
-	
 }
 
 /*void object_remove_animation(object_t* obj, unsigned int id) {
@@ -361,6 +369,60 @@ void object_free_animations(animation_t* anim) {
 		anim_tmp = anim;
 		anim = anim->next;
 		animation_free(anim_tmp);
+	}
+	
+}
+
+void object_add_text(object_t* obj, unsigned int id) {
+	
+	text_t* txt = text_init(id);
+	
+	// place at first place in list:
+	txt->next = obj->txt;
+	
+	if (obj->txt != NULL) {
+		obj->txt->prev = txt;
+	}
+	
+	// set as current text:
+	obj->txt = txt;
+}
+
+void object_select_text(object_t* obj, unsigned int id) {
+	
+	text_t* txt = obj->txt;
+	
+	// get first text:
+	while (txt->prev != NULL) {
+		txt = txt->prev;
+	}
+	// find text:
+	while (txt->id != id) {
+		txt = txt->next;
+	}
+	// select text:
+	obj->txt = txt;
+}
+
+void object_print_text(object_t* obj) {
+	
+	obj->txt_print = 1;
+	
+}
+
+void object_free_texts(text_t* text) {
+	
+	text_t* text_tmp;
+	
+	// get first text:
+	while (text->prev != NULL) {
+		text = text->prev;
+	}
+	
+	while (text != NULL) {
+		text_tmp = text;
+		text = text->next;
+		text_free(text_tmp);
 	}
 	
 }

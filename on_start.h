@@ -5,7 +5,6 @@
 #include "object.h"
 #include "on_render.h"
 #include "surface.h"
-#include "font.h"
 
 void on_start(object_t* obj);
 

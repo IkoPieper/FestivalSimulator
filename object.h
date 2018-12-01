@@ -2,9 +2,9 @@
     #define _OBJECT_H_
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 #include "datatypes.h"
 #include "animation.h"
+#include "text.h"
 #include "waypoints.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -98,12 +98,18 @@ struct object {
 	SDL_Surface* surface;	// current picture
 	//unsigned int* walls;	// aka collision zones
 	walls_t* wall;	        // aka collision zones
-	TTF_Font* font;
 	
 	// animations:
-	animation_t* anim;
+	animation_t* anim;		// current animation from list of animations
 	short anim_first_call;	// free surface if animation is called for 
 							// the first time
+							
+	// texts:
+	char* txt_language;			// the language the object speaks
+	text_t* txt;				// current text from list of texts
+	SDL_Surface* txt_surface;	// string of current text as surface
+	unsigned int txt_print;		// > 0 print current text
+	
 	// waypoints:
 	waypoints_t* ways;
 	
@@ -131,6 +137,11 @@ void object_animate(object_t* obj, unsigned long frame);
 /*void object_remove_animation(object_t* obj, unsigned int id);*/ // maybe broken
 /*void object_remove_selected_animation(object_t* obj);*/ // broken
 void object_free_animations(animation_t* anim);
+
+void object_add_text(object_t* obj, unsigned int id);
+void object_select_text(object_t* obj, unsigned int id);
+void object_print_text(object_t* obj);
+void object_free_texts(text_t* txt);
 
 void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways);
 void object_select_waypoints(object_t* obj, unsigned int id);

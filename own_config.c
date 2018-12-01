@@ -5,7 +5,7 @@ configentry *conf_load_data(const char *filename) {
 	configentry *entry;
 	configentry *entry_tmp;
 	char line [LINESIZE];
-	int i, j, lineSize;
+	int i, j, lineSize, is_string;
 	FILE *file;
 	file = fopen(filename, "r");
 	if (file == NULL)
@@ -25,8 +25,19 @@ configentry *conf_load_data(const char *filename) {
 			key[j] = '\0';
 			i++;
 			j = 0;
+			
+			is_string = 0;
 			while (line[i] != '#' && j < VALUESIZE && i < lineSize-1) { // value auslesen
-				if (line[i] != ' ') // leerzeichen streichen
+				
+				if (line[i] == '"') {
+					if (is_string == 0) {
+						is_string = 1; // anfuehrungszeichen starten
+					} else {
+						is_string = 0; // anfuehrungszeichen beenden
+					}
+				}
+					
+				if (is_string == 1 || line[i] != ' ') // leerzeichen streichen wenn kein string
 					value[j++] = line[i];
 				i++;
 			} 

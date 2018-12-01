@@ -6,7 +6,6 @@
 #include "verletbox.h"
 #include "on_init.h"
 #include "surface.h"
-#include "font.h"
 #include "event.h"
 #include "on_start.h"
 #include "on_loop.h"

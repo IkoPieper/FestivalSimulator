@@ -21,7 +21,6 @@ object_t* on_init() {
 	
 	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
-	obj = object_add(obj, OBJECT_SCORE_ID);			// score
 	/*
 	for (int n = 1; n <= 200; n++) {
 		obj = object_add(obj, OBJECT_SCORE_ID + n); // buden
@@ -40,10 +39,6 @@ object_t* on_init() {
 		return(NULL);
 	}
 	if (on_init_hero(obj) == 0) {
-		object_clean_up(obj);
-		return(NULL);
-	}
-	if (on_init_score(obj) == 0) {
 		object_clean_up(obj);
 		return(NULL);
 	}
@@ -206,30 +201,6 @@ short on_init_hero(object_t* obj) {
 	
 	return(1);
 }
-
-short on_init_score(object_t* obj) {
-	
-	obj = object_get(obj, OBJECT_SCORE_ID);
-	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
-	
-	obj->can_move = 1;
-	obj->mass = 0.2;
-	obj->damping = 0.03;
-	
-	obj->pos_x = 1112.0;
-	obj->pos_y = 680.0;
-	obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
-	obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
-	
-	if((obj->font = TTF_OpenFont("FreeSansBold.ttf", 20)) == NULL) {
-		return(0);
-	}
-
-	if((obj->surface = font_draw_text(obj->font, "0")) == NULL) {
-		return(0);
-	}
-	
-	obj->wall = object_init_walls(NULL, obj->surface);
 	
 	// waypoints:
 	/*unsigned int num_ways = 5;
@@ -254,9 +225,6 @@ short on_init_score(object_t* obj) {
 
 	object_activate_waypoints(obj);*/
 	
-	return(1);
-	
-}
 
 short on_init_buden(object_t* obj) {
 	
@@ -338,6 +306,8 @@ short on_init_objects(object_t* obj) {
 					entry = load_config_defaults(entry, path, obj);
 				} else if (strcmp(entry->key, "animation") == 0) {
 					entry = load_config_animation(entry, path, obj);
+				} else if (strcmp(entry->key, "text") == 0) {
+					entry = load_config_text(entry, obj);
 				} 
 
 			}

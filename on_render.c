@@ -4,10 +4,12 @@ void on_render(object_t* obj) {
 	
 	//Uint32 time;
 	
+	object_t* obj_first = object_get_first_render(obj);
+	
 	// draw objects on surf display:
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
-	obj = object_get_first_render(obj);
+	obj = obj_first;
 	
 	while (obj != NULL) {
 		
@@ -15,6 +17,18 @@ void on_render(object_t* obj) {
 			surface_on_draw(
 			obj_dsp->surface, obj->surface, 
 			(int) obj->scr_pos_x, (int) obj->scr_pos_y);
+		}
+		
+		obj = obj->next_render;
+	}
+	
+	obj = obj_first;
+	
+	while (obj != NULL) {
+		
+		if (obj->txt_print != 0) {
+			
+			on_render_text(obj, obj_dsp);
 		}
 		
 		obj = obj->next_render;
@@ -80,4 +94,38 @@ void on_render(object_t* obj) {
 	//glDeleteTextures(1, &textureid);
 	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
 
+}
+
+void on_render_text(object_t* obj, object_t* obj_dsp) {
+	
+	char str[obj->txt->length];
+	unsigned int i;
+	
+	obj->txt_print++;	// frame counter
+	
+	i = 0;
+	while (i < obj->txt_print && i < obj->txt->length) {
+		str[i] = obj->txt->str[i];
+		i++;
+	}
+	str[i] = '\0';
+	
+	if (obj->txt_print < obj->txt->length) {
+		if (obj->txt_surface != NULL) {
+			SDL_FreeSurface(obj->txt_surface);
+		}
+		obj->txt_surface = text_print_to_surface(obj->txt, str);
+	}
+	
+	surface_on_draw(
+		obj_dsp->surface, obj->txt_surface, 
+		(int) obj->scr_pos_x - 50, (int) obj->scr_pos_y - 20);
+	
+	
+	if (obj->txt_print > 360) {
+		SDL_FreeSurface(obj->txt_surface);
+		obj->txt_surface = NULL;
+		obj->txt_print = 0; // disable printing
+	}
+	
 }
