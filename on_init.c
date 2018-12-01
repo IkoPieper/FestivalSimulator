@@ -21,10 +21,6 @@ object_t* on_init() {
 	
 	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
-	/*
-	for (int n = 1; n <= 200; n++) {
-		obj = object_add(obj, OBJECT_SCORE_ID + n); // buden
-	}*/	
 	
 	if (on_init_surfdisplay(obj) == 0) {	// inits video incl. openGL
 		object_clean_up(obj);
@@ -42,13 +38,6 @@ object_t* on_init() {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	/*
-	if (on_init_buden(obj) == 0) {
-		object_clean_up(obj);
-		return(NULL);
-	}*/
-	
-
 
 	// init old positions:
 	object_t* obj_tmp = object_get_first(obj);
@@ -100,15 +89,11 @@ short on_init_surfdisplay(object_t* obj) {
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0f);
  
-	/*fprintf(stderr, "target: w: %d, h: %d\n", obj->surface->w, obj->surface->h);
-	fprintf(stderr, "screen: w: %d, h: %d\n", surf->w, surf->h);*/
- 
 	float ratio, scale, border, width;
 	ratio = (float) surf->w / (float) surf->h;
 	scale =  (float) surf->h / (float) obj->surface->h; // scale
 	width = scale * (float) obj->surface->w;		// width of picture
 	border = ((float) surf->w - width) / 2.0;		// width of border
-	/*fprintf(stderr, "scale: %f, width: %f, border: %f\n", scale, width, border);*/
 	
 	glViewport(border, 0, (int) (width + 0.5), surf->h);
 	
@@ -118,8 +103,6 @@ short on_init_surfdisplay(object_t* obj) {
 	
 	float ortho_w = (float) surf->w / (scale2 * 3.0 / 4.0 * ratio);
 	float ortho_h = (float) surf->h / scale2;
-	
-	/*fprintf(stderr, "ortho_w: %f, ortho_h: %f, scale2: %f\n", ortho_w, ortho_h, scale2);*/
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -225,52 +208,6 @@ short on_init_hero(object_t* obj) {
 
 	object_activate_waypoints(obj);*/
 	
-
-short on_init_buden(object_t* obj) {
-	
-	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
-	
-	SDL_Surface* surf_wall;
-	
-	int x = 1;
-	int y = 1;
-	
-	for (int n = 1; n <= 200; n++) {
-
-		obj = object_get(obj, OBJECT_SCORE_ID + n);
-		
-		obj->can_move = 0;
-		obj->mass = 99999999999.0;
-		obj->damping = 1.0;
-		
-		obj->pos_x = x * 160;
-		x++;
-		
-		if (obj->pos_x >= obj_bg->surface->w - 160) {
-			x = 2;
-			obj->pos_x = 160;
-			y++;
-		}
-		
-		obj->pos_y = y * 120;
-		
-		obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
-		obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
-
-		
-		if((surf_wall = surface_on_load("bude_walls.bmp")) == NULL) {
-			return(0);
-		}
-		if((obj->surface = surface_on_load("bude.bmp")) == NULL) {
-			return(0);
-		}
-		obj->wall = object_init_walls(surf_wall, obj->surface);
-	}
-	
-	return(1);
-	
-}
-
 short on_init_objects(object_t* obj) {
 	
 	DIR *hdl_dir;

@@ -97,10 +97,10 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 									collision = collisions_check(obj, obj_b);
 									
 									if (collision) {
-										if (obj->txt != NULL) {
+										if (obj->txt != NULL && obj->txt_print == 0) {
 											obj->txt_print = 1;
 										}
-										if (obj_b->txt != NULL) {
+										if (obj_b->txt != NULL && obj_b->txt_print == 0) {
 											obj_b->txt_print = 1;
 										}
 									}

@@ -122,7 +122,7 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
 		(int) obj->scr_pos_x - 50, (int) obj->scr_pos_y - 20);
 	
 	
-	if (obj->txt_print > 360) {
+	if (obj->txt_print > 220) {
 		SDL_FreeSurface(obj->txt_surface);
 		obj->txt_surface = NULL;
 		obj->txt_print = 0; // disable printing
