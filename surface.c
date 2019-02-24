@@ -14,9 +14,9 @@ SDL_Surface* surface_on_load(const char* File) {
 	return(surf);
 }
 
-short surface_on_draw(SDL_Surface* surf_dest, SDL_Surface* surf_src, int x, int y) {
+bool surface_on_draw(SDL_Surface* surf_dest, SDL_Surface* surf_src, int32_t x, int32_t y) {
 	if(surf_dest == NULL || surf_src == NULL) {
-		return(0);
+		return(true);
 	}
  
 	SDL_Rect rect_dest;
@@ -26,6 +26,6 @@ short surface_on_draw(SDL_Surface* surf_dest, SDL_Surface* surf_src, int x, int 
  
 	SDL_BlitSurface(surf_src, NULL, surf_dest, &rect_dest);
  
-	return(1);
+	return(false);
 }
 

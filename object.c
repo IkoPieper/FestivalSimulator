@@ -33,7 +33,7 @@ object_t* object_get_first_render(object_t* obj) {
 	return(obj);
 }
 
-object_t* object_add(object_t* obj, unsigned int id) {
+object_t* object_add(object_t* obj, uint32_t id) {
 	
 	object_t* obj_new = (object_t*) malloc(sizeof(object_t));
 	
@@ -115,7 +115,7 @@ object_t* object_add(object_t* obj, unsigned int id) {
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 	walls_t* wall = (walls_t*) malloc(sizeof(walls_t));
 	if (surf_wall != NULL) {
-		wall->pxl = (Uint8*) surf_wall->pixels;
+		wall->pxl = (uint8_t*) surf_wall->pixels;
 		wall->x = 0;
 		wall->y = surf->h - surf_wall->h;
 		
@@ -130,7 +130,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		}
 		wall->h = surf_wall->h;
 		// find most left pixel:
-		short pixel_found = 0;
+		bool pixel_found = 0;
 		for (wall->lx = 0; wall->lx < wall->w_bmp; wall->lx++) {
 			for (wall->ly = wall->h - 1; wall->ly > 0; wall->ly--) {
 				if (wall->pxl[(wall->ly * wall->w_bmp) + wall->lx] != 0) {
@@ -191,7 +191,7 @@ void object_free_walls(walls_t* wall) {
 	free(wall);
 }
 
-object_t* object_remove(object_t* obj, unsigned int id) {
+object_t* object_remove(object_t* obj, uint32_t id) {
 	
 	obj = object_get_last(obj);
 	
@@ -240,7 +240,7 @@ void object_clean_up(object_t* obj) {
 	}
 }
 
-object_t* object_get(object_t* obj, unsigned int id) {
+object_t* object_get(object_t* obj, uint32_t id) {
 	
 	obj = object_get_last(obj);
 	while (obj->id != id) {
@@ -250,10 +250,10 @@ object_t* object_get(object_t* obj, unsigned int id) {
 	return(obj);
 }
 
-unsigned int object_get_count(object_t* obj) {
+uint32_t object_get_count(object_t* obj) {
 	
 	obj = object_get_last(obj);
-	unsigned int count = 0;
+	uint32_t count = 0;
 	while (obj != NULL) {
 		count++;
 		obj = obj->prev_object;
@@ -262,7 +262,7 @@ unsigned int object_get_count(object_t* obj) {
 	return(count);
 }
 
-void object_add_animation(object_t* obj, unsigned int id) {
+void object_add_animation(object_t* obj, uint32_t id) {
 	
 	animation_t* anim = animation_init(id);
 	
@@ -277,7 +277,7 @@ void object_add_animation(object_t* obj, unsigned int id) {
 	obj->anim = anim;
 }
 
-void object_select_animation(object_t* obj, unsigned int id) {
+void object_select_animation(object_t* obj, uint32_t id) {
 	
 	animation_t* anim = obj->anim;
 	
@@ -293,7 +293,7 @@ void object_select_animation(object_t* obj, unsigned int id) {
 	obj->anim = anim;
 }
 
-void object_animate(object_t* obj, unsigned long frame) {
+void object_animate(object_t* obj, uint64_t frame) {
 	
 	// free original surface if it is not part of the animation:
 	if (obj->anim_first_call) {
@@ -305,7 +305,7 @@ void object_animate(object_t* obj, unsigned long frame) {
 	obj->surface = animation_get_next_surface(obj->anim, frame);
 }
 
-/*void object_remove_animation(object_t* obj, unsigned int id) {
+/*void object_remove_animation(object_t* obj, uint32_t id) {
 	
 	if (obj->anim->id == id) {
 		object_remove_selected_animation(obj);
@@ -373,7 +373,7 @@ void object_free_animations(animation_t* anim) {
 	
 }
 
-void object_add_text(object_t* obj, unsigned int id) {
+void object_add_text(object_t* obj, uint32_t id) {
 	
 	text_t* txt = text_init(id);
 	
@@ -388,7 +388,7 @@ void object_add_text(object_t* obj, unsigned int id) {
 	obj->txt = txt;
 }
 
-void object_select_text(object_t* obj, unsigned int id) {
+void object_select_text(object_t* obj, uint32_t id) {
 	
 	text_t* txt = obj->txt;
 	
@@ -427,7 +427,7 @@ void object_free_texts(text_t* text) {
 	
 }
 
-void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways) {
+void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways) {
 	
 	waypoints_t* ways = waypoints_init(id, num_ways);
 	
@@ -443,7 +443,7 @@ void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways)
 	
 }
 
-void object_select_waypoints(object_t* obj, unsigned int id) {
+void object_select_waypoints(object_t* obj, uint32_t id) {
 	
 	waypoints_t* ways = obj->ways;
 	
@@ -459,7 +459,7 @@ void object_select_waypoints(object_t* obj, unsigned int id) {
 	obj->ways = ways;
 }
 
-void object_remove_waypoints(object_t* obj, unsigned int id) {
+void object_remove_waypoints(object_t* obj, uint32_t id) {
 	
 	if (obj->ways->id == id) {
 		object_remove_selected_waypoints(obj);
@@ -512,7 +512,7 @@ void object_remove_selected_waypoints(object_t* obj) {
 
 void object_activate_waypoints(object_t* obj) {
 	
-	int n;
+	uint32_t n;
 	
 	if (obj->ways->pos_are_relative == 1) {
 		// if activated the first time

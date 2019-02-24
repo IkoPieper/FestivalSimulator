@@ -41,10 +41,10 @@ void on_render(object_t* obj) {
 	
 	
 	// many filters possible with the following code:
-	/*unsigned int* pxl = (unsigned int*) surf->pixels;
-	Uint8* pxl8;
-	Uint8 pxl_tmp;
-	int n;
+	/*uint32_t* pxl = (uint32_t*) surf->pixels;
+	uint8_t* pxl8;
+	uint8_t pxl_tmp;
+	int32_t n;
 	for (n = 0; n < surf->w * surf->h; n++) {
 		pxl8 = &pxl[n];
 		pxl_tmp = pxl8[0];
@@ -99,7 +99,7 @@ void on_render(object_t* obj) {
 void on_render_text(object_t* obj, object_t* obj_dsp) {
 	
 	char str[obj->txt->length];
-	unsigned int i;
+	uint32_t i;
 	
 	obj->txt_print++;	// frame counter
 	

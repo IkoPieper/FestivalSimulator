@@ -1,12 +1,12 @@
 #include "festival.h"
  
-int on_execute() {
+bool on_execute() {
 	
-    short running = 1;					// program running?
-	const int FPS = 60;					// frames per second
-    Uint32 time_start, time_end;		// to measure time per frame
+    bool running = true;				// program running?
+	const uint8_t FPS = 60;				// frames per second
+    uint32_t time_start, time_end;		// to measure time per frame
     //Uint32 time;						// to measure time for debug
-    unsigned long frame = 0;			// current frame
+    uint64_t frame = 0;					// current frame
 	
 	object_t* obj = NULL;
 	obj = on_init(obj);
@@ -19,9 +19,8 @@ int on_execute() {
  	
  	verletbox_t* vbox = verletbox_init(obj);
  	
- 	short* keys = (short*) malloc(256 * sizeof(short));
-	int i;
-	for (i = 0; i < 256; i++) {
+ 	bool* keys = (bool*) malloc(256 * sizeof(bool));
+	for (uint16_t i = 0; i < 256; i++) {
 		keys[i] = 0;
 	}
  	
@@ -59,12 +58,12 @@ int on_execute() {
 	// ALWAYS TODO: keep this up to date
 	on_cleanup(obj, vbox, keys);
  
-	return 0;
+	return false;
 }
  
 int main(int argc, char* argv[]) {
 	
 	on_execute();
 	
-	return(1);
+	return 0;
 }

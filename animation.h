@@ -12,17 +12,17 @@ struct surface_ring {
 };
 
 struct animation {
-	unsigned int id;
+	uint32_t id;
 	animation_t* prev;
 	animation_t* next;
 	surface_ring_t* cycle;
 	surface_ring_t* cycle_first;
-	unsigned int delay_frames;
+	uint32_t delay_frames;
 };
 
-animation_t* animation_init(unsigned int id);
+animation_t* animation_init(uint32_t id);
 void animation_free(animation_t* anim);
 void animation_add_surface(animation_t* anim, SDL_Surface* surf);
-SDL_Surface* animation_get_next_surface(animation_t* anim, unsigned long frame);
+SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame);
 
 #endif

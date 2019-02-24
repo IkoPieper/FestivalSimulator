@@ -1,6 +1,6 @@
 #include "movements.h"
 
-void movements(object_t* obj, short* keys) {
+void movements(object_t* obj, bool* keys) {
 	
 	object_t* obj_first = NULL;
 	object_t* obj_hero = NULL;
@@ -63,10 +63,10 @@ void movements(object_t* obj, short* keys) {
 	
 }
 
-void movements_hero(object_t* obj, short* keys) {
+void movements_hero(object_t* obj, bool* keys) {
 	
-	short ax = 0;
-	short ay = 0;
+	int8_t ax = 0;
+	int8_t ay = 0;
 	float norm = 1.0;
 	
 	if (keys[SDLK_w]) {

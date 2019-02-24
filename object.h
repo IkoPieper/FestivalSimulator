@@ -9,6 +9,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <math.h>
+#include <stdbool.h>
 
 typedef struct object object_t;
 typedef struct collision collision_t;
@@ -18,20 +19,20 @@ struct walls {
 	// keep the surface pointer to free the pixels later:
 	SDL_Surface* surf;
 	// collision pixels:
-	Uint8* pxl;
+	uint8_t* pxl;
 	// x and y relative to main sprite position:
-	unsigned int x;
-	unsigned int y;
+	uint32_t x;
+	uint32_t y;
 	// width and height:
-	unsigned int w;
-	unsigned int w_bmp;	// width in memory. see object_init_walls()
-	unsigned int h;
+	uint32_t w;
+	uint32_t w_bmp;	// width in memory. see object_init_walls()
+	uint32_t h;
 	// position of most left pixel:
-	unsigned int lx;
-	unsigned int ly;
+	uint32_t lx;
+	uint32_t ly;
 	// position of most right pixel:
-	unsigned int rx;
-	unsigned int ry;
+	uint32_t rx;
+	uint32_t ry;
 	// line between those pixels:
 	float slope;
 	float offset;
@@ -41,8 +42,8 @@ struct collision {
 	collision_t* next;
 	collision_t* prev;
     object_t* partner;
-    unsigned int area;
-    unsigned int area_old;
+    uint32_t area;
+    uint32_t area_old;
     float c_x;
     float c_y;
     float c_x_old;
@@ -56,7 +57,7 @@ struct object {
 	// list variables:
 	object_t* next_object;
 	object_t* prev_object;
-	unsigned int id;
+	uint32_t id;
 	
 	// render:
 	object_t* next_render;
@@ -67,12 +68,12 @@ struct object {
 	// verlet boxes:
 	object_t* next_vbox;
 	object_t* prev_vbox;
-	unsigned int vbox_x;
-	unsigned int vbox_y;
+	uint32_t vbox_x;
+	uint32_t vbox_y;
 	
 	// physics:
-	short can_move;
-	short has_moved;
+	bool can_move;
+	bool has_moved;
 	float mass;
 	float damping;
 	float pos_x;        // position in relation to background
@@ -81,7 +82,7 @@ struct object {
 	float pos_y_old;
 	float vel_x;
 	float vel_y;
-	short vel_lock;		// if true: velocity is not allowed to change
+	bool vel_lock;		// if true: velocity is not allowed to change
 	float acc_x;
 	float acc_y;
 	float acc_abs;
@@ -101,21 +102,21 @@ struct object {
 	
 	// animations:
 	animation_t* anim;		// current animation from list of animations
-	short anim_first_call;	// free surface if animation is called for 
+	bool anim_first_call;	// free surface if animation is called for 
 							// the first time
 							
 	// texts:
 	char* txt_language;			// the language the object speaks
 	text_t* txt;				// current text from list of texts
 	SDL_Surface* txt_surface;	// string of current text as surface
-	unsigned int txt_print;		// > 0 print current text
+	uint32_t txt_print;			// > 0 print current text
 	
 	// waypoints:
 	waypoints_t* ways;
 	
 	// collisions:
 	collision_t* col;
-    short disable_collision;
+    bool disable_collision;
     
 };
 
@@ -125,27 +126,27 @@ void object_free_walls(walls_t* wall);
 object_t* object_get_last(object_t* obj);
 object_t* object_get_first(object_t* obj);
 object_t* object_get_first_render(object_t* obj);
-object_t* object_add(object_t* obj, unsigned int id);
-object_t* object_remove(object_t* obj, unsigned int id);
+object_t* object_add(object_t* obj, uint32_t id);
+object_t* object_remove(object_t* obj, uint32_t id);
 void object_clean_up(object_t* obj);
-object_t* object_get(object_t* obj, unsigned int id);
-unsigned int object_get_count(object_t* obj);
+object_t* object_get(object_t* obj, uint32_t id);
+uint32_t object_get_count(object_t* obj);
 
-void object_add_animation(object_t* obj, unsigned int id);
-void object_select_animation(object_t* obj, unsigned int id);
-void object_animate(object_t* obj, unsigned long frame);
-/*void object_remove_animation(object_t* obj, unsigned int id);*/ // maybe broken
+void object_add_animation(object_t* obj, uint32_t id);
+void object_select_animation(object_t* obj, uint32_t id);
+void object_animate(object_t* obj, uint64_t frame);
+/*void object_remove_animation(object_t* obj, uint32_t id);*/ // maybe broken
 /*void object_remove_selected_animation(object_t* obj);*/ // broken
 void object_free_animations(animation_t* anim);
 
-void object_add_text(object_t* obj, unsigned int id);
-void object_select_text(object_t* obj, unsigned int id);
+void object_add_text(object_t* obj, uint32_t id);
+void object_select_text(object_t* obj, uint32_t id);
 void object_print_text(object_t* obj);
 void object_free_texts(text_t* txt);
 
-void object_add_waypoints(object_t* obj, unsigned int id, unsigned int num_ways);
-void object_select_waypoints(object_t* obj, unsigned int id);
-void object_remove_waypoints(object_t* obj, unsigned int id);
+void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways);
+void object_select_waypoints(object_t* obj, uint32_t id);
+void object_remove_waypoints(object_t* obj, uint32_t id);
 void object_remove_selected_waypoints(object_t* obj);
 void object_activate_waypoints(object_t* obj);
 void object_get_next_waypoint(object_t* obj);

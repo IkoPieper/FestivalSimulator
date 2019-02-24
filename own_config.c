@@ -5,7 +5,7 @@ configentry *conf_load_data(const char *filename) {
 	configentry *entry;
 	configentry *entry_tmp;
 	char line [LINESIZE];
-	int i, j, lineSize, is_string;
+	int32_t i, j, lineSize, is_string;
 	FILE *file;
 	file = fopen(filename, "r");
 	if (file == NULL)
@@ -107,10 +107,13 @@ char *conf_get_string(configentry *data, char *key) {
 }
 
 
-int conf_get_int(configentry *data, char *key) {
+int32_t conf_get_int(configentry *data, char *key) {
 	char *str = conf_get_string(data, key);
 	if (str != NULL) {
-		return(atoi(str));
+		int32_t ret;
+		sscanf(str, "%SCNd32", &ret);
+		return(ret);
+		//return(atoi(str));
 	} else {
 		return(-666);
 	}
@@ -125,29 +128,29 @@ double conf_get_double(configentry *data, char *key) {
 	}
 }
 
-int conf_set_string(configentry *data, char *key, char *value) {
+bool conf_set_string(configentry *data, char *key, char *value) {
 	configentry *entry = data;
 	while (entry != NULL && !strstr(key, entry->key)) {
 		entry = entry->next;
 	}
 	if (entry != NULL) {
 		entry->value = value;
-		return 0;
+		return(false);
 	} else {
-		return -1;
+		return(true);
 	}
 }
 
-int conf_set_int(configentry *data, char *key, int valueInt) {
+bool conf_set_int(configentry *data, char *key, int32_t valueInt) {
 	char value [LINESIZE];
-	sprintf(value,"%d",valueInt);
-	return conf_set_string(data, key, value);
+	sprintf(value, "%d", valueInt);
+	return(conf_set_string(data, key, value));
 }
 
-int conf_set_double(configentry *data, char *key, double valueDouble) {
+bool conf_set_double(configentry *data, char *key, double valueDouble) {
 	char value [LINESIZE];
-	sprintf(value,"%f",valueDouble);
-	return conf_set_string(data, key, value);
+	sprintf(value, "%f", valueDouble);
+	return(conf_set_string(data, key, value));
 }
 
 /*
@@ -155,7 +158,7 @@ int main () {
 	configentry *data;
 	data = NULL;
 	data = conf_load_data(data, "configtest");
-	int zahl = conf_get_int(data, "ljasflka");
+	int32_t zahl = conf_get_int(data, "ljasflka");
 	printf("%d\n", zahl);
 	conf_set_double(data, "iko", 8.345e-3);
 	conf_write_data(data, "configtest_out");

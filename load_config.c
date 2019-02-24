@@ -109,7 +109,7 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 			
 			file_name = entry->value;
 			strncpy(path, "objects", 100);
-			strncat(path, "/", 100);		// TODO: Windows compatible
+			strncat(path, "/", 100);
 			strncat(path, file_name, 100);
 			surf = surface_on_load(path);
 			if(surf == NULL) {

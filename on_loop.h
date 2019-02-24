@@ -6,18 +6,8 @@
 #include "object.h"
 #include "verletbox.h"
 
-typedef struct n n_t;
-struct n {
-	float x;
-	float y;
-	float abs;
-	float xp;
-	float yp;
-	float absp;
-};
-
-void on_loop(object_t* obj, verletbox_t* vbox, short* keys, unsigned long frame);
-void on_loop_animations(object_t* obj, short* keys, unsigned long frame);
-void on_loop_waypoints(object_t* obj, unsigned long frame);
+void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame);
+void on_loop_animations(object_t* obj, bool* keys, uint64_t frame);
+void on_loop_waypoints(object_t* obj, uint64_t frame);
 
 #endif

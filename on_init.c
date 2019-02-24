@@ -22,19 +22,19 @@ object_t* on_init() {
 	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	
-	if (on_init_surfdisplay(obj) == 0) {	// inits video incl. openGL
+	if (on_init_surfdisplay(obj)) {	// inits video incl. openGL
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_background(obj) == 0) {
+	if (on_init_background(obj)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_objects(obj) == 0) {
+	if (on_init_objects(obj)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_hero(obj) == 0) {
+	if (on_init_hero(obj)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
@@ -53,7 +53,7 @@ object_t* on_init() {
 	return(object_get_first(obj));
 }
 
-short on_init_surfdisplay(object_t* obj) {
+bool on_init_surfdisplay(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	obj->disable_collision = 1;
@@ -75,13 +75,13 @@ short on_init_surfdisplay(object_t* obj) {
 	if((surf = SDL_SetVideoMode(
 		800, 600, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
 			// add 0,0,32 for native resolution and SDL_FULLSCREEN for fullscreen
-		return(0);
+		return(true);
 	}
 	
 	SDL_Surface* surf_tmp = NULL;
 	
 	if((surf_tmp = surface_on_load("surfdisplay.bmp")) == NULL) {
-		return(0);
+		return(true);
 	}
 	obj->surface = SDL_DisplayFormat(surf_tmp);
 	SDL_FreeSurface(surf_tmp);
@@ -95,7 +95,7 @@ short on_init_surfdisplay(object_t* obj) {
 	width = scale * (float) obj->surface->w;		// width of picture
 	border = ((float) surf->w - width) / 2.0;		// width of border
 	
-	glViewport(border, 0, (int) (width + 0.5), surf->h);
+	glViewport(border, 0, (int32_t) (width + 0.5), surf->h);
 	
 	//float scale2 = 1.5 * scale; // snes
 	//float scale2 = 1.0 * scale; // 400x300
@@ -124,11 +124,11 @@ short on_init_surfdisplay(object_t* obj) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-	return(1);
+	return(false);
 	
 }
 
-short on_init_background(object_t* obj) {
+bool on_init_background(object_t* obj) {
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
@@ -139,10 +139,10 @@ short on_init_background(object_t* obj) {
 	
 	SDL_Surface* surf_wall;
 	if((surf_wall = surface_on_load("background_walls.bmp")) == NULL) {
-		return(0);
+		return(true);
 	}
 	if((obj->surface = surface_on_load("background.bmp")) == NULL) {
-		return(0);
+		return(true);
 	}
 	obj->wall = object_init_walls(surf_wall, obj->surface);
 	
@@ -157,10 +157,10 @@ short on_init_background(object_t* obj) {
 	obj->max_scr_pos_y = 99999.0;
 
 	
-	return(1);
+	return(false);
 }
 
-short on_init_hero(object_t* obj) {
+bool on_init_hero(object_t* obj) {
 	
 	// see objects/hero.txt for most of the initialization
 	
@@ -182,11 +182,11 @@ short on_init_hero(object_t* obj) {
 	obj->max_scr_pos_y = (float) (obj_dsp->surface->h 
 		- obj_dsp->surface->h / 5 - obj->surface->h);
 	
-	return(1);
+	return(false);
 }
 	
 	// waypoints:
-	/*unsigned int num_ways = 5;
+	/*uint32_t num_ways = 5;
 	object_add_waypoints(obj, 1, num_ways);
 	* 
 	obj->ways->pos_are_relative = 1;
@@ -208,7 +208,7 @@ short on_init_hero(object_t* obj) {
 
 	object_activate_waypoints(obj);*/
 	
-short on_init_objects(object_t* obj) {
+bool on_init_objects(object_t* obj) {
 	
 	DIR *hdl_dir;
 	struct dirent *dir;
@@ -232,7 +232,7 @@ short on_init_objects(object_t* obj) {
 
 			if (data == NULL) {
 				printf("Warning: Unable to load config file. Use Default Settings.\n");
-				return(0);
+				return(true);
 			}
 			
 			obj = object_add(obj, 666666666);
@@ -253,5 +253,5 @@ short on_init_objects(object_t* obj) {
 		}
 	}
 	
-	return(1);
+	return(false);
 }

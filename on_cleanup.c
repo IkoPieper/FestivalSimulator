@@ -1,6 +1,6 @@
 #include "on_cleanup.h"
  
-void on_cleanup(object_t* obj, verletbox_t* vbox, short* keys) {
+void on_cleanup(object_t* obj, verletbox_t* vbox, bool* keys) {
 	
 	//SDL_SetVideoMode(400, 300, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
 	

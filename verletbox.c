@@ -4,7 +4,7 @@ verletbox_t* verletbox_init(object_t* obj) {
 	
 	verletbox_t* vbox = (verletbox_t*) malloc(sizeof(verletbox_t));
 	
-	int x, y;
+	uint32_t x, y;
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
 	
@@ -65,9 +65,7 @@ verletbox_t* verletbox_init(object_t* obj) {
 
 void verletbox_free(verletbox_t* vbox) {
 	
-	int x;
-	
-	for (x = 0; x < vbox->num_w; x++) {
+	for (uint32_t x = 0; x < vbox->num_w; x++) {
 		free(vbox->boxes[x]);
 	}
 	free(vbox->boxes);
@@ -78,7 +76,7 @@ void verletbox_free(verletbox_t* vbox) {
 void verletbox_update(verletbox_t* vbox, object_t* obj) {
 	
 	obj = object_get_first(obj);
-	unsigned int x, y, x_old, y_old;
+	uint32_t x, y, x_old, y_old;
 	
 	while (obj != NULL) {
 		
@@ -92,6 +90,13 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 			x = obj->pos_x / vbox->w;
 			y = obj->pos_y / vbox->h;
 			
+			// check for error:
+			if (x < 0 || y < 0 || x >= vbox->num_w || y >= vbox->num_h) {
+				fprintf(stderr, "object with id %d left vboxes!\n", obj->id);
+				fprintf(stderr, "opj->pos_x = %f\n", obj->pos_x);
+				fprintf(stderr, "opj->pos_y = %f\n", obj->pos_y);
+			}
+			
 			// check if vbox changed:
 			if (x_old != x || y_old != y) {
 				// move to another vbox:
@@ -99,7 +104,7 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 				obj->vbox_x = x;
 				obj->vbox_y = y;
 				
-				// remove from list:
+				// remove from vbox list:
 				if (obj->prev_vbox != NULL && obj->next_vbox != NULL) {
 					obj->prev_vbox->next_vbox = obj->next_vbox;
 					obj->next_vbox->prev_vbox = obj->prev_vbox;
@@ -120,17 +125,17 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 					}
 				}
 				
-				// add to another list:
-				if (vbox->boxes[x][y] == NULL) {
-					obj->prev_vbox = NULL;
+				// add to another vbox list:
+				if (vbox->boxes[x][y] == NULL) { // no object in vbox
+					obj->prev_vbox = NULL;       
 					obj->next_vbox = NULL;
-					vbox->boxes[x][y] = obj;
-				} else {
+					vbox->boxes[x][y] = obj;     // add to current vbox
+				} else {      // another object obj2 is present in vbox
 					object_t* obj2 = vbox->boxes[x][y];
-					obj->prev_vbox = NULL;
+					obj->prev_vbox = NULL; // add obj2 to list of obj
 					obj->next_vbox = obj2;
-					obj2->prev_vbox = obj;
-					vbox->boxes[x][y] = obj;
+					obj2->prev_vbox = obj; // add obj to list of obj2
+					vbox->boxes[x][y] = obj;     // add to current vbox
 				}
 				
 				
@@ -141,8 +146,8 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 				
 				printf("\n");
 				fprintf(stderr, "vbox->num_w: %d, vbox->num_h: %d\n", vbox->num_w, vbox->num_h);
-				for (int y = 0; y < vbox->num_h; y++) {
-					for (int x = 0; x < vbox->num_w; x++) {
+				for (uint32_t y = 0; y < vbox->num_h; y++) {
+					for (uint32_t x = 0; x < vbox->num_w; x++) {
 						object_t* obj_tmp = vbox->boxes[x][y];
 						while (obj_tmp != NULL) {
 							printf("%d:", obj_tmp->id);

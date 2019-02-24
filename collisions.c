@@ -2,10 +2,10 @@
 
 void collisions(object_t* obj, verletbox_t* vbox) {
 	
-	short collision = 0;
-	int x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
+	bool collision = false;
+	uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
 	
-	//Uint32 time;
+	//uint32_t time;
 	//time = SDL_GetTicks();
 	
 	verletbox_update(vbox, obj);
@@ -22,11 +22,11 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 				
 		if (obj->has_moved) {
 		
-			obj->vel_lock = 0;
+			obj->vel_lock = false;
 			
 			collision = collisions_check(obj_bg, obj);
 				
-			if (collision == 0) {
+			if (collision == false) {
 				object_remove_collision(obj_bg, obj);
 				object_remove_collision(obj, obj_bg);
 			}
@@ -49,9 +49,9 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 			while (obj != NULL) {
 				
-				if (obj->disable_collision == 0) {
+				if (obj->disable_collision == false) {
 					
-					obj->vel_lock = 0;	// allow all velocity changes TODO: move up?
+					obj->vel_lock = false;	// allow all velocity changes TODO: move up?
 					
 					// iterate over verlet box of obj and surrounding ones:
 					if (y == 0) {
@@ -98,14 +98,14 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 									
 									if (collision) {
 										if (obj->txt != NULL && obj->txt_print == 0) {
-											obj->txt_print = 1;
+											obj->txt_print = 1; // start printing the text
 										}
 										if (obj_b->txt != NULL && obj_b->txt_print == 0) {
 											obj_b->txt_print = 1;
 										}
 									}
 					
-									if (collision == 0) {
+									if (collision == false) {
 										object_remove_collision(obj, obj_b);
 										object_remove_collision(obj_b, obj);
 									}
@@ -129,39 +129,39 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	
 }
 
-short collisions_check(object_t* obj1, object_t* obj2) {
+bool collisions_check(object_t* obj1, object_t* obj2) {
 	
-	int collision = 0;
+	bool collision = false;
 	
 	// boundary boxes base positions:
-	int x01 = (int) obj1->pos_x;
-	int y01 = (int) obj1->pos_y;
-	int x02 = (int) obj2->pos_x;
-	int y02 = (int) obj2->pos_y;
+	int32_t x01 = (int32_t) obj1->pos_x;
+	int32_t y01 = (int32_t) obj1->pos_y;
+	int32_t x02 = (int32_t) obj2->pos_x;
+	int32_t y02 = (int32_t) obj2->pos_y;
 	
 	// boundary boxes widths and heights:
-	int w1 = obj1->surface->w;
-	int h1 = obj1->surface->h;
-	int w2 = obj2->surface->w;
-	int h2 = obj2->surface->h;
+	int32_t w1 = obj1->surface->w;
+	int32_t h1 = obj1->surface->h;
+	int32_t w2 = obj2->surface->w;
+	int32_t h2 = obj2->surface->h;
 	
-	int xw1 = x01 + obj1->surface->w;
-	int yh1 = y01 + obj1->surface->h;
-	int xw2 = x02 + obj2->surface->w;
-	int yh2 = y02 + obj2->surface->h;
+	int32_t xw1 = x01 + obj1->surface->w;
+	int32_t yh1 = y01 + obj1->surface->h;
+	int32_t xw2 = x02 + obj2->surface->w;
+	int32_t yh2 = y02 + obj2->surface->h;
 	
 	// check collision of surfaces first:
 	
-	if (obj2->disable_collision == 0) { // is this the right place?
+	if (obj2->disable_collision == false) { // is this the right place?
 		
 		if (obj1->id == OBJECT_BACKGROUND_ID) {
 			
-			collision = 1;
+			collision = true;
 			/*
 			// check for collision of background pixels 
 			// with corners of boundary box:
-			Uint8* pxl = obj1->wall->pxl;
-			unsigned int w = obj1->wall->w_bmp;
+			uint8_t* pxl = obj1->wall->pxl;
+			uint32_t w = obj1->wall->w_bmp;
 			
 			if        (pxl[(y02 * w) + x02] != 0) {
 				collision = 1;
@@ -175,12 +175,12 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			*/
 		} else if (obj2->id == OBJECT_BACKGROUND_ID) {
 			
-			collision = 1;
+			collision = true;
 			/*
 			// check for collision of background pixels 
 			// with boundary box:
-			Uint8* pxl = obj2->wall->pxl;
-			unsigned int w = obj2->wall->w_bmp;
+			uint8_t* pxl = obj2->wall->pxl;
+			uint32_t w = obj2->wall->w_bmp;
 			
 			if        (pxl[(y01 * w) + x01] != 0) {
 				collision = 1;
@@ -198,7 +198,7 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 			if (xw2 > x01 && x02 < xw1 && 
 				yh2 > y01 && y02 < yh1) {
 				
-				collision = 1;
+				collision = true;
 				
 			}
 		}
@@ -216,19 +216,19 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 	}
 	
 	// check for pixel wise collision:
-	if (collision == 1) {
+	if (collision == true) {
 		
-		collision = 0;
+		collision = false;
 		
 		collision_t* col1 = NULL;
 		collision_t* col2 = NULL;
-		unsigned int w1_bmp = obj1->wall->w_bmp;
-		unsigned int w2_bmp = obj2->wall->w_bmp;
+		uint32_t w1_bmp = obj1->wall->w_bmp;
+		uint32_t w2_bmp = obj2->wall->w_bmp;
 		
-		x01 = (int) obj1->pos_x + obj1->wall->x;
-		y01 = (int) obj1->pos_y + obj1->wall->y;
-		x02 = (int) obj2->pos_x + obj2->wall->x;
-		y02 = (int) obj2->pos_y + obj2->wall->y;
+		x01 = (int32_t) obj1->pos_x + obj1->wall->x;
+		y01 = (int32_t) obj1->pos_y + obj1->wall->y;
+		x02 = (int32_t) obj2->pos_x + obj2->wall->x;
+		y02 = (int32_t) obj2->pos_y + obj2->wall->y;
 
 		w1 = obj1->wall->w;
 		h1 = obj1->wall->h;
@@ -241,25 +241,25 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 		yh2 = y02 + h2;
 		
 		// current position in overlapping area:
-		int x1 = 0;
-		int y1 = 0;
-		int x2 = 0;
-		int y2 = 0;
-		int x_min = 0;
-		int x_max = 0;
-		int y_min = 0;
-		int y_max = 0;
-		int x2_min = 0;
-		int y2_min = 0;
-		Uint8 obj1_pxl = 0;
-		Uint8 obj2_pxl = 0;
+		int32_t x1 = 0;
+		int32_t y1 = 0;
+		int32_t x2 = 0;
+		int32_t y2 = 0;
+		int32_t x_min = 0;
+		int32_t x_max = 0;
+		int32_t y_min = 0;
+		int32_t y_max = 0;
+		int32_t x2_min = 0;
+		int32_t y2_min = 0;
+		uint8_t obj1_pxl = 0;
+		uint8_t obj2_pxl = 0;
 		float norm = 1.0;
 	
 		// collision directions:
-		int x1_dir = 0;
-		int y1_dir = 0;
-		int x2_dir = 0;
-		int y2_dir = 0;
+		int32_t x1_dir = 0;
+		int32_t y1_dir = 0;
+		int32_t x2_dir = 0;
+		int32_t y2_dir = 0;
 		
 		
 		// overlapping area of boundary boxes:
@@ -331,8 +331,8 @@ short collisions_check(object_t* obj1, object_t* obj2) {
 						// one pixel is shared by both objects
 						
 						// so first of all: yes they do collide
-						if (collision == 0) {
-							collision = 1;
+						if (collision == false) {
+							collision = true;
 							col1 = object_add_collision(obj1, obj2);
 							col2 = object_add_collision(obj2, obj1);
 							col1->area = 0;

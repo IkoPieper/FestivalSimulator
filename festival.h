@@ -12,7 +12,7 @@
 #include "on_render.h"
 #include "on_cleanup.h"
  
-int on_execute();
+bool on_execute();
 int main(int argc, char* argv[]);
  
 #endif

@@ -23,7 +23,7 @@
 
 #include "animation.h"
 
-animation_t* animation_init(unsigned int id) {
+animation_t* animation_init(uint32_t id) {
 	
 	animation_t* anim = NULL;
 	
@@ -80,7 +80,7 @@ void animation_add_surface(animation_t* anim, SDL_Surface* surf) {
 	
 }
 
-SDL_Surface* animation_get_next_surface(animation_t* anim, unsigned long frame) {
+SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame) {
 	
 	if (frame % anim->delay_frames == 0) {
 		if (anim->cycle->next == NULL) {

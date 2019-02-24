@@ -1,6 +1,6 @@
 #include "text.h"
 
-text_t* text_init(unsigned int id) {
+text_t* text_init(uint32_t id) {
 	
 	text_t* txt = NULL;
 	
@@ -22,7 +22,7 @@ text_t* text_init(unsigned int id) {
 
 void text_add_string(text_t* txt, char* str) {
 	
-	unsigned int length;
+	uint32_t length;
 	
 	length = 0;
 	while (str[length] != '\0') {

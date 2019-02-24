@@ -1,6 +1,6 @@
 #include "waypoints.h"
 
-waypoints_t* waypoints_init(unsigned int id, unsigned int num_ways) {
+waypoints_t* waypoints_init(uint32_t id, uint32_t num_ways) {
 	
 	waypoints_t* ways = NULL;
 	
@@ -18,9 +18,9 @@ waypoints_t* waypoints_init(unsigned int id, unsigned int num_ways) {
 	ways->pos_x_relative = NULL;
 	ways->pos_y_relative = NULL;
 	ways->vel_abs =    (float*) malloc(num_ways * sizeof(float));
-	ways->frames_max = (int*) malloc(num_ways * sizeof(float));
+	ways->frames_max = (int32_t*) malloc(num_ways * sizeof(int32_t));
 	
-	for (int n = 0; n < num_ways; n++) {
+	for (uint32_t n = 0; n < num_ways; n++) {
 		ways->pos_x[n] = 0.0;
 		ways->pos_y[n] = 0.0;
 		ways->vel_abs[n] = 0.0;

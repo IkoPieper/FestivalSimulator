@@ -7,10 +7,10 @@ typedef struct verletbox verletbox_t;
 
 struct verletbox {
 	
-	unsigned int w;	            // box width / pxl
-	unsigned int h;             // box height / pxl
-	unsigned int num_w;	        // number of boxes in x direction
-	unsigned int num_h;         // number of boxes in y direction
+	uint32_t w;	            // box width / pxl
+	uint32_t h;             // box height / pxl
+	uint32_t num_w;	        // number of boxes in x direction
+	uint32_t num_h;         // number of boxes in y direction
 	
 	object_t*** boxes;
 	

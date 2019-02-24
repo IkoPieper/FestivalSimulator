@@ -4,9 +4,10 @@
 #include "object.h"
 #include "verletbox.h"
 #include <math.h>
+#include <stdbool.h>
 
 void collisions(object_t* obj, verletbox_t* vbox);
-short collisions_check(object_t* obj1, object_t* obj2);
+bool collisions_check(object_t* obj1, object_t* obj2);
 void collisions_impulse(
 	object_t* obj1, object_t* obj2, 
 	collision_t* col1, collision_t* col2);

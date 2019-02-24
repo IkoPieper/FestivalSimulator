@@ -1,8 +1,8 @@
 #include "datatypes.h"
 
-listuint_t* listuint_add(listuint_t* first, unsigned int value) {
+listuint_t* listuint_add(listuint_t* first, uint32_t value) {
 	
-	entry = (listuint_t *) malloc(sizeof(listuint_t));
+	listuint_t* entry = (listuint_t*) malloc(sizeof(listuint_t));
 	entry->value = value;
 	entry->next = first;
 	

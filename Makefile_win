@@ -1,7 +1,7 @@
-CC=gcc
+CC=gcc -std=c99
 PREFLAGS=-I/usr/local/include -L/usr/local/lib
 FLAGS=-lmingw32 -std=c99 -lSDLmain -lSDL -lSDL_ttf -lm -L/usr/X11R6/lib/ -lglu32 -lopengl32 -Wall -m64 -mwindows
-FILES=festival.c own_config.c object.c animation.c text.c waypoints.c movements.c collisions.c verletbox.c load_config.c on_init.c surface.c event.c on_start.c on_loop.c on_render.c on_cleanup.c
+FILES=festival.c own_config.c object.c datatypes.c animation.c text.c waypoints.c movements.c collisions.c verletbox.c load_config.c on_init.c surface.c event.c on_start.c on_loop.c on_render.c on_cleanup.c
 
 
 CApp: $(FILES)

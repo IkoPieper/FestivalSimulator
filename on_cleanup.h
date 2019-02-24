@@ -5,6 +5,6 @@
 #include "object.h"
 #include "verletbox.h"
 
-void on_cleanup(object_t* obj, verletbox_t* vbox, short* keys);
+void on_cleanup(object_t* obj, verletbox_t* vbox, bool* keys);
 
 #endif
