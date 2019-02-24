@@ -86,7 +86,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						
 							if (x2 == x && y2 == y) {   // same vbox as obj
 								obj_b = obj->next_vbox; // only objects after obj
-							} else {                    // neighbor vbox
+							} else {                    // neighbour vbox
 								obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
 							}
 							
