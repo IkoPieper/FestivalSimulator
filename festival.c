@@ -3,7 +3,7 @@
 bool on_execute() {
 	
     bool running = true;				// program running?
-	const uint8_t FPS = 160;				// frames per second
+	const uint8_t FPS = 60;				// frames per second
     uint32_t time_start, time_end;		// to measure time per frame
     //Uint32 time;						// to measure time for debug
     uint64_t frame = 0;					// current frame

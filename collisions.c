@@ -86,7 +86,6 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						
 							if (x2 == x && y2 == y) {   // same vbox as obj
 								obj_b = obj->next_vbox; // only objects after obj
-                                //obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
 							} else {                    // neighbour vbox
 								obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
 							}
@@ -94,24 +93,22 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
 						
-								//if (obj->has_moved || obj_b->has_moved) {
-									collision = collisions_check(obj, obj_b);
-									
-									if (collision) {
-										if (obj->txt != NULL && obj->txt_print == 0) {
-											obj->txt_print = 1; // start printing the text
-										}
-										if (obj_b->txt != NULL && obj_b->txt_print == 0) {
-											obj_b->txt_print = 1;
-										}
+								collision = collisions_check(obj, obj_b);
+                                
+								if (collision) {
+									if (obj->txt != NULL && obj->txt_print == 0) {
+										obj->txt_print = 1; // start printing the text
 									}
+									if (obj_b->txt != NULL && obj_b->txt_print == 0) {
+										obj_b->txt_print = 1;
+									}
+								}
 					
-									if (collision == false) {
-										object_remove_collision(obj, obj_b);
-										object_remove_collision(obj_b, obj);
-									}
-								//}
-
+								if (collision == false) {
+									object_remove_collision(obj, obj_b);
+									object_remove_collision(obj_b, obj);
+								}
+								
 								// get next object obj_b:
 								obj_b = obj_b->next_vbox;
 							}
@@ -311,38 +308,30 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 						// calculate direction of collision:
 						if (x1 >= w1 / 2) {
 							if (x1 >= w1 / 2 + w1 % 2) {
-								//x1_dir += x1 - w1 / 2;
 								x1_dir++;
 							}
 						} else {
-							//x1_dir -= w1 / 2 - x1;
 							x1_dir--;
 						}
 						if (y1 >= h1 / 2) {
 							if (y1 >= h1 / 2 + h1 % 2) {
-								//y1_dir += y1 - h1 / 2;
 								y1_dir++;
 							}
 						} else {
-							//y1_dir -= h1 / 2 - y1;
 							y1_dir--;
 						}
 						if (x2 >= w2 / 2) {
 							if (x2 >= w2 / 2 + w2 % 2) {
-								//x2_dir += x2 - w2 / 2;
 								x2_dir++;
 							}
 						} else {
-							//x2_dir -= w2 / 2 - x2;
 							x2_dir--;
 						}
 						if (y2 >= h2 / 2) {
 							if (y2 >= h2 / 2 + h2 % 2) {
-								//y2_dir += y2 - h2 / 2;
 								y2_dir++;
 							}
 						} else {
-							//y2_dir -= h2 / 2 - y2;
 							y2_dir--;
 						}
 					} else {
@@ -492,7 +481,6 @@ void collisions_impulse(
 	float x12 = (float) (obj2->scr_pos_x - obj1->scr_pos_x);
 	float y12 = (float) (obj2->scr_pos_y - obj1->scr_pos_y);
 	
-	//if (obj1->id != OBJECT_BACKGROUND_ID) {
 	if (obj1->can_move) {
 		v1x = obj1->vel_x;
 		v1y = obj1->vel_y;
@@ -500,7 +488,7 @@ void collisions_impulse(
 		c1x = -c2x;
 		c1y = -c2y;
 	}
-	//if (obj2->id != OBJECT_BACKGROUND_ID) {
+	
 	if (obj2->can_move) {
 		v2x = obj2->vel_x;
 		v2y = obj2->vel_y;
@@ -510,7 +498,6 @@ void collisions_impulse(
 	}
 	
 	// make shure surface vectors point directly toward each other:
-	//if (obj2->id != OBJECT_BACKGROUND_ID && obj1->id != OBJECT_BACKGROUND_ID) {
 	if (obj2->can_move && obj1->can_move) {
 		if (c1x != -c2x && c1y != c2y) {
 			tmp = -(c2y + c1y) / (c1x + c2x);
@@ -635,68 +622,12 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	float yl2 = offset2 + obj2->wall->slope * xl2;
 	float yr2 = offset2 + obj2->wall->slope * xr2;
 	
-	// update render list:
+	// update render lists:
 	if (yl2 >= yl1 && yr2 >= yr1) {
         obj1->render_before = listobj_add(obj1->render_before, obj2);
         obj2->render_after = listobj_add(obj2->render_after, obj1);
-		// check if obj1 is rendered before obj2 anyway
-		/*object_t* obj_tmp = obj2;
-		while (obj_tmp != NULL && obj_tmp != obj1) {
-			obj_tmp = obj_tmp->prev_render;
-		}
-		if (obj_tmp == NULL) {
-			// render obj1 right before obj2:
-			if (obj2->prev_render != NULL) {
-				obj2->prev_render->next_render = obj1;
-			}
-			if (obj1->prev_render != NULL) {
-				obj1->prev_render->next_render = obj1->next_render;
-			}
-			if (obj1->next_render != NULL) {
-				obj1->next_render->prev_render = obj1->prev_render;
-			}
-			if (obj2->prev_render != NULL) {
-				if (obj2->prev_render != obj1) {
-					obj1->prev_render = obj2->prev_render;
-				} else {
-					obj1->prev_render = obj2->prev_render->prev_render;
-				}
-			} else {
-				obj1->prev_render = NULL;
-			}
-			obj2->prev_render = obj1;
-			obj1->next_render = obj2;
-		}*/
 	} else {
         obj1->render_after = listobj_add(obj1->render_after, obj2);
         obj2->render_before = listobj_add(obj2->render_before, obj1);
-		// check if obj1 is rendered after obj2 anyway
-		/*object_t* obj_tmp = obj2;
-		while (obj_tmp != NULL && obj_tmp != obj1) {
-			obj_tmp = obj_tmp->next_render;
-		}
-		if (obj_tmp == NULL) {
-			// render obj1 right after obj2:
-			if (obj2->next_render != NULL) {
-				obj2->next_render->prev_render = obj1;
-			}
-			if (obj1->next_render != NULL) {
-				obj1->next_render->prev_render = obj1->prev_render;
-			}
-			if (obj1->prev_render != NULL) {
-				obj1->prev_render->next_render = obj1->next_render;
-			}
-			if (obj2->next_render != NULL) {
-				if (obj2->next_render != obj1) {
-					obj1->next_render = obj2->next_render;
-				} else {
-					obj1->next_render = obj2->next_render->next_render;
-				}
-			} else {
-				obj1->next_render = NULL;
-			}
-			obj2->next_render = obj1;
-			obj1->prev_render = obj2;
-		}*/
 	}
 }

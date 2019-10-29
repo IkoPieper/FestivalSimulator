@@ -135,7 +135,7 @@ void on_render(object_t* obj) {
 void on_render_sort(object_t* obj) {
     
     // construct render blobbs:
-    object_t* obj_first = object_get_first_render(obj);
+    object_t* obj_first = object_get_first(obj);
     
     obj = obj_first;
     while (obj != NULL) {
@@ -162,32 +162,8 @@ void on_render_sort(object_t* obj) {
             }
                 
         }
-		
-        listobj_t* list = NULL;
-        if (obj->render_blobb != NULL) {
-            list = obj->render_blobb;
-            while (list != NULL) {
-                printf("blobb of %d: %d\n", obj->id, list->obj->id);
-                list = list->next;
-            }
-            printf("\n");
-            
-            list = obj->render_before;
-            while (list != NULL) {
-                printf("render %d before: %d\n", obj->id, list->obj->id);
-                list = list->next;
-            }
-            printf("\n");
-            list = obj->render_after;
-            while (list != NULL) {
-                printf("render %d after: %d\n", obj->id, list->obj->id);
-                list = list->next;
-            }
-            printf("\n");
-        }
-        
     
-		obj = obj->next_render;
+		obj = obj->next_object;
 	}
     
 }
@@ -253,8 +229,7 @@ listobj_t* render_blobb_sort_iter(listobj_t* blobb, bool* swapped) {
         if (listobj_is_member(obj->render_before, blobb->next->obj)) {
             previous = blobb;
             blobb = blobb->next;
-        } else //if (listobj_is_member(obj->render_after, blobb->next->obj)) {
-                {
+        } else {
             // swap places:
             if (is_first) {
                 first = blobb->next;
@@ -266,10 +241,7 @@ listobj_t* render_blobb_sort_iter(listobj_t* blobb, bool* swapped) {
             previous = tmp;
             // tell parent function that at least one swap took place:
             *swapped = true;
-        } /*else {
-            previous = blobb;
-            blobb = blobb->next;
-        }*/
+        }
         
         is_first = false;
     }

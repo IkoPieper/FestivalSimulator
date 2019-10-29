@@ -22,17 +22,6 @@ object_t* object_get_first(object_t* obj) {
 	return(obj);
 }
 
-object_t* object_get_first_render(object_t* obj) {
-	
-	if (obj != NULL) {
-		while(obj->prev_render != NULL) {
-			obj = obj->prev_render;
-		}
-	}
-	
-	return(obj);
-}
-
 object_t* object_add(object_t* obj, uint32_t id) {
 	
 	object_t* obj_new = (object_t*) malloc(sizeof(object_t));
@@ -43,20 +32,18 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	// object list:
 	obj = object_get_last(obj);
 	obj_new->prev_object = obj;
-	obj_new->prev_render = obj;
 	obj_new->next_object = NULL;
-	obj_new->next_render = NULL;
+    
 	obj_new->render_id = 0;
 	
-	// render list:
+	// object list:
 	if (obj != NULL) {
 		obj->next_object = obj_new;
-		obj->next_render = obj_new;
 	}
     
+    // render lists:
     obj_new->render_before = NULL;
     obj_new->render_after = NULL;
-	
     obj_new->render_blobb = NULL;
     obj_new->render_is_in_blobb = false;
     

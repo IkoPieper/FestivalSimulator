@@ -61,20 +61,20 @@ struct listobj {
 
 struct object {
 	
-	// list variables:
+    // object id:
+    uint32_t id;
+    
+	// object list:
 	object_t* next_object;
 	object_t* prev_object;
-	uint32_t id;
 	
-	// render:
-	object_t* next_render;      // render list
-	object_t* prev_render;
+	// render lists:
     listobj_t* render_before;   // objects which need to be rendered
                                 // before this object
     listobj_t* render_after;    // objects which need to be rendered
                                 // after this object
-    listobj_t* render_blobb;
-    bool render_is_in_blobb;
+    listobj_t* render_blobb;    // used to collect overlapping objects
+    bool render_is_in_blobb;    // is the obj in this or another blobb?
     
 	GLuint render_id;           // openGL id
 	
@@ -145,7 +145,6 @@ void object_free_walls(walls_t* wall);
 
 object_t* object_get_last(object_t* obj);
 object_t* object_get_first(object_t* obj);
-object_t* object_get_first_render(object_t* obj);
 object_t* object_add(object_t* obj, uint32_t id);
 object_t* object_remove(object_t* obj, uint32_t id);
 void object_clean_up(object_t* obj);
