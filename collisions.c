@@ -86,6 +86,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						
 							if (x2 == x && y2 == y) {   // same vbox as obj
 								obj_b = obj->next_vbox; // only objects after obj
+                                //obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
 							} else {                    // neighbour vbox
 								obj_b = verletbox_get_first_object(vbox->boxes[x2][y2]);
 							}
@@ -93,7 +94,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
 						
-								if (obj->has_moved || obj_b->has_moved) {
+								//if (obj->has_moved || obj_b->has_moved) {
 									collision = collisions_check(obj, obj_b);
 									
 									if (collision) {
@@ -109,7 +110,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 										object_remove_collision(obj, obj_b);
 										object_remove_collision(obj_b, obj);
 									}
-								}
+								//}
 
 								// get next object obj_b:
 								obj_b = obj_b->next_vbox;
@@ -139,12 +140,6 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 	int32_t x02 = (int32_t) obj2->pos_x;
 	int32_t y02 = (int32_t) obj2->pos_y;
 	
-	// boundary boxes widths and heights:
-	int32_t w1 = obj1->surface->w;
-	int32_t h1 = obj1->surface->h;
-	int32_t w2 = obj2->surface->w;
-	int32_t h2 = obj2->surface->h;
-	
 	int32_t xw1 = x01 + obj1->surface->w;
 	int32_t yh1 = y01 + obj1->surface->h;
 	int32_t xw2 = x02 + obj2->surface->w;
@@ -157,41 +152,11 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 		if (obj1->id == OBJECT_BACKGROUND_ID) {
 			
 			collision = true;
-			/*
-			// check for collision of background pixels 
-			// with corners of boundary box:
-			uint8_t* pxl = obj1->wall->pxl;
-			uint32_t w = obj1->wall->w_bmp;
 			
-			if        (pxl[(y02 * w) + x02] != 0) {
-				collision = 1;
-			} else if (pxl[(y02 * w) + xw2] != 0) {
-				collision = 1;
-			} else if (pxl[(yh2 * w) + x02] != 0) {
-				collision = 1;
-			} else if (pxl[(yh2 * w) + xw2] != 0) {
-				collision = 1;
-			}
-			*/
 		} else if (obj2->id == OBJECT_BACKGROUND_ID) {
 			
 			collision = true;
-			/*
-			// check for collision of background pixels 
-			// with boundary box:
-			uint8_t* pxl = obj2->wall->pxl;
-			uint32_t w = obj2->wall->w_bmp;
 			
-			if        (pxl[(y01 * w) + x01] != 0) {
-				collision = 1;
-			} else if (pxl[(y01 * w) + xw1] != 0) {
-				collision = 1;
-			} else if (pxl[(yh1 * w) + x01] != 0) {
-				collision = 1;
-			} else if (pxl[(yh1 * w) + xw1] != 0) {
-				collision = 1;
-			}
-			*/
 		} else {
 			
 			// check for collision of boundary boxes:
@@ -216,7 +181,7 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 	}
 	
 	// check for pixel wise collision:
-	if (collision == true) {
+	if (collision == true && (obj1->has_moved || obj2->has_moved)) {
 		
 		collision = false;
 		
@@ -230,10 +195,10 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 		x02 = (int32_t) obj2->pos_x + obj2->wall->x;
 		y02 = (int32_t) obj2->pos_y + obj2->wall->y;
 
-		w1 = obj1->wall->w;
-		h1 = obj1->wall->h;
-		w2 = obj2->wall->w;
-		h2 = obj2->wall->h;
+		int32_t w1 = obj1->wall->w;
+		int32_t h1 = obj1->wall->h;
+		int32_t w2 = obj2->wall->w;
+		int32_t h2 = obj2->wall->h;
 		
 		xw1 = x01 + w1;
 		yh1 = y01 + h1;
@@ -672,8 +637,10 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	
 	// update render list:
 	if (yl2 >= yl1 && yr2 >= yr1) {
+        obj1->render_before = listobj_add(obj1->render_before, obj2);
+        obj2->render_after = listobj_add(obj2->render_after, obj1);
 		// check if obj1 is rendered before obj2 anyway
-		object_t* obj_tmp = obj2;
+		/*object_t* obj_tmp = obj2;
 		while (obj_tmp != NULL && obj_tmp != obj1) {
 			obj_tmp = obj_tmp->prev_render;
 		}
@@ -699,10 +666,12 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 			}
 			obj2->prev_render = obj1;
 			obj1->next_render = obj2;
-		}
+		}*/
 	} else {
+        obj1->render_after = listobj_add(obj1->render_after, obj2);
+        obj2->render_before = listobj_add(obj2->render_before, obj1);
 		// check if obj1 is rendered after obj2 anyway
-		object_t* obj_tmp = obj2;
+		/*object_t* obj_tmp = obj2;
 		while (obj_tmp != NULL && obj_tmp != obj1) {
 			obj_tmp = obj_tmp->next_render;
 		}
@@ -728,6 +697,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 			}
 			obj2->next_render = obj1;
 			obj1->prev_render = obj2;
-		}
+		}*/
 	}
 }

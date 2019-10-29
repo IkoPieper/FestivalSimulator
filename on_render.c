@@ -3,25 +3,59 @@
 void on_render(object_t* obj) {
 	
 	//Uint32 time;
-	
-	object_t* obj_first = object_get_first_render(obj);
+	object_t* obj_first = object_get_first(obj);
+    
+    on_render_sort(obj);
+    
 	
 	// draw objects on surf display:
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
+    
 	obj = obj_first;
-	
+    
 	while (obj != NULL) {
 		
 		if (obj->id != OBJECT_SURFDISPLAY_ID) {
-			surface_on_draw(
-			obj_dsp->surface, obj->surface, 
-			(int) obj->scr_pos_x, (int) obj->scr_pos_y);
+            
+            if (!obj->render_is_in_blobb) {
+                
+                // render the object:
+                surface_on_draw(
+                    obj_dsp->surface, 
+                    obj->surface, 
+                    (int) obj->scr_pos_x, 
+                    (int) obj->scr_pos_y);
+                    
+            } else if (obj->render_blobb != NULL) {
+                
+                // render all objects in the sorted render blobb:
+                listobj_t* blobb = obj->render_blobb;
+                
+                while (blobb != NULL) {
+                    
+                    surface_on_draw(
+                        obj_dsp->surface, 
+                        blobb->obj->surface, 
+                        (int) blobb->obj->scr_pos_x, 
+                        (int) blobb->obj->scr_pos_y);
+                    
+                    blobb = blobb->next;
+                }
+            }
+                
 		}
-		
-		obj = obj->next_render;
+        
+        // reset render blobbs:
+        obj->render_before = listobj_free(obj->render_before);
+        obj->render_after = listobj_free(obj->render_after);
+        obj->render_blobb = listobj_free(obj->render_blobb);
+        obj->render_is_in_blobb = false;
+        
+        obj = obj->next_object;
 	}
-	
+    
+    // render texts:
 	obj = obj_first;
 	
 	while (obj != NULL) {
@@ -31,7 +65,7 @@ void on_render(object_t* obj) {
 			on_render_text(obj, obj_dsp);
 		}
 		
-		obj = obj->next_render;
+		obj = obj->next_object;
 	}
 	
 
@@ -54,7 +88,8 @@ void on_render(object_t* obj) {
 		//pxl[n] = pxl[n] << 16;
 	}*/
 	
-	// this reads from the sdl surface and puts it into an opengl texture
+	// this reads from the sdl surface and puts it into an opengl 
+    // texture
 	glTexImage2D(
 		GL_TEXTURE_2D, 0, obj_dsp->surface->format->BytesPerPixel, 
 		obj_dsp->surface->w, obj_dsp->surface->h, 
@@ -94,6 +129,152 @@ void on_render(object_t* obj) {
 	//glDeleteTextures(1, &textureid);
 	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
 
+}
+
+// sort the objects in the render list:
+void on_render_sort(object_t* obj) {
+    
+    // construct render blobbs:
+    object_t* obj_first = object_get_first_render(obj);
+    
+    obj = obj_first;
+    while (obj != NULL) {
+        
+		if (!obj->render_is_in_blobb) {
+            
+            if (obj->render_before != NULL ||
+                obj->render_after != NULL) {
+                // add object to its own render blobb list:
+                obj->render_blobb = listobj_add(obj->render_blobb, obj);
+                obj->render_is_in_blobb = true; // here: has a blobb
+            }
+            if (obj->render_before != NULL) {
+                obj->render_blobb = 
+                    render_blobb(obj->render_blobb, obj->render_before);
+            }
+            if (obj->render_after != NULL) {
+                obj->render_blobb = 
+                    render_blobb(obj->render_blobb, obj->render_after);
+            }
+            if (obj->render_blobb != NULL) {
+                obj->render_blobb = 
+                    render_blobb_sort(obj->render_blobb);
+            }
+                
+        }
+		
+        listobj_t* list = NULL;
+        if (obj->render_blobb != NULL) {
+            list = obj->render_blobb;
+            while (list != NULL) {
+                printf("blobb of %d: %d\n", obj->id, list->obj->id);
+                list = list->next;
+            }
+            printf("\n");
+            
+            list = obj->render_before;
+            while (list != NULL) {
+                printf("render %d before: %d\n", obj->id, list->obj->id);
+                list = list->next;
+            }
+            printf("\n");
+            list = obj->render_after;
+            while (list != NULL) {
+                printf("render %d after: %d\n", obj->id, list->obj->id);
+                list = list->next;
+            }
+            printf("\n");
+        }
+        
+    
+		obj = obj->next_render;
+	}
+    
+}
+
+// collect objects that overlapp and put them into a render "blobb":
+listobj_t* render_blobb(listobj_t* blobb, listobj_t* list) {
+    
+    while (list != NULL) {
+        
+        object_t* obj = list->obj;
+        
+        if (!obj->render_is_in_blobb) {
+            
+            blobb = listobj_add(blobb, obj);
+            obj->render_is_in_blobb = true;
+            
+            if (obj->render_before != NULL) {
+                blobb = render_blobb(blobb, obj->render_before);
+            }
+            if (obj->render_after != NULL) {
+                blobb = render_blobb(blobb, obj->render_after);
+            }
+        }
+        list = list->next;
+    }
+    
+    return(blobb);
+}
+
+// sort objects inside of a render blobb:
+listobj_t* render_blobb_sort(listobj_t* blobb) {
+    
+    // count number of objects in blobb:
+    uint32_t num_objects = listobj_count_objects(blobb);
+    
+    for (uint32_t n = 0; n <= num_objects; n++) {
+        
+        bool swapped_places = false;
+        
+        blobb = render_blobb_sort_iter(blobb, &swapped_places);
+        
+        if (!swapped_places) { // everything is sorted
+            break;
+        }
+    }
+    
+    return(blobb);
+}
+
+// a single blobb sort iteration:
+listobj_t* render_blobb_sort_iter(listobj_t* blobb, bool* swapped) {
+    
+    listobj_t* first = blobb;
+    bool is_first = true;
+    listobj_t* previous = NULL;
+    
+    while (blobb->next != NULL) { // ->next: last entry needs no swap
+        
+        
+        listobj_t* tmp = blobb->next;
+        
+        object_t* obj = blobb->obj;
+        if (listobj_is_member(obj->render_before, blobb->next->obj)) {
+            previous = blobb;
+            blobb = blobb->next;
+        } else //if (listobj_is_member(obj->render_after, blobb->next->obj)) {
+                {
+            // swap places:
+            if (is_first) {
+                first = blobb->next;
+            } else {
+                previous->next = tmp;
+            }
+            blobb->next = blobb->next->next;
+            tmp->next = blobb;
+            previous = tmp;
+            // tell parent function that at least one swap took place:
+            *swapped = true;
+        } /*else {
+            previous = blobb;
+            blobb = blobb->next;
+        }*/
+        
+        is_first = false;
+    }
+    
+    return(first);
 }
 
 void on_render_text(object_t* obj, object_t* obj_dsp) {

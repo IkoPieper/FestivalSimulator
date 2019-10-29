@@ -30,3 +30,12 @@ listuint_t* listuint_remove(listuint_t* first, listuint_t* entry) {
 	return(first);
 	
 }
+
+listuint_t* listuint_free(listuint_t* first) {
+    while (first != NULL) {
+        listuint_t* tmp = first;
+        first = first->next;
+        free(tmp);
+    }
+    return(NULL);
+}

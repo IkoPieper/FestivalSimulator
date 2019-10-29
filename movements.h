@@ -2,6 +2,7 @@
     #define _MOVEMENTS_H_
 
 #include "object.h"
+#include "event.h"
 #include <math.h>
 
 void movements(object_t* obj, bool* keys);

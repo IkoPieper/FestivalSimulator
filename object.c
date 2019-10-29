@@ -52,8 +52,14 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	if (obj != NULL) {
 		obj->next_object = obj_new;
 		obj->next_render = obj_new;
-	} 
+	}
+    
+    obj_new->render_before = NULL;
+    obj_new->render_after = NULL;
 	
+    obj_new->render_blobb = NULL;
+    obj_new->render_is_in_blobb = false;
+    
 	// verlet boxes:
 	obj_new->prev_vbox = NULL;
 	obj_new->next_vbox = NULL;
@@ -224,9 +230,21 @@ object_t* object_remove(object_t* obj, uint32_t id) {
 	if (obj->anim != NULL) {
 		object_free_animations(obj->anim);
 	}
+    if (obj->txt_language != NULL) {
+        free(obj->txt_language);
+    }
 	if (obj->txt != NULL) {
 		object_free_texts(obj->txt);
 	}
+    if (obj->render_before != NULL) {
+        obj->render_before = listobj_free(obj->render_before);
+    }
+    if (obj->render_after != NULL) {
+        obj->render_after = listobj_free(obj->render_after);
+    }
+    if (obj->render_blobb != NULL) {
+        obj->render_blobb = listobj_free(obj->render_blobb);
+    }
 	
 	free(obj);
 	
@@ -686,4 +704,68 @@ void object_remove_collision(object_t* obj, object_t* partner) {
 	
 	free(col);
 	
+}
+
+listobj_t* listobj_add(listobj_t* first, object_t* obj) {
+	
+	listobj_t* entry = (listobj_t*) malloc(sizeof(listobj_t));
+	entry->obj = obj;
+	entry->next = first;
+	
+	return(entry);  // new first element
+	
+}
+
+listobj_t* listobj_remove(listobj_t* first, listobj_t* entry) {
+	
+	listobj_t* tmp = first;
+	
+	if (tmp == entry) {
+		tmp = entry->next;
+		free(entry);
+		return(tmp);  // new first element
+	}
+	
+	while (tmp->next != entry) {
+		tmp = tmp->next;
+	}
+	tmp->next = entry->next;
+	free(entry);
+	return(first);
+	
+}
+
+bool listobj_is_member(listobj_t* first, object_t* obj) {
+    
+    while (first != NULL) {
+        
+        if (first->obj == obj) {
+            return(true);
+        }
+        
+        first = first->next;
+    }
+    return(false);
+}
+uint32_t listobj_count_objects(listobj_t* first) {
+    
+    uint32_t count = 0;
+    
+    while (first != NULL) {
+        
+        count++;
+        
+        first = first->next;
+    }
+    return(count);
+    
+}
+
+listobj_t* listobj_free(listobj_t* first) {
+    while (first != NULL) {
+        listobj_t* tmp = first;
+        first = first->next;
+        free(tmp);
+    }
+    return(NULL);
 }

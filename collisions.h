@@ -1,6 +1,7 @@
 #ifndef _COLLISION_H_
     #define _COLLISION_H_
 
+//#include "datatypes.h"
 #include "object.h"
 #include "verletbox.h"
 #include <math.h>

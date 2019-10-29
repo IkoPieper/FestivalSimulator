@@ -11,7 +11,9 @@
 #include <math.h>
 #include <stdbool.h>
 
+
 typedef struct object object_t;
+typedef struct listobj listobj_t;
 typedef struct collision collision_t;
 typedef struct walls walls_t;
 
@@ -52,6 +54,11 @@ struct collision {
     float vel_y;
 };
 
+struct listobj {
+	listobj_t* next;
+    object_t* obj;
+};
+
 struct object {
 	
 	// list variables:
@@ -60,10 +67,16 @@ struct object {
 	uint32_t id;
 	
 	// render:
-	object_t* next_render;
+	object_t* next_render;      // render list
 	object_t* prev_render;
-	listuint_t* render_after;
-	GLuint render_id;
+    listobj_t* render_before;   // objects which need to be rendered
+                                // before this object
+    listobj_t* render_after;    // objects which need to be rendered
+                                // after this object
+    listobj_t* render_blobb;
+    bool render_is_in_blobb;
+    
+	GLuint render_id;           // openGL id
 	
 	// verlet boxes:
 	object_t* next_vbox;
@@ -88,7 +101,7 @@ struct object {
 	float acc_abs;
 	
 	// screen positions:
-	float scr_pos_x;      // pos in relation to top left corner of screen
+	float scr_pos_x;    // pos in relation to top left corner of screen
 	float scr_pos_y;
 	float max_scr_pos_x;
 	float max_scr_pos_y;
@@ -119,6 +132,13 @@ struct object {
     bool disable_collision;
     
 };
+
+// used for short lists of objects:
+listobj_t* listobj_add(listobj_t* first, object_t* obj);
+listobj_t* listobj_remove(listobj_t* first, listobj_t* entry);
+bool listobj_is_member(listobj_t* first, object_t* obj);
+uint32_t listobj_count_objects(listobj_t* first);
+listobj_t* listobj_free(listobj_t* first);
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);
 void object_free_walls(walls_t* wall);

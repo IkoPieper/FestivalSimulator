@@ -252,6 +252,8 @@ bool on_init_objects(object_t* obj) {
 			conf_free_data(data);
 		}
 	}
+    
+    closedir(hdl_dir);
 	
 	return(false);
 }

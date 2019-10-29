@@ -33,13 +33,13 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
 		// select animation:
 		if (obj->id == OBJECT_HERO_ID) {
 			
-			if (keys[SDLK_w]) {         // north
+			if (keys[KEY_UP]) {         // north
 				object_select_animation(obj, 1);
-			} else if (keys[SDLK_s]) {  // south
+			} else if (keys[KEY_DOWN]) {  // south
 				object_select_animation(obj, 2);
-			} else if (keys[SDLK_a]) {  // west
+			} else if (keys[KEY_LEFT]) {  // west
 				object_select_animation(obj, 3);
-			} else if (keys[SDLK_d]) {  // east
+			} else if (keys[KEY_RIGHT]) {  // east
 				object_select_animation(obj, 4);
 			} else {                    // stop animations
 				obj->anim->cycle = obj->anim->cycle_first;

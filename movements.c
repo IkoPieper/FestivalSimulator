@@ -69,16 +69,16 @@ void movements_hero(object_t* obj, bool* keys) {
 	int8_t ay = 0;
 	float norm = 1.0;
 	
-	if (keys[SDLK_w]) {
+	if (keys[KEY_UP]) {
 		ay -= 1;
 	}
-	if (keys[SDLK_s]) {
+	if (keys[KEY_DOWN]) {
 		ay += 1;
 	}
-	if (keys[SDLK_a]) {
+	if (keys[KEY_LEFT]) {
 		ax -= 1;
 	}
-	if (keys[SDLK_d]) {
+	if (keys[KEY_RIGHT]) {
 		ax += 1;
 	}
 	
