@@ -243,6 +243,8 @@ bool on_init_objects(object_t* obj) {
 					entry = load_config_defaults(entry, path, obj);
 				} else if (strcmp(entry->key, "animation") == 0) {
 					entry = load_config_animation(entry, path, obj);
+                } else if (strcmp(entry->key, "waypoints") == 0) {
+					entry = load_config_waypoints(entry, path, obj);
 				} else if (strcmp(entry->key, "text") == 0) {
 					entry = load_config_text(entry, obj);
 				} 

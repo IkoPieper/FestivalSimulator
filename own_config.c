@@ -12,7 +12,7 @@ configentry *conf_load_data(const char *filename) {
 		return NULL;
 	while (fgets(line, LINESIZE, file) != NULL) { // line-weise auslesen bis dateiende
 		lineSize = strlen(line);
-		if (lineSize > 1 && line[0] != '#') { // wenn in line was steht
+		if (lineSize > 1 && line[0] != '#' && line[0] != ' ') { // wenn in line was steht
 			char *key = (char *) malloc(KEYSIZE * sizeof(char));
 			char *value = (char *) malloc(VALUESIZE * sizeof(char));
 			i = 0;

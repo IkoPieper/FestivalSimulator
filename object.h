@@ -75,6 +75,7 @@ struct object {
                                 // after this object
     listobj_t* render_blobb;    // used to collect overlapping objects
     bool render_is_in_blobb;    // is the obj in this or another blobb?
+    bool render_early;          // disable blobb stuff and render early
     
 	GLuint render_id;           // openGL id
 	
@@ -117,6 +118,8 @@ struct object {
 	animation_t* anim;		// current animation from list of animations
 	bool anim_first_call;	// free surface if animation is called for 
 							// the first time
+                            
+    bool anim_walk;         // use animations 1 to 8 for walk cycles
 							
 	// texts:
 	char* txt_language;			// the language the object speaks

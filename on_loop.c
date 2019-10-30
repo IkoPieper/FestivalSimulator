@@ -31,18 +31,11 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
 	while (obj != NULL) {
 		
 		// select animation:
-		if (obj->id == OBJECT_HERO_ID) {
+		if (obj->anim_walk) {
 			
-			if (keys[KEY_UP]) {         // north
-				object_select_animation(obj, 1);
-			} else if (keys[KEY_DOWN]) {  // south
-				object_select_animation(obj, 2);
-			} else if (keys[KEY_LEFT]) {  // west
-				object_select_animation(obj, 3);
-			} else if (keys[KEY_RIGHT]) {  // east
-				object_select_animation(obj, 4);
-			} else {                    // stop animations
-				obj->anim->cycle = obj->anim->cycle_first;
+            if (fabsf(obj->vel_x) < 0.1 && fabsf(obj->vel_y) < 0.1) {
+                // start a stop animation:
+				//obj->anim->cycle = obj->anim->cycle_first;
 				if (obj->anim->id == 1) {
 					object_select_animation(obj, 5);
 				} else if (obj->anim->id == 2) {
@@ -52,10 +45,34 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
 				} else if (obj->anim->id == 4) {
 					object_select_animation(obj, 8);
 				}
-				obj->anim->cycle = obj->anim->cycle_first;
-			}
+				//obj->anim->cycle = obj->anim->cycle_first;
+			} else {
+                if (fabsf(obj->vel_y) > fabsf(obj->vel_x)) {
+                    if (obj->vel_y < 0) {   // north
+                        object_select_animation(obj, 1);
+                    } else {                // south
+                        object_select_animation(obj, 2);
+                    }
+                } else {
+                    if (obj->vel_x < 0) {   // west
+                        object_select_animation(obj, 3);
+                    } else {                // east
+                        object_select_animation(obj, 4);
+                    }
+                }
+                // set speed of animation depending on object velocity:
+                float abs_vel = fabsf(
+                    obj->vel_x * obj->vel_x + obj->vel_y * obj->vel_y);
+                int32_t delay_frames = (int32_t) 20 - 20 * abs_vel;
+                if (delay_frames < 5) {
+                    delay_frames = 5;
+                }
+                obj->anim->delay_frames = delay_frames;
+                    
+            }
+            
 		}
-		
+        
 		// animate:
 		if (obj->anim != NULL) {
 			object_animate(obj, frame);
@@ -74,7 +91,6 @@ void on_loop_waypoints(object_t* obj, uint64_t frame) {
 		if (obj->ways != NULL && obj->ways->active && !obj->vel_lock) {
 
 			object_get_next_waypoint(obj);
-			object_aim_for_waypoint(obj);
 			
 		}
 	

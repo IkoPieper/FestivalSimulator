@@ -1,15 +1,14 @@
-object = 2              # hard coded hero id
-surface = hero_s_1.bmp  # main picture
-walls = hero_walls.bmp  # collision zones
-can_move = 1            # object can move
-mass = 1.0              # mass of the object
-damping = 0.2           # damping slows a moving object down
-acc_abs = 0.6           # acceleration on key press (only used for hero)
+object = 702
+pos_x = 1050
+pos_y = 550
+surface = hero_s_1.bmp
+render_early = 1
+can_move = 1
+mass = 1.0
+damping = 0.2
+disable_collision = 1
 
 anim_walk = 1           # use animations 1 to 8 for walk cycles
-
-# for the hero 8 animations have to be present!
-# the number of surfaces doesn't matter:
 
 animation = 1           # animation for walking north
 delay_frames = 7        # animation speed: lower value is faster
@@ -50,3 +49,23 @@ surface = hero_w_stand.bmp
 animation = 8           # animation for stopping east
 delay_frames = 1
 surface = hero_e_stand.bmp
+
+
+waypoints = 1           # waypoints number 1
+num_waypoints = 3       # number of waypoints, this is NOT optional
+pos_are_relative = 1    # 0: following positions are absolute
+                        # 1: following positions are relative to object
+                        
+vel_abs = 1.0           # velocity of object to first waypoint
+pos_x = 0.0             # first waypoint x position
+pos_y = 0.0             # first waypoint y position
+frames_wait = 100       # frames to wait at first waypoint
+vel_abs = 1.0           # velocity of object to second waypoint
+pos_x = -70.0           # second waypoint x position
+pos_y = -50.0           # second waypoint y position
+frames_wait = 100       # frames to wait at second waypoint
+vel_abs = 1.0           # i think you got the point ...
+pos_x = 80.0
+pos_y = 20.0
+frames_wait = 10
+

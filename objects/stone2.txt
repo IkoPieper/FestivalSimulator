@@ -4,7 +4,7 @@ pos_y = 760
 surface = stone.bmp
 walls = stone_walls.bmp
 can_move = 1            # object can move
-mass = 0.1              # mass of the object reduces acceleration
+mass = 0.1              # mass of the object
 damping = 0.02          # damping slows a moving object down
 
 text = 1

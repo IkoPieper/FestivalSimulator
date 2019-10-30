@@ -49,7 +49,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 			while (obj != NULL) {
 				
-				if (obj->disable_collision == false) {
+				//if (obj->disable_collision == false) {
 					
 					obj->vel_lock = false;	// allow all velocity changes TODO: move up?
 					
@@ -116,7 +116,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						}
 					}
 				
-				}
+				//}
 				// get next object obj:
 				obj = obj->next_vbox;
 			}
@@ -144,7 +144,7 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 	
 	// check collision of surfaces first:
 	
-	if (obj2->disable_collision == false) { // is this the right place?
+	//if (obj2->disable_collision == false) { // is this the right place?
 		
 		if (obj1->id == OBJECT_BACKGROUND_ID) {
 			
@@ -165,7 +165,7 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 			}
 		}
 	
-	}
+	//}
 		
 	// update render list:
 	if (collision &&
@@ -177,8 +177,12 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 		collisions_update_render(obj1, obj2);
 	}
 	
+    if (obj1->disable_collision || obj2->disable_collision) {
+        collision = false;
+    }
+    
 	// check for pixel wise collision:
-	if (collision == true && (obj1->has_moved || obj2->has_moved)) {
+	if (collision && (obj1->has_moved || obj2->has_moved)) {
 		
 		collision = false;
 		
@@ -581,6 +585,10 @@ void collisions_impulse(
 
 void collisions_update_render(object_t* obj1, object_t* obj2) {
 	
+    if (obj1->render_early || obj2->render_early) {
+        return;
+    }
+    
 	// calculate points on lines between most left and most right 
 	// collision pixel:
 	

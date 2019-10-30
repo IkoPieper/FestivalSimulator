@@ -46,6 +46,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
     obj_new->render_after = NULL;
     obj_new->render_blobb = NULL;
     obj_new->render_is_in_blobb = false;
+    obj_new->render_early = false;
     
 	// verlet boxes:
 	obj_new->prev_vbox = NULL;
@@ -84,7 +85,8 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	
 	// animations:
 	obj_new->anim = NULL;
-	obj_new->anim_first_call = 1;
+	obj_new->anim_first_call = true;
+    obj_new->anim_walk = false;
 	
 	// texts:
 	obj_new->txt_language = (char *) malloc(3 * sizeof(char));
@@ -100,7 +102,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	
 	// collisions:
 	obj_new->col = NULL;
-    obj_new->disable_collision = 0;
+    obj_new->disable_collision = false;
 	
 	return(obj_new);
 }
@@ -565,6 +567,12 @@ void object_get_next_waypoint(object_t* obj) {
 		obj->pos_y > pos_y_wp - border_y && 
 		obj->pos_y < pos_y_wp + border_y ) {
 		
+        if (obj->ways->frames_wait[obj->ways->n] > obj->ways->frame) {
+            obj->ways->frame++;
+            return;
+        }
+        obj->ways->frame = 0;
+        
 		// select next waypoint:
 		obj->ways->n++;
 		
@@ -574,6 +582,8 @@ void object_get_next_waypoint(object_t* obj) {
 		}
 		
 	}
+    
+    object_aim_for_waypoint(obj);
 }
 
 void object_aim_for_waypoint(object_t* obj) {

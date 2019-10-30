@@ -27,6 +27,8 @@ struct waypoints {
 	float* pos_y_relative;         // used to save relative y positions
 	float* vel_abs;                // velocity the object should have
 	                               //   to get to this wp
+    int32_t* frames_wait;          // frames to wait at wp
+    int32_t frame;                 // frame counter for waiting
 	int32_t* frames_max;           // timelimit / frames to get there 
 	                               //   0: (default) no limit required
 	                               //  -1: immediately

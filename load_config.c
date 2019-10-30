@@ -71,6 +71,21 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			
 			obj->acc_abs = atof(entry->value);
 			entry = entry->next;
+            
+        } else if (strcmp(entry->key, "disable_collision") == 0) {
+			
+			obj->disable_collision = atoi(entry->value);
+			entry = entry->next;
+            
+        } else if (strcmp(entry->key, "render_early") == 0) {
+			
+			obj->render_early = atoi(entry->value);
+			entry = entry->next;
+            
+        } else if (strcmp(entry->key, "anim_walk") == 0) {
+			
+			obj->anim_walk = atoi(entry->value);
+			entry = entry->next;
 			
 		} else {
 			break;
@@ -78,7 +93,7 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 		
 	}
 	
-	if (surf != NULL && surf_wall != NULL) {
+	if (surf != NULL) {
 		obj->wall = object_init_walls(surf_wall, surf);
 	}
 	
@@ -125,6 +140,56 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 		
 	}
 	
+	return(entry);
+	
+}
+
+configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj) {
+	
+    uint32_t num_waypoints = 0;
+    uint32_t id = atoi(entry->value);
+    entry = entry->next;
+    
+    if (strcmp(entry->key, "num_waypoints") == 0) {
+        num_waypoints = atoi(entry->value);
+        object_add_waypoints(obj, id, num_waypoints);
+        entry = entry->next;
+    } else {
+        printf("Error reading waypoints of object %d\n! skipping...", obj->id);
+        return (entry);
+    }
+    
+    if (strcmp(entry->key, "pos_are_relative") == 0) {
+        obj->ways->pos_are_relative = atoi(entry->value);
+        entry = entry->next;
+    }
+    
+    for (uint32_t n = 0; n < num_waypoints; n++) {
+        
+        for (uint8_t m = 0; m < 4; m++) {
+	
+            if (strcmp(entry->key, "vel_abs") == 0) {
+                obj->ways->vel_abs[n] = atof(entry->value);
+                entry = entry->next;
+            } else if (strcmp(entry->key, "pos_x") == 0) {
+                obj->ways->pos_x[n] = atof(entry->value);
+                entry = entry->next;
+            } else if (strcmp(entry->key, "pos_y") == 0) {
+                obj->ways->pos_y[n] = atof(entry->value);
+                entry = entry->next;
+            } else if (strcmp(entry->key, "frames_wait") == 0) {
+                obj->ways->frames_wait[n] = atof(entry->value);
+                entry = entry->next;
+            } else {
+                printf("Error reading waypoints of object %d\n! skipping...", obj->id);
+                return (entry);
+            }
+		}
+        
+    }
+	
+    object_activate_waypoints(obj);
+    
 	return(entry);
 	
 }

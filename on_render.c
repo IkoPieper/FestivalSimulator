@@ -12,11 +12,42 @@ void on_render(object_t* obj) {
 	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
     
+    // render background first:
+    object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
+    surface_on_draw(
+                obj_dsp->surface, 
+                obj_bg->surface, 
+                (int) obj_bg->scr_pos_x, 
+                (int) obj_bg->scr_pos_y);
+    
+    
+    // render early:
+    obj = obj_first;
+    
+	while (obj != NULL) {
+        
+        if (obj->id != OBJECT_SURFDISPLAY_ID && 
+            obj->id != OBJECT_BACKGROUND_ID && 
+            obj->render_early) {
+            // render the object:
+            surface_on_draw(
+                obj_dsp->surface, 
+                obj->surface, 
+                (int) obj->scr_pos_x, 
+                (int) obj->scr_pos_y);
+        }
+        
+        obj = obj->next_object;
+	}
+    
+    // render loop:
 	obj = obj_first;
     
 	while (obj != NULL) {
 		
-		if (obj->id != OBJECT_SURFDISPLAY_ID) {
+		if (obj->id != OBJECT_SURFDISPLAY_ID && 
+            obj->id != OBJECT_BACKGROUND_ID && 
+            !obj->render_early) {
             
             if (!obj->render_is_in_blobb) {
                 
@@ -156,11 +187,22 @@ void on_render_sort(object_t* obj) {
                 obj->render_blobb = 
                     render_blobb(obj->render_blobb, obj->render_after);
             }
+            /*listobj_t* blobb = obj->render_blobb;
+            while (blobb != NULL) {
+                printf("blobb of obj: %d, obj: %d\n", obj->id, blobb->obj->id);
+                blobb = blobb->next;
+            }
+            printf("\n");*/
             if (obj->render_blobb != NULL) {
                 obj->render_blobb = 
                     render_blobb_sort(obj->render_blobb);
             }
-                
+            /*blobb = obj->render_blobb;
+            while (blobb != NULL) {
+                printf("blobb of obj: %d, obj: %d\n", obj->id, blobb->obj->id);
+                blobb = blobb->next;
+            }
+            printf("\n");*/
         }
     
 		obj = obj->next_object;
