@@ -7,9 +7,6 @@
 typedef struct waypoints waypoints_t;
 
 struct waypoints {
-	uint32_t id;
-	waypoints_t* prev;             // previous waypoints in list
-	waypoints_t* next;             // next waypoints in list
 	
 	bool active;                   // is activated?
 	
@@ -34,7 +31,7 @@ struct waypoints {
 	                               //  -1: immediately
 };
 
-waypoints_t* waypoints_init(uint32_t id, uint32_t num_ways);
+waypoints_t* waypoints_init(uint32_t num_ways);
 void waypoints_free(waypoints_t* ways);
 
 #endif

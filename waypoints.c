@@ -1,14 +1,10 @@
 #include "waypoints.h"
 
-waypoints_t* waypoints_init(uint32_t id, uint32_t num_ways) {
+waypoints_t* waypoints_init(uint32_t num_ways) {
 	
 	waypoints_t* ways = NULL;
 	
 	ways = (waypoints_t*) malloc(sizeof(waypoints_t));
-	
-	ways->id = id;
-	ways->prev = NULL;
-	ways->next = NULL;
 	
 	ways->pos_are_relative = 0;
 	ways->num_ways = num_ways;

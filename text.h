@@ -7,15 +7,12 @@
 typedef struct text text_t;
 
 struct text {
-	uint32_t id;
-	text_t* prev;
-	text_t* next;
 	char* str;
 	uint32_t length;
 	TTF_Font* font;
 };
 
-text_t* text_init(uint32_t id);
+text_t* text_init();
 void text_add_string(text_t* txt, char* str);
 void text_free(text_t* text);
 SDL_Surface* text_print_to_surface(text_t* txt, char* str);

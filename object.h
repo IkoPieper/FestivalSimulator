@@ -42,8 +42,6 @@ struct walls {
 };
 
 struct collision {
-	collision_t* next;
-	collision_t* prev;
     object_t* partner;
     uint32_t area;
     uint32_t area_old;
@@ -53,11 +51,6 @@ struct collision {
     float c_y_old;
     float vel_x;
     float vel_y;
-};
-
-struct listobj {
-	listobj_t* next;
-    object_t* obj;
 };
 
 struct object {

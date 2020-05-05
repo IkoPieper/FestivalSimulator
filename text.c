@@ -1,14 +1,11 @@
 #include "text.h"
 
-text_t* text_init(uint32_t id) {
+text_t* text_init() {
 	
 	text_t* txt = NULL;
 	
 	txt = (text_t*) malloc(sizeof(text_t));
 	
-	txt->id = id;
-	txt->prev = NULL;
-	txt->next = NULL;
 	txt->str = NULL;
 	txt->length = 0;
 	

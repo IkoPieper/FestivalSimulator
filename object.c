@@ -271,7 +271,7 @@ uint32_t object_get_count(object_t* obj) {
 
 void object_add_animation(object_t* obj, uint32_t id) {
 	
-    animation_t* anim = animation_init(id);
+    animation_t* anim = animation_init();
     
     // place at first place in list and set as current animation:
     obj->anim = create_before(obj->anim, (void*) anim, id);
@@ -311,7 +311,7 @@ void object_free_animations(list_t* anim) {
 
 void object_add_text(object_t* obj, uint32_t id) {
 	
-    text_t* txt = text_init(id);
+    text_t* txt = text_init();
     
     // place at first place in list and set as current text:
     obj->txt = create_before(obj->txt, (void*) txt, id);
@@ -346,7 +346,7 @@ void object_free_texts(list_t* txt) {
 
 void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways) {
 	
-    waypoints_t* ways = waypoints_init(id, num_ways);
+    waypoints_t* ways = waypoints_init(num_ways);
     
     // place at first place in list and set as current waypoints:
     obj->ways = create_before(obj->ways, (void*) ways, id);

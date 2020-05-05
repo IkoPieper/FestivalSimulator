@@ -23,15 +23,12 @@
 
 #include "animation.h"
 
-animation_t* animation_init(uint32_t id) {
+animation_t* animation_init() {
 	
 	animation_t* anim = NULL;
 	
 	anim = (animation_t*) malloc(sizeof(animation_t));
 	
-	anim->id = id;
-	anim->prev = NULL;
-	anim->next = NULL;
 	anim->cycle_first = NULL;
 	anim->cycle = NULL;
 	anim->delay_frames = 10;
