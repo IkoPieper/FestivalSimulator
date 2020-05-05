@@ -226,13 +226,13 @@ object_t* object_remove(object_t* obj, uint32_t id) {
 		object_free_texts(obj->txt);
 	}
     if (obj->render_before != NULL) {
-        obj->render_before = listobj_free(obj->render_before);
+        delete_all(obj->render_before);
     }
     if (obj->render_after != NULL) {
-        obj->render_after = listobj_free(obj->render_after);
+        delete_all(obj->render_after);
     }
     if (obj->render_blobb != NULL) {
-        obj->render_blobb = listobj_free(obj->render_blobb);
+        delete_all(obj->render_blobb);
     }
 	
 	free(obj);
@@ -271,33 +271,15 @@ uint32_t object_get_count(object_t* obj) {
 
 void object_add_animation(object_t* obj, uint32_t id) {
 	
-	animation_t* anim = animation_init(id);
-	
-	// place at first place in list:
-	anim->next = obj->anim;
-	
-	if (obj->anim != NULL) {
-		obj->anim->prev = anim;
-	}
-	
-	// set as current animation:
-	obj->anim = anim;
+    animation_t* anim = animation_init(id);
+    
+    // place at first place in list and set as current animation:
+    obj->anim = create_before(obj->anim, (void*) anim, id);
 }
 
 void object_select_animation(object_t* obj, uint32_t id) {
 	
-	animation_t* anim = obj->anim;
-	
-	// get first animation:
-	while (anim->prev != NULL) {
-		anim = anim->prev;
-	}
-	// find animation:
-	while (anim->id != id) {
-		anim = anim->next;
-	}
-	// select animation:
-	obj->anim = anim;
+	obj->anim = find_id(obj->anim, id);
 }
 
 void object_animate(object_t* obj, uint64_t frame) {
@@ -309,106 +291,37 @@ void object_animate(object_t* obj, uint64_t frame) {
 	}
 	
 	// get next picture:
-	obj->surface = animation_get_next_surface(obj->anim, frame);
+	obj->surface = animation_get_next_surface(
+        (animation_t*) obj->anim->entry, frame);
 }
 
-/*void object_remove_animation(object_t* obj, uint32_t id) {
-	
-	if (obj->anim->id == id) {
-		object_remove_selected_animation(obj);
-		return;
-	}
-	
-	animation_t* anim = obj->anim;
+void object_free_animations(list_t* anim) {
 	
 	// get first animation:
-	while (anim->prev != NULL) {
-		anim = anim->prev;
-	}
-	// find animation:
-	while (anim->id != id) {
-		anim = anim->next;
-	}
-	// update animation list:
-	if (anim->prev != NULL) {
-		anim->prev = anim->next;
-	}
-	if (anim->next != NULL) {
-		anim->next->prev = anim->prev;
-	}
-	
-	animation_free(anim);
-}*/
-
-/*void object_remove_selected_animation(object_t* obj) {
-	
-	animation_t* anim = obj->anim;
-	
-	// update animation list:
-	if (anim->prev != NULL) {
-		anim->prev = anim->next;
-	}
-	if (anim->next != NULL) {
-		anim->next->prev = anim->prev;
-	}
-	// choose new selected animation:
-	if (anim->prev != NULL) {
-		obj->anim = anim->prev;
-	} else if (anim->next != NULL) {
-		obj->anim = anim->next;
-	} else {
-		obj->anim = NULL;
-	}
-	
-	animation_free(anim);
-}*/
-
-void object_free_animations(animation_t* anim) {
-	
-	animation_t* anim_tmp;
-	
-	// get first animation:
-	while (anim->prev != NULL) {
-		anim = anim->prev;
-	}
-	
+	anim = get_first(anim);
+	list_t* anim_tmp = anim;
+    
 	while (anim != NULL) {
-		anim_tmp = anim;
+        animation_free((animation_t*) anim->entry);
 		anim = anim->next;
-		animation_free(anim_tmp);
 	}
-	
+    
+    delete_all(anim_tmp);
 }
 
 void object_add_text(object_t* obj, uint32_t id) {
 	
-	text_t* txt = text_init(id);
-	
-	// place at first place in list:
-	txt->next = obj->txt;
-	
-	if (obj->txt != NULL) {
-		obj->txt->prev = txt;
-	}
-	
-	// set as current text:
-	obj->txt = txt;
+    text_t* txt = text_init(id);
+    
+    // place at first place in list and set as current text:
+    obj->txt = create_before(obj->txt, (void*) txt, id);
+    
 }
 
 void object_select_text(object_t* obj, uint32_t id) {
-	
-	text_t* txt = obj->txt;
-	
-	// get first text:
-	while (txt->prev != NULL) {
-		txt = txt->prev;
-	}
-	// find text:
-	while (txt->id != id) {
-		txt = txt->next;
-	}
-	// select text:
-	obj->txt = txt;
+    
+	obj->txt = find_id(obj->txt, id);
+    
 }
 
 void object_print_text(object_t* obj) {
@@ -417,147 +330,86 @@ void object_print_text(object_t* obj) {
 	
 }
 
-void object_free_texts(text_t* text) {
+// TODO: move to text.c
+void object_free_texts(list_t* txt) {
 	
-	text_t* text_tmp;
-	
-	// get first text:
-	while (text->prev != NULL) {
-		text = text->prev;
+	txt = get_first(txt);
+	list_t* txt_tmp = txt;
+    
+	while (txt != NULL) {
+        text_free((text_t*) txt->entry);
+		txt = txt->next;
 	}
-	
-	while (text != NULL) {
-		text_tmp = text;
-		text = text->next;
-		text_free(text_tmp);
-	}
-	
+    
+    delete_all(txt_tmp);
 }
 
 void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways) {
 	
-	waypoints_t* ways = waypoints_init(id, num_ways);
-	
-	// place at first place in list:
-	ways->next = obj->ways;
-	
-	if (obj->ways != NULL) {
-		obj->ways->prev = ways;
-	}
-	
-	// set as current waypoints:
-	obj->ways = ways;
-	
+    waypoints_t* ways = waypoints_init(id, num_ways);
+    
+    // place at first place in list and set as current waypoints:
+    obj->ways = create_before(obj->ways, (void*) ways, id);
 }
 
 void object_select_waypoints(object_t* obj, uint32_t id) {
 	
-	waypoints_t* ways = obj->ways;
-	
-	// get first waypoints:
-	while (ways->prev != NULL) {
-		ways = ways->prev;
-	}
-	// find waypoints:
-	while (ways->id != id) {
-		ways = ways->next;
-	}
-	// select waypoints:
-	obj->ways = ways;
+	obj->ways = find_id(obj->ways, id);
 }
 
 void object_remove_waypoints(object_t* obj, uint32_t id) {
-	
-	if (obj->ways->id == id) {
-		object_remove_selected_waypoints(obj);
-		return;
-	}
-	
-	waypoints_t* ways = obj->ways;
-	
-	// get first waypoints:
-	while (ways->prev != NULL) {
-		ways = ways->prev;
-	}
-	// find waypoints:
-	while (ways->id != id) {
-		ways = ways->next;
-	}
-	// update waypoints list:
-	if (ways->prev != NULL) {
-		ways->prev = ways->next;
-	}
-	if (ways->next != NULL) {
-		ways->next->prev = ways->prev;
-	}
-	
-	waypoints_free(ways);
-}
-
-void object_remove_selected_waypoints(object_t* obj) {
-	
-	waypoints_t* ways = obj->ways;
-	
-	// update waypoints list:
-	if (ways->prev != NULL) {
-		ways->prev = ways->next;
-	}
-	if (ways->next != NULL) {
-		ways->next->prev = ways->prev;
-	}
-	// choose new selected waypoints:
-	if (ways->prev != NULL) {
-		obj->ways = ways->prev;
-	} else if (ways->next != NULL) {
-		obj->ways = ways->next;
-	} else {
-		obj->ways = NULL;
-	}
-	
-	waypoints_free(ways);
+    
+    list_t* ways = find_id(obj->ways, id);
+    waypoints_free((waypoints_t*) ways->entry);
+    obj->ways = delete_single(ways);
+    
 }
 
 void object_activate_waypoints(object_t* obj) {
 	
 	uint32_t n;
 	
-	if (obj->ways->pos_are_relative == 1) {
+    waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+    
+	if (ways->pos_are_relative == 1) {
 		// if activated the first time
-		if (obj->ways->pos_x_relative == NULL) {
+		if (ways->pos_x_relative == NULL) {
 			
 			// copy positions to relative positions:
-			obj->ways->pos_x_relative = malloc(obj->ways->num_ways * sizeof(float));
-			obj->ways->pos_y_relative = malloc(obj->ways->num_ways * sizeof(float));
-			for (n = 0; n < obj->ways->num_ways; n++) {
-				obj->ways->pos_x_relative[n] = obj->ways->pos_x[n];
-				obj->ways->pos_y_relative[n] = obj->ways->pos_y[n];
+			ways->pos_x_relative = malloc(ways->num_ways * sizeof(float));
+			ways->pos_y_relative = malloc(ways->num_ways * sizeof(float));
+			for (n = 0; n < ways->num_ways; n++) {
+				ways->pos_x_relative[n] = ways->pos_x[n];
+				ways->pos_y_relative[n] = ways->pos_y[n];
 			}
 			// convert relative positions to absolute positions in 
 			// relation to any object position:
-			for (n = 1; n < obj->ways->num_ways; n++) {
-				obj->ways->pos_x_relative[n] += obj->ways->pos_x_relative[n-1];
-				obj->ways->pos_y_relative[n] += obj->ways->pos_y_relative[n-1];
+			for (n = 1; n < ways->num_ways; n++) {
+				ways->pos_x_relative[n] += ways->pos_x_relative[n-1];
+				ways->pos_y_relative[n] += ways->pos_y_relative[n-1];
 			}
 		}
 		// calculate absolute positions:
-		for (n = 0; n < obj->ways->num_ways; n++) {
-			obj->ways->pos_x[n] = obj->ways->pos_x_relative[n] + obj->pos_x;
-			obj->ways->pos_y[n] = obj->ways->pos_y_relative[n] + obj->pos_y;
+		for (n = 0; n < ways->num_ways; n++) {
+			ways->pos_x[n] = ways->pos_x_relative[n] + obj->pos_x;
+			ways->pos_y[n] = ways->pos_y_relative[n] + obj->pos_y;
 		}
-	} else if (obj->ways->pos_are_relative == -1) {
+	} else if (ways->pos_are_relative == -1) {
 		// pos are screen positions
 		printf("Warning: waypoints for screen positions not implemented!\n");
 	}
 	
 	// activate:
-	obj->ways->active = 1;
+	ways->active = 1;
 	
 }
 
 void object_get_next_waypoint(object_t* obj) {
 	
-	float pos_x_wp = obj->ways->pos_x[obj->ways->n];
-	float pos_y_wp = obj->ways->pos_y[obj->ways->n];
+    waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+    
+	float pos_x_wp = ways->pos_x[ways->n];
+	float pos_y_wp = ways->pos_y[ways->n];
 	float border_x = fabsf(obj->vel_x) + 2.0;
 	float border_y = fabsf(obj->vel_y) + 2.0;
 	
@@ -567,18 +419,18 @@ void object_get_next_waypoint(object_t* obj) {
 		obj->pos_y > pos_y_wp - border_y && 
 		obj->pos_y < pos_y_wp + border_y ) {
 		
-        if (obj->ways->frames_wait[obj->ways->n] > obj->ways->frame) {
-            obj->ways->frame++;
+        if (ways->frames_wait[ways->n] > ways->frame) {
+            ways->frame++;
             return;
         }
-        obj->ways->frame = 0;
+        ways->frame = 0;
         
 		// select next waypoint:
-		obj->ways->n++;
+		ways->n++;
 		
 		// cycle: TODO: make optional
-		if (obj->ways->n == obj->ways->num_ways) {
-			obj->ways->n = 0;
+		if (ways->n == ways->num_ways) {
+			ways->n = 0;
 		}
 		
 	}
@@ -588,8 +440,10 @@ void object_get_next_waypoint(object_t* obj) {
 
 void object_aim_for_waypoint(object_t* obj) {
 
-	float pos_x_wp = obj->ways->pos_x[obj->ways->n];
-	float pos_y_wp = obj->ways->pos_y[obj->ways->n];
+    waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+
+	float pos_x_wp = ways->pos_x[ways->n];
+	float pos_y_wp = ways->pos_y[ways->n];
 	float vel_x_wanted = 0.0;
 	float vel_y_wanted = 0.0;
 	
@@ -601,8 +455,8 @@ void object_aim_for_waypoint(object_t* obj) {
 	float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
 	vel_x_wanted /= norm;
 	vel_y_wanted /= norm;
-	vel_x_wanted *= obj->ways->vel_abs[obj->ways->n];
-	vel_y_wanted *= obj->ways->vel_abs[obj->ways->n];
+	vel_x_wanted *= ways->vel_abs[ways->n];
+	vel_y_wanted *= ways->vel_abs[ways->n];
 	
 	// modify current velocity a step towards the velocity wanted:
 	if (obj->vel_x < vel_x_wanted - 0.2) {
@@ -618,151 +472,60 @@ void object_aim_for_waypoint(object_t* obj) {
 	
 }
 
-
 collision_t* object_add_collision(object_t* obj, object_t* partner) {
-	
-	collision_t* col = NULL;
-	
+    
+    list_t* col = obj->col;
+	collision_t* entry;
+    
 	// only add if collision does not already exist:
-	col = obj->col;
-	while (col != NULL) {
-		if (col->partner == partner) { // partner found
-			// update the old values:
-			col->area_old = col->area;
-			col->c_x_old = col->c_x;
-			col->c_y_old = col->c_y;
-			// init area:
-			col->area = 0;
-			return(col);
-		}
-		col = col->next;
-	}
+    col = find_id(col, partner->id);
+    if (col != NULL) {
+        entry = (collision_t*) col->entry;
+        // update the old values:
+        entry->area_old = entry->area;
+        entry->c_x_old = entry->c_x;
+        entry->c_y_old = entry->c_y;
+        // init area:
+        entry->area = 0;
+        return(entry);
+    }
 	
 	// add new collision:
-	col = (collision_t*) malloc(sizeof(collision_t));
+	entry = (collision_t*) malloc(sizeof(collision_t));
 	
 	// add at first place in list:
-	if (obj->col != NULL) {
-		obj->col->prev = col;
-		col->next = obj->col;
-	} else {
-		col->next = NULL;
-	}
-	obj->col = col;
-	col->prev = NULL;
+    obj->col = create_before(obj->col, (void*) entry, partner->id);
 	
 	// initialize:
-    col->partner = partner;	// add new partner
-    col->area = 0;
-    col->area_old = 0;
-    col->c_x = 0;
-    col->c_y = 0;
-    col->c_x_old = 0;
-    col->c_y_old = 0;
-    col->vel_x = 0;
-    col->vel_y = 0;
+    entry->partner = partner;	// add new partner (TODO: Check if stil required)
+    entry->area = 0;
+    entry->area_old = 0;
+    entry->c_x = 0;
+    entry->c_y = 0;
+    entry->c_x_old = 0;
+    entry->c_y_old = 0;
+    entry->vel_x = 0;
+    entry->vel_y = 0;
     
-    return(col);
+    return(entry);
 }
 
 void object_remove_collision(object_t* obj, object_t* partner) {
 	
-	collision_t* col = obj->col;
-	
-	if (col == NULL) {
+    list_t* col = obj->col;
+    
+    if (col == NULL) {
+        return;
+    }
+    
+    // find partner in list:
+    col = find_id(col, partner->id);
+    
+    if (col == NULL) {
 		return;
-	}
-	
-	// go to first collision:
-	while (col->prev != NULL) {
-		col = col->prev;
-	}
-	
-	// find partner in list:
-	while (col->partner != partner) {
-		col = col->next;
-		if (col == NULL) {
-			return;
-		}
-	}
-	
-	// col is now the partner, so remove col:
-	if (col->prev != NULL) {
-		col->prev->next = col->next;
-	}
-	if (col->next != NULL) {
-		col->next->prev = col->prev;
-	}
-	if (col->prev == NULL && col->next == NULL) { // if the only one
-		obj->col = NULL;
-	} else if (col->prev == NULL) {
-		obj->col = col->next;
-	}
-	
-	free(col);
-	
-}
-
-listobj_t* listobj_add(listobj_t* first, object_t* obj) {
-	
-	listobj_t* entry = (listobj_t*) malloc(sizeof(listobj_t));
-	entry->obj = obj;
-	entry->next = first;
-	
-	return(entry);  // new first element
-	
-}
-
-listobj_t* listobj_remove(listobj_t* first, listobj_t* entry) {
-	
-	listobj_t* tmp = first;
-	
-	if (tmp == entry) {
-		tmp = entry->next;
-		free(entry);
-		return(tmp);  // new first element
-	}
-	
-	while (tmp->next != entry) {
-		tmp = tmp->next;
-	}
-	tmp->next = entry->next;
-	free(entry);
-	return(first);
-	
-}
-
-bool listobj_is_member(listobj_t* first, object_t* obj) {
-    
-    while (first != NULL) {
-        
-        if (first->obj == obj) {
-            return(true);
-        }
-        
-        first = first->next;
     }
-    return(false);
-}
-uint32_t listobj_count_objects(listobj_t* first) {
     
-    uint32_t count = 0;
+    // col is now the partner, so remove col:
+    obj->col = delete_single(col);
     
-    while (first != NULL) {
-        
-        count++;
-        
-        first = first->next;
-    }
-    return(count);
-    
-}
-
-listobj_t* listobj_free(listobj_t* first) {
-    while (first != NULL) {
-        listobj_t* tmp = first;
-        first = first->next;
-        free(tmp);
-    }
-    return(NULL);
 }

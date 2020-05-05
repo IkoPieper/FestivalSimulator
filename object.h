@@ -2,7 +2,7 @@
     #define _OBJECT_H_
 
 #include <SDL/SDL.h>
-#include "datatypes.h"
+#include "list.h"
 #include "animation.h"
 #include "text.h"
 #include "waypoints.h"
@@ -10,6 +10,7 @@
 #include <GL/glu.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 
 typedef struct object object_t;
@@ -69,11 +70,11 @@ struct object {
 	object_t* prev_object;
 	
 	// render lists:
-    listobj_t* render_before;   // objects which need to be rendered
+    list_t* render_before;      // objects which need to be rendered
                                 // before this object
-    listobj_t* render_after;    // objects which need to be rendered
+    list_t* render_after;       // objects which need to be rendered
                                 // after this object
-    listobj_t* render_blobb;    // used to collect overlapping objects
+    list_t* render_blobb;       // used to collect overlapping objects
     bool render_is_in_blobb;    // is the obj in this or another blobb?
     bool render_early;          // disable blobb stuff and render early
     
@@ -115,7 +116,7 @@ struct object {
 	walls_t* wall;	        // aka collision zones
 	
 	// animations:
-	animation_t* anim;		// current animation from list of animations
+	list_t* anim;		    // current animation from list of animations
 	bool anim_first_call;	// free surface if animation is called for 
 							// the first time
                             
@@ -123,25 +124,18 @@ struct object {
 							
 	// texts:
 	char* txt_language;			// the language the object speaks
-	text_t* txt;				// current text from list of texts
+	list_t* txt;				// current text from list of texts
 	SDL_Surface* txt_surface;	// string of current text as surface
 	uint32_t txt_print;			// > 0 print current text
 	
 	// waypoints:
-	waypoints_t* ways;
+	list_t* ways;
 	
 	// collisions:
-	collision_t* col;
+	list_t* col;
     bool disable_collision;
     
 };
-
-// used for short lists of objects:
-listobj_t* listobj_add(listobj_t* first, object_t* obj);
-listobj_t* listobj_remove(listobj_t* first, listobj_t* entry);
-bool listobj_is_member(listobj_t* first, object_t* obj);
-uint32_t listobj_count_objects(listobj_t* first);
-listobj_t* listobj_free(listobj_t* first);
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);
 void object_free_walls(walls_t* wall);
@@ -157,19 +151,16 @@ uint32_t object_get_count(object_t* obj);
 void object_add_animation(object_t* obj, uint32_t id);
 void object_select_animation(object_t* obj, uint32_t id);
 void object_animate(object_t* obj, uint64_t frame);
-/*void object_remove_animation(object_t* obj, uint32_t id);*/ // maybe broken
-/*void object_remove_selected_animation(object_t* obj);*/ // broken
-void object_free_animations(animation_t* anim);
+void object_free_animations(list_t* anim);
 
 void object_add_text(object_t* obj, uint32_t id);
 void object_select_text(object_t* obj, uint32_t id);
 void object_print_text(object_t* obj);
-void object_free_texts(text_t* txt);
+void object_free_texts(list_t* txt);
 
 void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways);
 void object_select_waypoints(object_t* obj, uint32_t id);
 void object_remove_waypoints(object_t* obj, uint32_t id);
-void object_remove_selected_waypoints(object_t* obj);
 void object_activate_waypoints(object_t* obj);
 void object_get_next_waypoint(object_t* obj);
 void object_aim_for_waypoint(object_t* obj);

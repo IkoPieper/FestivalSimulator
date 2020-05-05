@@ -67,7 +67,8 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
                 if (delay_frames < 5) {
                     delay_frames = 5;
                 }
-                obj->anim->delay_frames = delay_frames;
+                animation_t* anim = (animation_t*) obj->anim->entry;
+                anim->delay_frames = delay_frames;
                     
             }
             
@@ -87,11 +88,16 @@ void on_loop_waypoints(object_t* obj, uint64_t frame) {
 	obj = object_get_first(obj);
 	
 	while (obj != NULL) {
-			
-		if (obj->ways != NULL && obj->ways->active && !obj->vel_lock) {
+        	
+		if (obj->ways != NULL) {
+            
+            waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+        
+            if (ways->active && !obj->vel_lock) {
 
-			object_get_next_waypoint(obj);
-			
+                object_get_next_waypoint(obj);
+                
+            }
 		}
 	
 		obj = obj->next_object;

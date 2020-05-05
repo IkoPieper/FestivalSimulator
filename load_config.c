@@ -117,7 +117,8 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 			
 		} else if (strcmp(entry->key, "delay_frames") == 0) {
 			
-			obj->anim->delay_frames = atoi(entry->value);
+            animation_t* anim = (animation_t*) obj->anim->entry;
+			anim->delay_frames = atoi(entry->value);
 			entry = entry->next;
 			
 		} else if (strcmp(entry->key, "surface") == 0) {
@@ -131,7 +132,7 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 				printf("Warning: Problem loading config file.\n");
 				printf("File %s not found.\n", file_name);
 			}
-			animation_add_surface(obj->anim, surf);
+			animation_add_surface((animation_t*) obj->anim->entry, surf);
 			entry = entry->next;
 			
 		} else {
@@ -160,7 +161,8 @@ configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj
     }
     
     if (strcmp(entry->key, "pos_are_relative") == 0) {
-        obj->ways->pos_are_relative = atoi(entry->value);
+        waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+        ways->pos_are_relative = atoi(entry->value);
         entry = entry->next;
     }
     
@@ -169,16 +171,20 @@ configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj
         for (uint8_t m = 0; m < 4; m++) {
 	
             if (strcmp(entry->key, "vel_abs") == 0) {
-                obj->ways->vel_abs[n] = atof(entry->value);
+                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+                ways->vel_abs[n] = atof(entry->value);
                 entry = entry->next;
             } else if (strcmp(entry->key, "pos_x") == 0) {
-                obj->ways->pos_x[n] = atof(entry->value);
+                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+                ways->pos_x[n] = atof(entry->value);
                 entry = entry->next;
             } else if (strcmp(entry->key, "pos_y") == 0) {
-                obj->ways->pos_y[n] = atof(entry->value);
+                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+                ways->pos_y[n] = atof(entry->value);
                 entry = entry->next;
             } else if (strcmp(entry->key, "frames_wait") == 0) {
-                obj->ways->frames_wait[n] = atof(entry->value);
+                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+                ways->frames_wait[n] = atof(entry->value);
                 entry = entry->next;
             } else {
                 printf("Error reading waypoints of object %d\n! skipping...", obj->id);
@@ -207,11 +213,12 @@ configentry* load_config_text(configentry* entry, object_t* obj) {
 		} else if (strcmp(entry->key, "de") == 0) {
 			
 			if (strcmp(obj->txt_language, "de") == 0) {
-				text_add_string(obj->txt, entry->value);
+                text_t* txt = (text_t*) obj->txt->entry;
+				text_add_string(txt, entry->value);
+                
+                fprintf(stdout, "%s\n", txt->str);
 			}
 			entry = entry->next;
-			
-			fprintf(stdout, "%s\n", obj->txt->str);
 			
 		} else {
 			break;

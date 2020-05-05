@@ -4,14 +4,15 @@
 #include "object.h"
 #include "surface.h"
 #include "text.h"
+#include "list.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
 void on_render(object_t* obj);
 void on_render_sort(object_t* obj);
-listobj_t* render_blobb(listobj_t* blobb, listobj_t* list);
-listobj_t* render_blobb_sort(listobj_t* blobb);
-listobj_t* render_blobb_sort_iter(listobj_t* blobb, bool* swapped);
+list_t* render_blobb(list_t* blobb, list_t* current);
+list_t* render_blobb_sort(list_t* blobb);
+bool render_blobb_sort_iter(list_t* blobb);
 void on_render_text(object_t* obj, object_t* obj_dsp);
 
 #endif

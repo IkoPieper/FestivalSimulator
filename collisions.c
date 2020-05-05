@@ -632,10 +632,10 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	
 	// update render lists:
 	if (yl2 >= yl1 && yr2 >= yr1) {
-        obj1->render_before = listobj_add(obj1->render_before, obj2);
-        obj2->render_after = listobj_add(obj2->render_after, obj1);
+        obj1->render_before = create_before(obj1->render_before, (void*) obj2, 0);
+        obj2->render_after = create_before(obj2->render_after, (void*) obj1, 0);
 	} else {
-        obj1->render_after = listobj_add(obj1->render_after, obj2);
-        obj2->render_before = listobj_add(obj2->render_before, obj1);
+        obj1->render_after = create_before(obj1->render_after, (void*) obj2, 0);
+        obj2->render_before = create_before(obj2->render_before, (void*) obj1, 0);
 	}
 }
