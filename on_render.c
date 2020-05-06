@@ -276,7 +276,7 @@ bool render_blobb_sort_iter(list_t* blobb) {
 void on_render_text(object_t* obj, object_t* obj_dsp) {
 	
     text_t* txt = (text_t*) obj->txt->entry;
-	char str[txt->length];
+	char str[txt->length + 1];
 	uint32_t i;
 	
 	obj->txt_print++;	// frame counter
@@ -287,7 +287,7 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
 		i++;
 	}
 	str[i] = '\0';
-	
+    
 	if (obj->txt_print < txt->length) {
 		if (obj->txt_surface != NULL) {
 			SDL_FreeSurface(obj->txt_surface);
@@ -297,9 +297,8 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
 	
 	surface_on_draw(
 		obj_dsp->surface, obj->txt_surface, 
-		(int) obj->scr_pos_x - 50, (int) obj->scr_pos_y - 20);
-	
-	
+		(int) obj->scr_pos_x - 50, (int) obj->scr_pos_y + 20);
+    
 	if (obj->txt_print > 220) {
 		SDL_FreeSurface(obj->txt_surface);
 		obj->txt_surface = NULL;

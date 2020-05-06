@@ -83,6 +83,9 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->surface = NULL;
 	obj_new->wall = NULL;
 	
+    // tasks:
+    obj_new->tsk = NULL;
+    
 	// animations:
 	obj_new->anim = NULL;
 	obj_new->anim_first_call = true;
@@ -528,4 +531,25 @@ void object_remove_collision(object_t* obj, object_t* partner) {
     // col is now the partner, so remove col:
     obj->col = delete_single(col);
     
+}
+
+void object_add_task(object_t* obj, uint32_t id) {
+    
+    task_t* tsk = (task_t*) malloc(sizeof(task_t));
+    tsk->step = 0;
+    tsk->task_function = get_task_function(id);
+    obj->tsk = create_before(obj->tsk, tsk, id);
+}
+
+void object_free_tasks(list_t* lst) {
+    
+    lst = get_first(lst);
+    list_t* tmp = lst;
+    
+    while (lst != NULL) {
+        free((task_t*) lst->entry);
+        lst = lst->next;
+    }
+    
+    delete_all(tmp);
 }

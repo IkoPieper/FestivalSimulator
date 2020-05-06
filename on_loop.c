@@ -16,12 +16,36 @@ void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame) {
 	movements(obj, keys);
 	//printf("time for movements: %d\n", SDL_GetTicks() - time);
 	
+    on_loop_tasks(obj, keys, frame);
+    
 	//time = SDL_GetTicks();
 	on_loop_animations(obj, keys, frame);
 	
 	on_loop_waypoints(obj, frame);
 	//printf("time for animations and waypoints: %d\n", SDL_GetTicks() - time);
 
+}
+
+// call all the task functions of the objects:
+void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame) {
+    
+    obj = object_get_first(obj);
+	while (obj != NULL) {
+        
+        if (obj->tsk != NULL) {
+            
+            list_t* lst = get_first(obj->tsk);
+            while (lst != NULL) {
+                
+                task_t* tsk = (task_t*) lst->entry;
+                tsk->task_function(tsk, obj, keys, frame);
+                
+                lst = lst->next;
+            }
+        }
+        
+        obj = obj->next_object;
+	}
 }
 
 void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {

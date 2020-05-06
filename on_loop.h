@@ -8,6 +8,7 @@
 #include "event.h"
 
 void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame);
+void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame);
 void on_loop_animations(object_t* obj, bool* keys, uint64_t frame);
 void on_loop_waypoints(object_t* obj, uint64_t frame);
 

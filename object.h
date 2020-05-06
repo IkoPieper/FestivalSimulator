@@ -14,7 +14,7 @@
 
 
 typedef struct object object_t;
-typedef struct listobj listobj_t;
+typedef struct task task_t;
 typedef struct collision collision_t;
 typedef struct walls walls_t;
 
@@ -51,6 +51,11 @@ struct collision {
     float c_y_old;
     float vel_x;
     float vel_y;
+};
+
+struct task {
+    uint32_t step;
+    bool (*task_function)(task_t*, object_t*, bool*, uint64_t);
 };
 
 struct object {
@@ -108,6 +113,10 @@ struct object {
 	//unsigned int* walls;	// aka collision zones
 	walls_t* wall;	        // aka collision zones
 	
+    // tasks:
+    //bool (*tsk)(object_t* obj, bool* keys, uint64_t frame);		    // current task from list of tasks
+    list_t* tsk;		    // current task from list of tasks
+    
 	// animations:
 	list_t* anim;		    // current animation from list of animations
 	bool anim_first_call;	// free surface if animation is called for 
@@ -161,22 +170,18 @@ void object_aim_for_waypoint(object_t* obj);
 collision_t* object_add_collision(object_t* obj, object_t* partner);
 void object_remove_collision(object_t* obj, object_t* partner);
 
+void object_add_task(object_t* obj, uint32_t id);
+void object_free_tasks(list_t* lst);
+bool (*get_task_function(uint64_t id))(task_t*, object_t*, bool*, uint64_t);
+bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
+bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 
+#define OBJECT_SURFDISPLAY_ID 0
+#define OBJECT_BACKGROUND_ID 1
+#define OBJECT_HERO_ID 2
+#define OBJECT_SCORE_ID 3
 
-#ifndef OBJECT_SURFDISPLAY_ID
-	#define OBJECT_SURFDISPLAY_ID 0
-#endif
-
-#ifndef OBJECT_BACKGROUND_ID
-	#define OBJECT_BACKGROUND_ID 1
-#endif
-
-#ifndef OBJECT_HERO_ID
-	#define OBJECT_HERO_ID 2
-#endif
-
-#ifndef OBJECT_SCORE_ID
-	#define OBJECT_SCORE_ID 3
-#endif
+#define TASK_FIND_BOB 0
+#define TASK_FIND_EVA 1
 
 #endif
