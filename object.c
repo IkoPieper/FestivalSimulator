@@ -285,6 +285,29 @@ void object_select_animation(object_t* obj, uint32_t id) {
 	obj->anim = find_id(obj->anim, id);
 }
 
+void object_select_animation_target(object_t* obj, float x, float y) {
+    
+    float distance_x = x - obj->pos_x;
+    float distance_y = y - obj->pos_y;
+    
+    if (fabsf(distance_x) > fabsf(distance_y)) {
+        
+        if (distance_x < 0) {
+            object_select_animation(obj, ANIMATION_REST_WEST);
+        } else {
+            object_select_animation(obj, ANIMATION_REST_EAST);
+        }
+        
+    } else {
+        
+        if (distance_y < 0) {
+            object_select_animation(obj, ANIMATION_REST_NORTH);
+        } else {
+            object_select_animation(obj, ANIMATION_REST_SOUTH);
+        }
+    }
+}
+
 void object_animate(object_t* obj, uint64_t frame) {
 	
 	// free original surface if it is not part of the animation:

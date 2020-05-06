@@ -22,4 +22,13 @@ void animation_free(animation_t* anim);
 void animation_add_surface(animation_t* anim, SDL_Surface* surf);
 SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame);
 
+#define ANIMATION_WALK_NORTH 1
+#define ANIMATION_WALK_SOUTH 2
+#define ANIMATION_WALK_WEST 3
+#define ANIMATION_WALK_EAST 4
+#define ANIMATION_REST_NORTH 5
+#define ANIMATION_REST_SOUTH 6
+#define ANIMATION_REST_WEST 7
+#define ANIMATION_REST_EAST 8
+
 #endif

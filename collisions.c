@@ -95,15 +95,6 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						
 								collision = collisions_check(obj, obj_b);
                                 
-								if (collision) {
-									if (obj->txt != NULL && obj->txt_print == 0) {
-										obj->txt_print = 1; // start printing the text
-									}
-									if (obj_b->txt != NULL && obj_b->txt_print == 0) {
-										obj_b->txt_print = 1;
-									}
-								}
-					
 								if (collision == false) {
 									object_remove_collision(obj, obj_b);
 									object_remove_collision(obj_b, obj);

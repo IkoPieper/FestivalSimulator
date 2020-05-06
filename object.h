@@ -152,6 +152,7 @@ uint32_t object_get_count(object_t* obj);
 
 void object_add_animation(object_t* obj, uint32_t id);
 void object_select_animation(object_t* obj, uint32_t id);
+void object_select_animation_target(object_t* obj, float x, float y);
 void object_animate(object_t* obj, uint64_t frame);
 void object_free_animations(list_t* anim);
 

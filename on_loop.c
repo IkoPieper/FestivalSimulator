@@ -57,31 +57,35 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
 		// select animation:
 		if (obj->anim_walk) {
 			
-            if (fabsf(obj->vel_x) < 0.1 && fabsf(obj->vel_y) < 0.1) {
+            // calculate actual velocity:
+            float vel_x = obj->pos_x - obj->pos_x_old;
+            float vel_y = obj->pos_y - obj->pos_y_old;
+            
+            if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {
                 // start a stop animation:
 				//obj->anim->cycle = obj->anim->cycle_first;
-				if (obj->anim->id == 1) {
-					object_select_animation(obj, 5);
-				} else if (obj->anim->id == 2) {
-					object_select_animation(obj, 6);
-				} else if (obj->anim->id == 3) {
-					object_select_animation(obj, 7);
-				} else if (obj->anim->id == 4) {
-					object_select_animation(obj, 8);
+				if (obj->anim->id == ANIMATION_WALK_NORTH) {
+					object_select_animation(obj, ANIMATION_REST_NORTH);
+				} else if (obj->anim->id == ANIMATION_WALK_SOUTH) {
+					object_select_animation(obj, ANIMATION_REST_SOUTH);
+				} else if (obj->anim->id == ANIMATION_WALK_WEST) {
+					object_select_animation(obj, ANIMATION_REST_WEST);
+				} else if (obj->anim->id == ANIMATION_WALK_EAST) {
+					object_select_animation(obj, ANIMATION_REST_EAST);
 				}
 				//obj->anim->cycle = obj->anim->cycle_first;
 			} else {
-                if (fabsf(obj->vel_y) > fabsf(obj->vel_x)) {
-                    if (obj->vel_y < 0) {   // north
-                        object_select_animation(obj, 1);
-                    } else {                // south
-                        object_select_animation(obj, 2);
+                if (fabsf(vel_y) > fabsf(vel_x)) {
+                    if (vel_y < 0) {
+                        object_select_animation(obj, ANIMATION_WALK_NORTH);
+                    } else {
+                        object_select_animation(obj, ANIMATION_WALK_SOUTH);
                     }
                 } else {
-                    if (obj->vel_x < 0) {   // west
-                        object_select_animation(obj, 3);
-                    } else {                // east
-                        object_select_animation(obj, 4);
+                    if (vel_x < 0) {
+                        object_select_animation(obj, ANIMATION_WALK_WEST);
+                    } else {
+                        object_select_animation(obj, ANIMATION_WALK_EAST);
                     }
                 }
                 // set speed of animation depending on object velocity:
