@@ -57,11 +57,11 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
         
         object_t* bob = object_get(obj, 702);
     
-        if (fabsf(obj->pos_x - bob->pos_x) < 150 &&
-            fabsf(obj->pos_y - bob->pos_y) < 150) {
+        if (fabsf(obj->pos_x - bob->pos_x) < 250 &&
+            fabsf(obj->pos_y - bob->pos_y) < 250) {
         
             face(bob, obj);
-            say(bob, "Ich liebe dich!", 150);
+            say(bob, "Ich liebe dich du kleiner Knuddelbaer! Ach was ist das Leben schoen!!", 150);
             
             tsk->step++;
             

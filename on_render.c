@@ -276,12 +276,12 @@ bool render_blobb_sort_iter(list_t* blobb) {
 void on_render_text(object_t* obj, object_t* obj_dsp) {
 	
     text_t* txt = (text_t*) obj->txt->entry;
-	char str[txt->length + 1];
-	uint32_t i;
+    char str[txt->length + 1];
+	
 	
 	obj->txt_print++;	// frame counter
 	
-	i = 0;
+	uint32_t i = 0;
 	while (i < obj->txt_print && i < txt->length) {
 		str[i] = txt->str[i];
 		i++;
@@ -292,12 +292,32 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
 		if (obj->txt_surface != NULL) {
 			SDL_FreeSurface(obj->txt_surface);
 		}
-		obj->txt_surface = text_print_to_surface(txt, str);
+		obj->txt_surface = text_print_to_surface(txt->font, str, i);
 	}
 	
-	surface_on_draw(
-		obj_dsp->surface, obj->txt_surface, 
-		(int) obj->scr_pos_x - 50, (int) obj->scr_pos_y + 20);
+    // determine text position. possibly close to object, otherwise at
+    // edge of screen:
+    int32_t x = (int32_t) obj->scr_pos_x - 40;
+    int32_t y = (int32_t) obj->scr_pos_y + 20;
+    
+    int32_t w = obj->txt_surface->w;
+    int32_t h = obj->txt_surface->h;
+    int32_t w_dsp = obj_dsp->surface->w;
+    int32_t h_dsp = obj_dsp->surface->h;
+    if (x < 5) {
+        x = 5;
+    }
+    if (x + w > w_dsp - 5) {
+        x = w_dsp - w - 5;
+    }
+    if (y < 5) {
+        y = 5;
+    }
+    if (y + h > h_dsp - 5) {
+        y = h_dsp - h - 5;
+    }
+    
+	surface_on_draw(obj_dsp->surface, obj->txt_surface, x, y);
     
 	if (obj->txt_print > txt->duration) {
 		SDL_FreeSurface(obj->txt_surface);
