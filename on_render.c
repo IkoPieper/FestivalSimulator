@@ -96,7 +96,7 @@ void on_render(object_t* obj) {
 	
 	while (obj != NULL) {
 		
-		if (obj->txt_print != 0) {
+		if (obj->txt != NULL && obj->txt_print != 0) {
 			
 			on_render_text(obj, obj_dsp);
 		}
@@ -299,7 +299,7 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
 		obj_dsp->surface, obj->txt_surface, 
 		(int) obj->scr_pos_x - 50, (int) obj->scr_pos_y + 20);
     
-	if (obj->txt_print > 220) {
+	if (obj->txt_print > txt->duration) {
 		SDL_FreeSurface(obj->txt_surface);
 		obj->txt_surface = NULL;
 		obj->txt_print = 0; // disable printing

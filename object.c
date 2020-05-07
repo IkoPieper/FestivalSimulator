@@ -213,20 +213,20 @@ object_t* object_remove(object_t* obj, uint32_t id) {
 	if (obj->surface != NULL && obj->anim_first_call) {
 		SDL_FreeSurface(obj->surface);
 	}
-	if (obj->txt_surface != NULL) {
-		SDL_FreeSurface(obj->txt_surface);
-	}
 	if (obj->wall != NULL) {
 		object_free_walls(obj->wall);
 	}
 	if (obj->anim != NULL) {
 		object_free_animations(obj->anim);
 	}
+	if (obj->txt != NULL) {
+		object_free_texts(obj->txt);
+	}
     if (obj->txt_language != NULL) {
         free(obj->txt_language);
     }
-	if (obj->txt != NULL) {
-		object_free_texts(obj->txt);
+    if (obj->txt_surface != NULL) {
+		SDL_FreeSurface(obj->txt_surface);
 	}
     if (obj->render_before != NULL) {
         delete_all(obj->render_before);
@@ -237,7 +237,16 @@ object_t* object_remove(object_t* obj, uint32_t id) {
     if (obj->render_blobb != NULL) {
         delete_all(obj->render_blobb);
     }
-	
+    if (obj->tsk != NULL) {
+        object_free_tasks(obj->tsk);
+    }
+    if (obj->ways != NULL) {
+        object_free_waypoints(obj->ways);
+    }
+	if (obj->col != NULL) {
+        object_free_collisions(obj->col);
+    }
+    
 	free(obj);
 	
 	return(ret);
@@ -323,7 +332,6 @@ void object_animate(object_t* obj, uint64_t frame) {
 
 void object_free_animations(list_t* anim) {
 	
-	// get first animation:
 	anim = get_first(anim);
 	list_t* anim_tmp = anim;
     
@@ -339,7 +347,11 @@ void object_add_text(object_t* obj, uint32_t id) {
 	
     text_t* txt = text_init();
     
-    // place at first place in list and set as current text:
+    if (txt == NULL) {
+        fprintf(stderr, "text_init() failed!\n");
+    }
+    
+    // place before current text in list and set as current text:
     obj->txt = create_before(obj->txt, (void*) txt, id);
     
 }
@@ -356,7 +368,14 @@ void object_print_text(object_t* obj) {
 	
 }
 
-// TODO: move to text.c
+void object_remove_text(object_t* obj, uint32_t id) {
+    
+    list_t* txt = find_id(obj->txt, id);
+    text_free((text_t*) txt->entry);
+    obj->txt = delete_single(txt);
+    
+}
+
 void object_free_texts(list_t* txt) {
 	
 	txt = get_first(txt);
@@ -381,14 +400,6 @@ void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways) {
 void object_select_waypoints(object_t* obj, uint32_t id) {
 	
 	obj->ways = find_id(obj->ways, id);
-}
-
-void object_remove_waypoints(object_t* obj, uint32_t id) {
-    
-    list_t* ways = find_id(obj->ways, id);
-    waypoints_free((waypoints_t*) ways->entry);
-    obj->ways = delete_single(ways);
-    
 }
 
 void object_activate_waypoints(object_t* obj) {
@@ -498,6 +509,19 @@ void object_aim_for_waypoint(object_t* obj) {
 	
 }
 
+void object_free_waypoints(list_t* ways) {
+    
+    ways = get_first(ways);
+    list_t* ways_tmp = ways;
+    
+    while (ways != NULL) {
+        waypoints_free((waypoints_t*) ways->entry);
+        ways = ways->next;
+    }
+    
+    delete_all(ways_tmp);
+}
+
 collision_t* object_add_collision(object_t* obj, object_t* partner) {
     
     list_t* col = obj->col;
@@ -552,8 +576,22 @@ void object_remove_collision(object_t* obj, object_t* partner) {
     }
     
     // col is now the partner, so remove col:
+    free((collision_t*) col->entry);
     obj->col = delete_single(col);
     
+}
+
+void object_free_collisions(list_t* col) {
+    
+    col = get_first(col);
+    list_t* col_tmp = col;
+    
+    while (col != NULL) {
+        free((collision_t*) col->entry);
+        col = col->next;
+    }
+    
+    delete_all(col_tmp);
 }
 
 void object_add_task(object_t* obj, uint32_t id) {

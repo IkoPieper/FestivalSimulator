@@ -159,23 +159,32 @@ void object_free_animations(list_t* anim);
 void object_add_text(object_t* obj, uint32_t id);
 void object_select_text(object_t* obj, uint32_t id);
 void object_print_text(object_t* obj);
+void object_remove_text(object_t* obj, uint32_t id);
 void object_free_texts(list_t* txt);
 
 void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways);
 void object_select_waypoints(object_t* obj, uint32_t id);
-void object_remove_waypoints(object_t* obj, uint32_t id);
 void object_activate_waypoints(object_t* obj);
 void object_get_next_waypoint(object_t* obj);
 void object_aim_for_waypoint(object_t* obj);
+void object_free_waypoints(list_t* ways);
 
 collision_t* object_add_collision(object_t* obj, object_t* partner);
 void object_remove_collision(object_t* obj, object_t* partner);
+void object_free_collisions(list_t* col);
 
 void object_add_task(object_t* obj, uint32_t id);
 void object_free_tasks(list_t* lst);
 bool (*get_task_function(uint64_t id))(task_t*, object_t*, bool*, uint64_t);
+
+// functions in object_tasks.c:
 bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
+void say(object_t* obj, char* str, uint32_t duration);
+void say_free(object_t* obj);
+void face(object_t* obj, object_t* obj_target);
+void move_on(object_t* obj);
+
 
 #define OBJECT_SURFDISPLAY_ID 0
 #define OBJECT_BACKGROUND_ID 1

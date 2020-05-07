@@ -8,10 +8,11 @@ text_t* text_init() {
 	
 	txt->str = NULL;
 	txt->length = 0;
+    txt->duration = TEXT_DURATION_DEFAULT;
 	
 	if((txt->font = TTF_OpenFont("FreeSansBold.ttf", 16)) == NULL) {
 		fprintf(stderr, "Error: Font FreeSansBold.ttf is missing!");
-		return(0);
+		return(NULL);
 	}
 	
 	return(txt);

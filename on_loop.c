@@ -61,7 +61,7 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
             float vel_x = obj->pos_x - obj->pos_x_old;
             float vel_y = obj->pos_y - obj->pos_y_old;
             
-            if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {
+            if (fabsf(vel_x) < 0.5 && fabsf(vel_y) < 0.5) {
                 // start a stop animation:
 				//obj->anim->cycle = obj->anim->cycle_first;
 				if (obj->anim->id == ANIMATION_WALK_NORTH) {

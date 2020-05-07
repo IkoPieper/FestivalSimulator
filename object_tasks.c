@@ -1,5 +1,46 @@
 #include "object.h"
 
+void say(object_t* obj, char* str, uint32_t duration) {
+    
+    object_add_text(obj, 0);
+    text_t* txt = (text_t*) obj->txt->entry;
+    text_add_string(txt, str);
+    txt->duration = duration;
+    obj->txt_print = 1;
+}
+
+void say_free(object_t* obj) {
+    
+    object_remove_text(obj, 0);
+}
+
+void face(object_t* obj, object_t* obj_target) {
+    
+    if (obj->id == OBJECT_HERO_ID) {
+        obj->can_move = false;
+    } else {
+        waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+        ways->active = false;
+    }
+    obj->anim_walk = false;
+    
+    float x = obj_target->pos_x;
+    float y = obj_target->pos_y;
+    object_select_animation_target(obj, x, y);
+    object_animate(obj, 0);
+}
+
+void move_on(object_t* obj) {
+    
+    if (obj->id == OBJECT_HERO_ID) {
+        obj->can_move = true;
+    } else {
+        waypoints_t* ways = obj->ways->entry;
+        ways->active = true;
+    }
+    obj->anim_walk = true;
+}
+
 bool (*get_task_function(uint64_t id))(task_t*, object_t*, bool*, uint64_t) {
     
     switch (id) {
@@ -19,21 +60,8 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
         if (fabsf(obj->pos_x - bob->pos_x) < 150 &&
             fabsf(obj->pos_y - bob->pos_y) < 150) {
         
-            object_add_text(bob, 0);
-            text_t* txt = (text_t*) bob->txt->entry;
-            text_add_string(txt, "Ich liebe dich!");
-            bob->txt_print = 1;
-            
-            waypoints_t* ways = (waypoints_t*) bob->ways->entry;
-            ways->active = false;
-            bob->anim_walk = false;
-            object_select_animation_target(bob, obj->pos_x, obj->pos_y);
-            object_animate(bob, frame);
-            
-            obj->can_move = false;
-            obj->anim_walk = false;
-            object_select_animation_target(obj, bob->pos_x, bob->pos_y);
-            object_animate(obj, frame);
+            face(bob, obj);
+            say(bob, "Ich liebe dich!", 150);
             
             tsk->step++;
             
@@ -45,14 +73,12 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
         
         object_t* bob = object_get(obj, 702);
         
-        if (bob->txt_print == 100) {
+        if (bob->txt_print == 0) {
             
-            bob->txt_print = 0;
+            say_free(bob);
             
-            object_add_text(obj, 0);
-            text_t* txt = (text_t*) obj->txt->entry;
-            text_add_string(txt, "Ich liebe dich auch!");
-            obj->txt_print = 1;
+            face(obj, bob);
+            say(obj, "Ich liebe dich auch!", 100);
             
             tsk->step++;
             
@@ -62,18 +88,13 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
     
     if (tsk->step == 2) {
         
-        if (obj->txt_print == 150) {
+        if (obj->txt_print == 0) {
             
-            obj->txt_print = 0;
+            say_free(obj);
             
             object_t* bob = object_get(obj, 702);
-            
-            waypoints_t* ways = bob->ways->entry;
-            ways->active = true;
-            bob->anim_walk = true;
-            
-            obj->can_move = true;
-            obj->anim_walk = true;
+            move_on(bob);
+            move_on(obj);
             
             tsk->step++;
             
