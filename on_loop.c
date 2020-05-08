@@ -54,61 +54,124 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
 	
 	while (obj != NULL) {
 		
-		// select animation:
-		if (obj->anim_walk) {
-			
-            // calculate actual velocity:
-            float vel_x = obj->pos_x - obj->pos_x_old;
-            float vel_y = obj->pos_y - obj->pos_y_old;
+        // calculate actual velocity:
+        float vel_x = obj->pos_x - obj->pos_x_old;
+        float vel_y = obj->pos_y - obj->pos_y_old;
+        
+        // select walk cycle animation:
+        uint32_t anim_id = 0;
+        if (obj->id == OBJECT_HERO_ID) {
             
-            if (fabsf(vel_x) < 0.5 && fabsf(vel_y) < 0.5) {
-                // start a stop animation:
-				//obj->anim->cycle = obj->anim->cycle_first;
-				if (obj->anim->id == ANIMATION_WALK_NORTH) {
-					object_select_animation(obj, ANIMATION_REST_NORTH);
-				} else if (obj->anim->id == ANIMATION_WALK_SOUTH) {
-					object_select_animation(obj, ANIMATION_REST_SOUTH);
-				} else if (obj->anim->id == ANIMATION_WALK_WEST) {
-					object_select_animation(obj, ANIMATION_REST_WEST);
-				} else if (obj->anim->id == ANIMATION_WALK_EAST) {
-					object_select_animation(obj, ANIMATION_REST_EAST);
-				}
-				//obj->anim->cycle = obj->anim->cycle_first;
-			} else {
-                if (fabsf(vel_y) > fabsf(vel_x)) {
-                    if (vel_y < 0) {
-                        object_select_animation(obj, ANIMATION_WALK_NORTH);
-                    } else {
-                        object_select_animation(obj, ANIMATION_WALK_SOUTH);
-                    }
-                } else {
-                    if (vel_x < 0) {
-                        object_select_animation(obj, ANIMATION_WALK_WEST);
-                    } else {
-                        object_select_animation(obj, ANIMATION_WALK_EAST);
-                    }
-                }
-                // set speed of animation depending on object velocity:
-                float abs_vel = fabsf(
-                    obj->vel_x * obj->vel_x + obj->vel_y * obj->vel_y);
-                int32_t delay_frames = (int32_t) 20 - 20 * abs_vel;
-                if (delay_frames < 5) {
-                    delay_frames = 5;
-                }
-                animation_t* anim = (animation_t*) obj->anim->entry;
-                anim->delay_frames = delay_frames;
-                    
+            if (obj->can_move) {
+                anim_id = on_loop_get_animation_walk_hero(
+                    obj->anim->id, keys);
             }
             
-		}
+        } else {
+            
+            if (obj->anim_walk) {
+                anim_id = on_loop_get_animation_walk(
+                    obj->anim->id, vel_x, vel_y);
+            }
+        }
+        
+        if (anim_id != 0) {
+            
+            if (anim_id != obj->anim->id) {
+                object_select_animation(obj, anim_id);
+            }
+        
+            // set speed of animation depending on object velocity:
+            float abs_vel = fabsf(
+                obj->vel_x * obj->vel_x + obj->vel_y * obj->vel_y);
+            int32_t delay_frames = (int32_t) 20 - 20 * abs_vel;
+            if (delay_frames < 5) {
+                delay_frames = 5;
+            }
+            animation_t* anim = (animation_t*) obj->anim->entry;
+            anim->delay_frames = delay_frames;
+                    
+        }
         
 		// animate:
 		if (obj->anim != NULL) {
 			object_animate(obj, frame);
 		}
+        
 		obj = obj->next_object;
 	}
 	
+}
+
+uint32_t on_loop_get_animation_walk_hero(uint32_t anim_id, bool* keys) {
+    
+    if (keys[KEY_UP]) {
+        return(ANIMATION_WALK_NORTH);
+    }
+    if (keys[KEY_DOWN]) {
+        return(ANIMATION_WALK_SOUTH);
+    }
+    if (keys[KEY_LEFT]) {
+        return(ANIMATION_WALK_WEST);
+    }
+    if (keys[KEY_RIGHT]) {
+        return(ANIMATION_WALK_EAST);
+    }
+    
+    if (anim_id == ANIMATION_WALK_NORTH) {
+        return(ANIMATION_REST_NORTH);
+    }
+    if (anim_id == ANIMATION_WALK_SOUTH) {
+        return(ANIMATION_REST_SOUTH);
+    }
+    if (anim_id == ANIMATION_WALK_WEST) {
+        return(ANIMATION_REST_WEST);
+    }
+    if (anim_id == ANIMATION_WALK_EAST) {
+        return(ANIMATION_REST_EAST);
+    }
+    
+    return(0);
+}
+
+uint32_t on_loop_get_animation_walk(
+    uint32_t anim_id, float vel_x, float vel_y) {
+    
+    if (fabsf(vel_x) < 0.5 && fabsf(vel_y) < 0.5) {
+        
+        // start a stop animation:
+        if (anim_id == ANIMATION_WALK_NORTH) {
+            return(ANIMATION_REST_NORTH);
+        }
+        if (anim_id == ANIMATION_WALK_SOUTH) {
+            return(ANIMATION_REST_SOUTH);
+        }
+        if (anim_id == ANIMATION_WALK_WEST) {
+            return(ANIMATION_REST_WEST);
+        }
+        if (anim_id == ANIMATION_WALK_EAST) {
+            return(ANIMATION_REST_EAST);
+        }
+        
+    } else {
+        
+        // start a walk animation:
+        if (fabsf(vel_y) > fabsf(vel_x)) {
+            if (vel_y < 0) {
+                return(ANIMATION_WALK_NORTH);
+            } else {
+                return(ANIMATION_WALK_SOUTH);
+            }
+        } else {
+            if (vel_x < 0) {
+                return(ANIMATION_WALK_WEST);
+            } else {
+                return(ANIMATION_WALK_EAST);
+            }
+        }
+    }
+    
+    return(0);
 }
 
 void on_loop_waypoints(object_t* obj, uint64_t frame) {
