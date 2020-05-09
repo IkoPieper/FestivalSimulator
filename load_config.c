@@ -14,7 +14,11 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			obj->id = atoi(entry->value);
 			printf("Object %d added\n", obj->id);
 			entry = entry->next;
+        } else if (strcmp(entry->key, "task") == 0) {
 			
+			object_add_task(obj, atoi(entry->value));
+			entry = entry->next;
+            
 		} else if (strcmp(entry->key, "surface") == 0) {
 			
 			file_name = entry->value;

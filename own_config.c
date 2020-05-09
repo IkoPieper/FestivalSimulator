@@ -36,9 +36,12 @@ configentry *conf_load_data(const char *filename) {
 						is_string = 0; // anfuehrungszeichen beenden
 					}
 				}
-					
-				if (is_string == 1 || line[i] != ' ') // leerzeichen streichen wenn kein string
-					value[j++] = line[i];
+				
+                 // leerzeichen streichen wenn kein string
+                 // " auch immer streichen
+				if (is_string == 1 || line[i] != ' ')
+                    if (line[i] != '"')
+                        value[j++] = line[i];
 				i++;
 			} 
 			value[j] = '\0';

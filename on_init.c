@@ -181,10 +181,6 @@ bool on_init_hero(object_t* obj) {
 	obj->min_scr_pos_y = (float) (0 + obj_dsp->surface->h / 5);
 	obj->max_scr_pos_y = (float) (obj_dsp->surface->h 
 		- obj_dsp->surface->h / 5 - obj->surface->h);
-	
-    object_add_task(obj, TASK_FIND_BOB);
-    object_add_task(obj, TASK_FIND_EVA);
-    
     
 	return(false);
 }

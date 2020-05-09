@@ -1,6 +1,20 @@
 #include "object.h"
 
-void say(object_t* obj, char* str, uint32_t duration) {
+void say(object_t* obj, uint32_t id, uint32_t duration) {
+    
+    object_select_text(obj, id);
+    text_t* txt = (text_t*) obj->txt->entry;
+    txt->duration = duration;
+    obj->txt_print = 1;
+}
+
+bool said(object_t* obj) {
+    
+    return(obj->txt_print == 0);
+}
+
+// if calling say_new, you have to call say_free at a later step:
+void say_new(object_t* obj, char* str, uint32_t duration) {
     
     object_add_text(obj, 0);
     text_t* txt = (text_t*) obj->txt->entry;
@@ -55,13 +69,13 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
     
     if (tsk->step == 0) {
         
-        object_t* bob = object_get(obj, 702);
+        object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-        if (fabsf(obj->pos_x - bob->pos_x) < 250 &&
-            fabsf(obj->pos_y - bob->pos_y) < 250) {
+        if (fabsf(hero->pos_x - obj->pos_x) < 250 &&
+            fabsf(hero->pos_y - obj->pos_y) < 250) {
         
-            face(bob, obj);
-            say(bob, "Ich liebe dich du kleiner Knuddelbaer! Ach was ist das Leben schoen!!", 150);
+            face(obj, hero);
+            say(obj, 1, 170);
             
             tsk->step++;
             
@@ -71,14 +85,11 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
     
     if (tsk->step == 1) {
         
-        object_t* bob = object_get(obj, 702);
-        
-        if (bob->txt_print == 0) {
+        if (said(obj)) {
             
-            say_free(bob);
-            
-            face(obj, bob);
-            say(obj, "Ich liebe dich auch!", 100);
+            object_t* hero = object_get(obj, OBJECT_HERO_ID);
+            face(hero, obj);
+            say_new(hero, "Ich liebe dich auch!", 100);
             
             tsk->step++;
             
@@ -88,13 +99,14 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
     
     if (tsk->step == 2) {
         
-        if (obj->txt_print == 0) {
+        object_t* hero = object_get(obj, OBJECT_HERO_ID);
+        
+        if (said(hero)) {
             
-            say_free(obj);
+            say_free(hero);
             
-            object_t* bob = object_get(obj, 702);
-            move_on(bob);
             move_on(obj);
+            move_on(hero);
             
             tsk->step++;
             

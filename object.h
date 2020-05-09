@@ -180,7 +180,9 @@ bool (*get_task_function(uint64_t id))(task_t*, object_t*, bool*, uint64_t);
 // functions in object_tasks.c:
 bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
-void say(object_t* obj, char* str, uint32_t duration);
+void say(object_t* obj, uint32_t id, uint32_t duration);
+bool said(object_t* obj);
+void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
 void face(object_t* obj, object_t* obj_target);
 void move_on(object_t* obj);
