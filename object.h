@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 #include "list.h"
+#include "meter.h"
 #include "animation.h"
 #include "text.h"
 #include "waypoints.h"
@@ -117,6 +118,9 @@ struct object {
     //bool (*tsk)(object_t* obj, bool* keys, uint64_t frame);		    // current task from list of tasks
     list_t* tsk;		    // current task from list of tasks
     
+    // meters:
+    list_t* mtr;		    // displays important values
+    
 	// animations:
 	list_t* anim;		    // current animation from list of animations
 	bool anim_first_call;	// free surface if animation is called for 
@@ -149,6 +153,10 @@ object_t* object_remove(object_t* obj, uint32_t id);
 void object_clean_up(object_t* obj);
 object_t* object_get(object_t* obj, uint32_t id);
 uint32_t object_get_count(object_t* obj);
+
+void object_add_meter(object_t* obj, uint32_t id, 
+    uint8_t type, float scr_pos_x, float scr_pos_y);
+void object_free_meters(list_t* mtr);
 
 void object_add_animation(object_t* obj, uint32_t id);
 void object_select_animation(object_t* obj, uint32_t id);

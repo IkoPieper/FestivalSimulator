@@ -182,6 +182,11 @@ bool on_init_hero(object_t* obj) {
 	obj->max_scr_pos_y = (float) (obj_dsp->surface->h 
 		- obj_dsp->surface->h / 5 - obj->surface->h);
     
+    object_add_meter(obj, METER_BEER, METER_BEER,   10, 10);
+    object_add_meter(obj, METER_MOOD, METER_MOOD,   10, 40);
+    object_add_meter(obj, METER_URIN, METER_URIN,   10, 70);
+    object_add_meter(obj, METER_POINTS, METER_POINTS, 10, 100);
+    
 	return(false);
 }
 	

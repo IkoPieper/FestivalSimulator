@@ -86,6 +86,9 @@ object_t* object_add(object_t* obj, uint32_t id) {
     // tasks:
     obj_new->tsk = NULL;
     
+    // meters:
+    obj_new->mtr = NULL;
+    
 	// animations:
 	obj_new->anim = NULL;
 	obj_new->anim_first_call = true;
@@ -216,6 +219,9 @@ object_t* object_remove(object_t* obj, uint32_t id) {
 	if (obj->wall != NULL) {
 		object_free_walls(obj->wall);
 	}
+    if (obj->mtr != NULL) {
+		object_free_meters(obj->mtr);
+	}
 	if (obj->anim != NULL) {
 		object_free_animations(obj->anim);
 	}
@@ -279,6 +285,29 @@ uint32_t object_get_count(object_t* obj) {
 	}
 	
 	return(count);
+}
+
+void object_add_meter(
+    object_t* obj, uint32_t id, uint8_t type, 
+    float scr_pos_x, float scr_pos_y) {
+	
+    meter_t* mtr = meter_init(type, scr_pos_x, scr_pos_y);
+    
+    // place at last place in list:
+    obj->mtr = create_after(obj->mtr, (void*) mtr, id);
+}
+
+void object_free_meters(list_t* mtr) {
+	
+    mtr = get_first(mtr);
+	list_t* mtr_tmp = mtr;
+    
+	while (mtr != NULL) {
+        meter_free((meter_t*) mtr->entry);
+		mtr = mtr->next;
+	}
+    
+    delete_all(mtr_tmp);
 }
 
 void object_add_animation(object_t* obj, uint32_t id) {

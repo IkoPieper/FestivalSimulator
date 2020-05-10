@@ -91,6 +91,19 @@ void on_render(object_t* obj) {
         obj = obj->next_object;
 	}
     
+    // render meters:
+    obj = obj_first;
+	
+	while (obj != NULL) {
+		
+		if (obj->mtr != NULL) {
+			
+			on_render_meters(obj, obj_dsp);
+		}
+		
+		obj = obj->next_object;
+	}
+    
     // render texts:
 	obj = obj_first;
 	
@@ -103,7 +116,6 @@ void on_render(object_t* obj) {
 		
 		obj = obj->next_object;
 	}
-	
 
 	glBindTexture(GL_TEXTURE_2D, obj_dsp->render_id);
 	glEnable(GL_TEXTURE_2D);
@@ -272,7 +284,24 @@ bool render_blobb_sort_iter(list_t* blobb) {
     return(swapped);
 }
 
-
+void on_render_meters(object_t* obj, object_t* obj_dsp) {
+	
+    list_t* lst = obj->mtr;
+    
+    lst = get_first(lst);
+    
+    while (lst != NULL) {
+        
+        meter_t* mtr = (meter_t*) lst->entry;
+        
+        surface_on_draw(
+            obj_dsp->surface, mtr->surf, 
+            mtr->scr_pos_x, mtr->scr_pos_y);
+        
+        lst = lst->next;
+    }
+	
+}
 void on_render_text(object_t* obj, object_t* obj_dsp) {
 	
     text_t* txt = (text_t*) obj->txt->entry;
