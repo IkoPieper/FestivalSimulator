@@ -30,7 +30,7 @@ meter_t* meter_init(uint8_t type, float scr_pos_x, float scr_pos_y) {
     
     mtr->bg = 185; // 185 is the pink color used for transparency
     
-    printf("mtr->bg %d\n", pxl[1]);
+    printf("mtr->bg %d\n", pxl[0]);
     
     return(mtr);
 }
@@ -73,32 +73,32 @@ void meter_update(meter_t* mtr, int16_t value) {
     }
     
     // errase display:
-    uint32_t start = 4;
-    uint32_t end = w_bmp - 4;
+    uint32_t start = 5;
+    uint32_t end = w_bmp - 5;
     uint32_t index;
     
     for (uint32_t x = start; x < end; x++) {
         
-        for (uint32_t y = 4; y < mtr->surf->h - 4; y++) {
+        for (uint32_t y = 5; y < mtr->surf->h - 5; y++) {
             
             index = (y * w_bmp) + x;
-            if (pxl[index] != 215) { // 215 white (font color)
+            if (pxl[index] != 0 && pxl[index] != 215) { // black, white
                 pxl[index] = mtr->bg;
             }
         }
     }
 
     // print graphical representation of value:
-    start = 4;
+    start = 5;
     end = start + value;
     
     for (uint32_t x = start; x < end; x++) {
         
-        for (uint32_t y = 4; y < mtr->surf->h - 4; y++) {
+        for (uint32_t y = 5; y < mtr->surf->h - 5; y++) {
             
             index = (y * w_bmp) + x;
-            if (pxl[index] != 215) {
-                pxl[index] = 5;
+            if (pxl[index] != 0 && pxl[index] != 215) { // black, white
+                pxl[index] = 198;
             }
         }
     }
