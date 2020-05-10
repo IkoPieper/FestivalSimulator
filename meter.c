@@ -72,14 +72,16 @@ void meter_update(meter_t* mtr, int16_t value) {
         w_bmp = mtr->surf->w + (4 - (mtr->surf->w % 4));
     }
     
+    const uint32_t border = 4;
+    
     // errase display:
-    uint32_t start = 5;
-    uint32_t end = w_bmp - 5;
+    uint32_t start = border;
+    uint32_t end = w_bmp - border;
     uint32_t index;
     
     for (uint32_t x = start; x < end; x++) {
         
-        for (uint32_t y = 5; y < mtr->surf->h - 5; y++) {
+        for (uint32_t y = border; y < mtr->surf->h - border; y++) {
             
             index = (y * w_bmp) + x;
             if (pxl[index] != 0 && pxl[index] != 215) { // black, white
@@ -89,12 +91,12 @@ void meter_update(meter_t* mtr, int16_t value) {
     }
 
     // print graphical representation of value:
-    start = 5;
+    start = border;
     end = start + value;
     
-    for (uint32_t x = start; x < end; x++) {
+    for (uint32_t x = start; x < end; x += 2) {
         
-        for (uint32_t y = 5; y < mtr->surf->h - 5; y++) {
+        for (uint32_t y = border; y < mtr->surf->h - border; y++) {
             
             index = (y * w_bmp) + x;
             if (pxl[index] != 0 && pxl[index] != 215) { // black, white

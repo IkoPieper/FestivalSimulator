@@ -91,11 +91,6 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
             face(hero, obj);
             say_new(hero, "Ich liebe dich auch!", 100);
             
-            list_t* lst = (list_t*) hero->mtr;
-            lst = find_id(lst, METER_BEER);
-            meter_t* mtr = (meter_t*) lst->entry;
-            meter_update(mtr, mtr->value + 10);
-            
             tsk->step++;
             
             return(true);
@@ -112,6 +107,12 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
             
             move_on(obj);
             move_on(hero);
+            
+            // drink_beer()
+            list_t* lst = (list_t*) hero->mtr;
+            lst = find_id(lst, METER_BEER);
+            meter_t* mtr = (meter_t*) lst->entry;
+            meter_update(mtr, mtr->value + 10);
             
             tsk->step++;
             
