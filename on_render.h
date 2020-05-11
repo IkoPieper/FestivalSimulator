@@ -16,5 +16,6 @@ list_t* render_blobb_sort(list_t* blobb);
 bool render_blobb_sort_iter(list_t* blobb);
 void on_render_text(object_t* obj, object_t* obj_dsp);
 void on_render_meters(object_t* obj, object_t* obj_dsp);
+void on_render_item(object_t* obj, object_t* obj_dsp);
 
 #endif

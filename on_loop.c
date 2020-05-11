@@ -18,6 +18,8 @@ void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame) {
 	
     on_loop_tasks(obj, keys, frame);
     
+    on_loop_items(obj, keys, frame);
+    
 	//time = SDL_GetTicks();
 	on_loop_animations(obj, keys, frame);
 	
@@ -46,6 +48,43 @@ void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame) {
         
         obj = obj->next_object;
 	}
+}
+
+void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
+    
+    object_t* hero = object_get(obj, OBJECT_HERO_ID);
+    
+    static uint16_t frames_wait = 0;
+    frames_wait++;
+    
+    if (hero->itm != NULL) {
+        
+        if (keys[KEY_SPACE]) {
+            // call item function of the item object. in other words:
+            // use the selected item:
+            object_t* obj = (object_t*) hero->itm->entry;
+            obj->itm_props->item_function(obj, NULL, keys, frame);
+        }
+        if (frames_wait > 10 && keys[KEY_SHIFT]) {
+            // select next item:
+            if (hero->itm->next == NULL) {
+                hero->itm = get_first(hero->itm);
+            } else {
+                hero->itm = hero->itm->next;
+            }
+            frames_wait = 0;
+        }
+        if (frames_wait > 10 && keys[KEY_CTRL]) {
+            // select previous item:
+            if (hero->itm->prev == NULL) {
+                hero->itm = get_last(hero->itm);
+            } else {
+                hero->itm = hero->itm->prev;
+            }
+            frames_wait = 0;
+        }
+        
+    }
 }
 
 void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {

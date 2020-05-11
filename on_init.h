@@ -19,5 +19,6 @@ bool on_init_background(object_t* obj);
 bool on_init_hero(object_t* obj);
 bool on_init_buden(object_t* obj);
 bool on_init_objects(object_t* obj);
+bool on_init_items(object_t* obj);
 
 #endif

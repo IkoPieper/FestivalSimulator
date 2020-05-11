@@ -1,4 +1,6 @@
 object = 2              # hard coded hero id
+has_item = 601          # stone id
+has_item = 603          # red stone id
 surface = hero_s_1.bmp  # main picture
 walls = hero_walls.bmp  # collision zones
 can_move = 1            # object can move

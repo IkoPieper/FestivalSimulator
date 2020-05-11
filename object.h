@@ -16,6 +16,7 @@
 
 typedef struct object object_t;
 typedef struct task task_t;
+typedef struct item item_t;
 typedef struct collision collision_t;
 typedef struct walls walls_t;
 
@@ -56,7 +57,15 @@ struct collision {
 
 struct task {
     uint32_t step;
+    void* variables;
     bool (*task_function)(task_t*, object_t*, bool*, uint64_t);
+};
+
+struct item {
+    SDL_Surface* surf;      // item picture
+    void* variables;        // any additional variables
+    uint32_t step;          // step in item use function
+    bool (*item_function)(object_t*, object_t*, bool*, uint64_t);
 };
 
 struct object {
@@ -69,6 +78,7 @@ struct object {
 	object_t* prev_object;
 	
 	// render lists:
+    bool disable_render;
     list_t* render_before;      // objects which need to be rendered
                                 // before this object
     list_t* render_after;       // objects which need to be rendered
@@ -115,8 +125,13 @@ struct object {
 	walls_t* wall;	        // aka collision zones
 	
     // tasks:
-    //bool (*tsk)(object_t* obj, bool* keys, uint64_t frame);		    // current task from list of tasks
     list_t* tsk;		    // current task from list of tasks
+    
+    // item properties:
+    item_t* itm_props;
+    
+    // items:
+    list_t* itm;            // current item from list of items
     
     // meters:
     list_t* mtr;		    // displays important values
@@ -140,7 +155,6 @@ struct object {
 	// collisions:
 	list_t* col;
     bool disable_collision;
-    
 };
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);
@@ -183,9 +197,14 @@ void object_free_collisions(list_t* col);
 
 void object_add_task(object_t* obj, uint32_t id);
 void object_free_tasks(list_t* lst);
-bool (*get_task_function(uint64_t id))(task_t*, object_t*, bool*, uint64_t);
+
+void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id);
+void object_free_item_props(item_t* itm_props);
+void object_add_item(object_t* obj, object_t* obj_item, uint32_t id);
+void object_free_items(list_t* lst);
 
 // functions in object_tasks.c:
+bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, uint64_t);
 bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 void say(object_t* obj, uint32_t id, uint32_t duration);
@@ -195,6 +214,10 @@ void say_free(object_t* obj);
 void face(object_t* obj, object_t* obj_target);
 void move_on(object_t* obj);
 
+// functions in object_items.c:
+bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
+bool use_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
+bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 
 #define OBJECT_SURFDISPLAY_ID 0
 #define OBJECT_BACKGROUND_ID 1
@@ -203,5 +226,8 @@ void move_on(object_t* obj);
 
 #define TASK_FIND_BOB 0
 #define TASK_FIND_EVA 1
+
+#define ITEM_STONE 0
+#define ITEM_RED_STONE 1
 
 #endif

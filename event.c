@@ -28,6 +28,9 @@ void on_key_down(bool* keys, SDLKey sym) {
 		case SDLK_DOWN:     keys[KEY_DOWN] = true; break;
 		case SDLK_RIGHT:    keys[KEY_RIGHT] = true; break;
 		case SDLK_ESCAPE:   keys[KEY_ESCAPE] = true; break;
+        case SDLK_SPACE:    keys[KEY_SPACE] = true; break;
+        case SDLK_LCTRL:    keys[KEY_CTRL] = true; break;
+        case SDLK_LSHIFT:   keys[KEY_SHIFT] = true; break;
 		default: break;
 	}
 	
@@ -45,6 +48,9 @@ void on_key_up(bool* keys, SDLKey sym) {
 		case SDLK_DOWN:     keys[KEY_DOWN] = false; break;
 		case SDLK_RIGHT:    keys[KEY_RIGHT] = false; break;
 		case SDLK_ESCAPE:   keys[KEY_ESCAPE] = false; break;
+        case SDLK_SPACE:    keys[KEY_SPACE] = false; break;
+        case SDLK_LCTRL:    keys[KEY_CTRL] = false; break;
+        case SDLK_LSHIFT:   keys[KEY_SHIFT] = false; break;
 		default: break;
 	}
 	

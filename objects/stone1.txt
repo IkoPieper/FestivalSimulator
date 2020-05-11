@@ -7,6 +7,9 @@ can_move = 1            # object can move
 mass = 0.1              # mass of the object reduces acceleration
 damping = 0.02          # damping slows a moving object down
 
+item = 0                # this object is an item using item function 0
+item_surface = stone.bmp #  picture shown to indicate the item to user
+
 text = 1
 de = "Hallo, ich bin ein Stein!"
 #trigger_on_collision = 0 # fast trigger: on collision in quest 0 (quest 0: always)

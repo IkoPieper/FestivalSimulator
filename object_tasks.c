@@ -44,6 +44,14 @@ void face(object_t* obj, object_t* obj_target) {
     object_animate(obj, 0);
 }
 
+void drink_beer(object_t* obj, int16_t value) {
+    
+    list_t* lst = (list_t*) obj->mtr;
+    lst = find_id(lst, METER_BEER);
+    meter_t* mtr = (meter_t*) lst->entry;
+    meter_update(mtr, mtr->value + value);
+}
+
 void move_on(object_t* obj) {
     
     if (obj->id == OBJECT_HERO_ID) {
@@ -55,7 +63,7 @@ void move_on(object_t* obj) {
     obj->anim_walk = true;
 }
 
-bool (*get_task_function(uint64_t id))(task_t*, object_t*, bool*, uint64_t) {
+bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, uint64_t) {
     
     switch (id) {
         case TASK_FIND_BOB: return(&task_find_bob); break;
@@ -108,11 +116,7 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
             move_on(obj);
             move_on(hero);
             
-            // drink_beer()
-            list_t* lst = (list_t*) hero->mtr;
-            lst = find_id(lst, METER_BEER);
-            meter_t* mtr = (meter_t*) lst->entry;
-            meter_update(mtr, mtr->value + 10);
+            drink_beer(hero, 10);
             
             tsk->step++;
             

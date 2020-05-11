@@ -19,6 +19,13 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			object_add_task(obj, atoi(entry->value));
 			entry = entry->next;
             
+        } else if (strcmp(entry->key, "has_item") == 0) {
+            // add id of object that acts like an item. since objects 
+            // are not initialized yet, the direct pointer to the object
+            // will be added later in on_init_items():
+			obj->itm = create_after(obj->itm, NULL, atoi(entry->value));
+			entry = entry->next;
+            
 		} else if (strcmp(entry->key, "surface") == 0) {
 			
 			file_name = entry->value;
@@ -99,6 +106,45 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 	
 	if (surf != NULL) {
 		obj->wall = object_init_walls(surf_wall, surf);
+	}
+	
+	return(entry);
+	
+}
+
+configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
+	
+	SDL_Surface* surf = NULL;
+	char* file_name;
+	
+	
+	while (entry != NULL) {
+        
+		if        (strcmp(entry->key, "item") == 0) {
+			
+			object_init_item_props(obj, NULL, atoi(entry->value));
+			entry = entry->next;
+			
+		} else if (strcmp(entry->key, "item_surface") == 0) {
+			
+			file_name = entry->value;
+			strncpy(path, "objects", 100);
+			strncat(path, "/", 100);
+			strncat(path, file_name, 100);
+			surf = surface_on_load(path);
+			if(surf == NULL) {
+				printf("Warning: Problem loading config file.\n");
+				printf("File %s not found.\n", file_name);
+			}
+            
+            obj->itm_props->surf = surf;
+            
+			entry = entry->next;
+			
+		} else {
+			break;
+		}
+		
 	}
 	
 	return(entry);

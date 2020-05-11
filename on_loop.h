@@ -9,6 +9,7 @@
 
 void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame);
 void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame);
+void on_loop_items(object_t* obj, bool* keys, uint64_t frame);
 void on_loop_animations(object_t* obj, bool* keys, uint64_t frame);
 uint32_t on_loop_get_animation_walk_hero(uint32_t anim_id, bool* keys);
 uint32_t on_loop_get_animation_walk(uint32_t anim_id, float vel_x, float vel_y);

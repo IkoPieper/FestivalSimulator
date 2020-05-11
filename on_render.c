@@ -26,15 +26,18 @@ void on_render(object_t* obj) {
     
 	while (obj != NULL) {
         
-        if (obj->id != OBJECT_SURFDISPLAY_ID && 
-            obj->id != OBJECT_BACKGROUND_ID && 
-            obj->render_early) {
-            // render the object:
-            surface_on_draw(
-                obj_dsp->surface, 
-                obj->surface, 
-                (int) obj->scr_pos_x, 
-                (int) obj->scr_pos_y);
+        if (!obj->disable_render) {
+            
+            if (obj->id != OBJECT_SURFDISPLAY_ID && 
+                obj->id != OBJECT_BACKGROUND_ID && 
+                obj->render_early) {
+                // render the object:
+                surface_on_draw(
+                    obj_dsp->surface, 
+                    obj->surface, 
+                    (int) obj->scr_pos_x, 
+                    (int) obj->scr_pos_y);
+            }
         }
         
         obj = obj->next_object;
@@ -45,39 +48,41 @@ void on_render(object_t* obj) {
     
 	while (obj != NULL) {
 		
-		if (obj->id != OBJECT_SURFDISPLAY_ID && 
-            obj->id != OBJECT_BACKGROUND_ID && 
-            !obj->render_early) {
-            
-            if (!obj->render_is_in_blobb) {
+        if (!obj->disable_render) {
+        
+            if (obj->id != OBJECT_SURFDISPLAY_ID && 
+                obj->id != OBJECT_BACKGROUND_ID && 
+                !obj->render_early) {
                 
-                // render the object:
-                surface_on_draw(
-                    obj_dsp->surface, 
-                    obj->surface, 
-                    (int) obj->scr_pos_x, 
-                    (int) obj->scr_pos_y);
+                if (!obj->render_is_in_blobb) {
                     
-            } else if (obj->render_blobb != NULL) {
-                
-                // render all objects in the sorted render blobb:
-                list_t* blobb = obj->render_blobb;
-                
-                while (blobb != NULL) {
-                    
-                    object_t* obj_tmp = (object_t*) blobb->entry;
-                    
+                    // render the object:
                     surface_on_draw(
                         obj_dsp->surface, 
-                        obj_tmp->surface, 
-                        (int) obj_tmp->scr_pos_x, 
-                        (int) obj_tmp->scr_pos_y);
+                        obj->surface, 
+                        (int) obj->scr_pos_x, 
+                        (int) obj->scr_pos_y);
+                        
+                } else if (obj->render_blobb != NULL) {
                     
-                    blobb = blobb->next;
+                    // render all objects in the sorted render blobb:
+                    list_t* blobb = obj->render_blobb;
+                    
+                    while (blobb != NULL) {
+                        
+                        object_t* obj_tmp = (object_t*) blobb->entry;
+                        
+                        surface_on_draw(
+                            obj_dsp->surface, 
+                            obj_tmp->surface, 
+                            (int) obj_tmp->scr_pos_x, 
+                            (int) obj_tmp->scr_pos_y);
+                        
+                        blobb = blobb->next;
+                    }
                 }
             }
-                
-		}
+        }
         
         // reset render blobbs:
         delete_all(obj->render_before);
@@ -103,6 +108,8 @@ void on_render(object_t* obj) {
 		
 		obj = obj->next_object;
 	}
+    
+    on_render_item(obj_first, obj_dsp);
     
     // render texts:
 	obj = obj_first;
@@ -299,9 +306,21 @@ void on_render_meters(object_t* obj, object_t* obj_dsp) {
             mtr->scr_pos_x, mtr->scr_pos_y);
         
         lst = lst->next;
-    }
-	
+    }	
 }
+
+void on_render_item(object_t* obj, object_t* obj_dsp) {
+	
+    object_t* hero = object_get(obj, OBJECT_HERO_ID);
+    
+    if (hero->itm != NULL) {
+
+        obj = (object_t*) hero->itm->entry;
+        surface_on_draw(obj_dsp->surface, obj->itm_props->surf, 20, 140);
+    }
+
+}
+
 void on_render_text(object_t* obj, object_t* obj_dsp) {
 	
     text_t* txt = (text_t*) obj->txt->entry;

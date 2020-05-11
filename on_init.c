@@ -38,6 +38,10 @@ object_t* on_init() {
 		object_clean_up(obj);
 		return(NULL);
 	}
+    if (on_init_items(obj)) {
+		object_clean_up(obj);
+		return(NULL);
+	}
 
 	// init old positions:
 	object_t* obj_tmp = object_get_first(obj);
@@ -186,6 +190,7 @@ bool on_init_hero(object_t* obj) {
     object_add_meter(obj, METER_MOOD, METER_MOOD,   10, 40);
     object_add_meter(obj, METER_URIN, METER_URIN,   10, 70);
     object_add_meter(obj, METER_POINTS, METER_POINTS, 10, 100);
+    object_add_meter(obj, METER_ITEM, METER_ITEM, 10, 130);
     
 	return(false);
 }
@@ -246,6 +251,8 @@ bool on_init_objects(object_t* obj) {
 			
 				if        (strcmp(entry->key, "object") == 0) {
 					entry = load_config_defaults(entry, path, obj);
+                } else if (strcmp(entry->key, "item") == 0) {
+					entry = load_config_item(entry, path, obj);
 				} else if (strcmp(entry->key, "animation") == 0) {
 					entry = load_config_animation(entry, path, obj);
                 } else if (strcmp(entry->key, "waypoints") == 0) {
@@ -262,5 +269,32 @@ bool on_init_objects(object_t* obj) {
     
     closedir(hdl_dir);
 	
+	return(false);
+}
+
+// fill existing item id lists with object pointers used for faster
+// access in main loop:
+bool on_init_items(object_t* obj) {
+	
+    obj = object_get_first(obj);
+    
+    while (obj != NULL) {
+        
+        if (obj->itm != NULL) {
+            list_t* itm = obj->itm;
+            itm = get_last(itm);
+            
+            while (itm != NULL) {
+                object_t* obj_item = object_get(obj, itm->id);
+                itm->entry = (void*) obj_item;
+                obj_item->disable_collision = true;
+                obj_item->disable_render = true;
+                itm = itm->prev;
+            }
+        }
+        
+        obj = obj->next_object;
+    }
+    
 	return(false);
 }

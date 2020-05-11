@@ -20,7 +20,8 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 	while (obj != NULL) {
 				
-		if (obj->has_moved) {
+		if (obj->has_moved && 
+            (!obj->disable_collision || !obj->disable_render)) {
 		
 			obj->vel_lock = false;
 			
@@ -49,7 +50,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 			
 			while (obj != NULL) {
 				
-				//if (obj->disable_collision == false) {
+				if (!obj->disable_collision || !obj->disable_render) {
 					
 					obj->vel_lock = false;	// allow all velocity changes TODO: move up?
 					
@@ -92,14 +93,17 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 							
 							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
-						
-								collision = collisions_check(obj, obj_b);
                                 
-								if (collision == false) {
-									object_remove_collision(obj, obj_b);
-									object_remove_collision(obj_b, obj);
-								}
+                                if (!obj->disable_collision || !obj->disable_render) {
+                                    
+                                    collision = collisions_check(obj, obj_b);
+                                    
+                                    if (collision == false) {
+                                        object_remove_collision(obj, obj_b);
+                                        object_remove_collision(obj_b, obj);
+                                    }
 								
+                                }
 								// get next object obj_b:
 								obj_b = obj_b->next_vbox;
 							}
@@ -107,7 +111,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 						}
 					}
 				
-				//}
+				}
 				// get next object obj:
 				obj = obj->next_vbox;
 			}
@@ -134,32 +138,29 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 	int32_t yh2 = y02 + obj2->surface->h;
 	
 	// check collision of surfaces first:
+    if (obj1->id == OBJECT_BACKGROUND_ID) {
+        
+        collision = true;
+        
+    } else if (obj2->id == OBJECT_BACKGROUND_ID) {
+        
+        collision = true;
+        
+    } else {
+        
+        // check for collision of boundary boxes:
+        if (xw2 > x01 && x02 < xw1 && 
+            yh2 > y01 && y02 < yh1) {
+            
+            collision = true;
+            
+        }
+    }
 	
-	//if (obj2->disable_collision == false) { // is this the right place?
-		
-		if (obj1->id == OBJECT_BACKGROUND_ID) {
-			
-			collision = true;
-			
-		} else if (obj2->id == OBJECT_BACKGROUND_ID) {
-			
-			collision = true;
-			
-		} else {
-			
-			// check for collision of boundary boxes:
-			if (xw2 > x01 && x02 < xw1 && 
-				yh2 > y01 && y02 < yh1) {
-				
-				collision = true;
-				
-			}
-		}
-	
-	//}
 		
 	// update render list:
 	if (collision &&
+        (!obj1->disable_render && !obj2->disable_render) &&
 		obj1->id != OBJECT_SURFDISPLAY_ID &&
 		obj1->id != OBJECT_BACKGROUND_ID &&
 		obj2->id != OBJECT_SURFDISPLAY_ID &&

@@ -26,5 +26,6 @@ void meter_free(meter_t* mtr);
 #define METER_MOOD 1
 #define METER_URIN 2
 #define METER_POINTS 3
+#define METER_ITEM 4
 
 #endif

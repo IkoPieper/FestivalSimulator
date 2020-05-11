@@ -23,6 +23,9 @@ meter_t* meter_init(uint8_t type, float scr_pos_x, float scr_pos_y) {
         case METER_URIN:
             mtr->surf = surface_on_load("objects/meter_urin.bmp");
             break;
+        case METER_ITEM:
+            mtr->surf = surface_on_load("objects/meter_item.bmp");
+            break;
     }
     
     // pick a pixel and hope it is the background color:

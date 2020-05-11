@@ -42,6 +42,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	}
     
     // render lists:
+    obj_new->disable_render = false;
     obj_new->render_before = NULL;
     obj_new->render_after = NULL;
     obj_new->render_blobb = NULL;
@@ -85,6 +86,12 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	
     // tasks:
     obj_new->tsk = NULL;
+    
+    // items properties:
+    obj_new->itm_props = NULL;
+    
+    // items:
+    obj_new->itm = NULL;
     
     // meters:
     obj_new->mtr = NULL;
@@ -245,6 +252,12 @@ object_t* object_remove(object_t* obj, uint32_t id) {
     }
     if (obj->tsk != NULL) {
         object_free_tasks(obj->tsk);
+    }
+    if (obj->itm_props != NULL) {
+        object_free_item_props(obj->itm_props);
+    }
+    if (obj->itm != NULL) {
+        object_free_items(obj->itm);
     }
     if (obj->ways != NULL) {
         object_free_waypoints(obj->ways);
@@ -643,3 +656,33 @@ void object_free_tasks(list_t* lst) {
     
     delete_all(tmp);
 }
+
+void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id) {
+    
+    obj->itm_props = (item_t*) malloc(sizeof(item_t));
+    obj->itm_props->surf = surf;
+    obj->itm_props->variables = NULL;
+    obj->itm_props->step = 0;
+    obj->itm_props->item_function = get_item_function(id);
+}
+
+void object_free_item_props(item_t* itm_props) {
+    
+    if (itm_props->surf != NULL) {
+        SDL_FreeSurface(itm_props->surf);
+    }
+    free(itm_props);
+}
+
+void object_add_item(object_t* obj, object_t* obj_item, uint32_t id) {
+    
+    obj_item->disable_collision = true;
+    obj_item->disable_render = true;
+    obj->itm = create_before(obj->itm, obj_item, id);
+}
+
+void object_free_items(list_t* lst) {
+    
+    delete_all(lst);
+}
+
