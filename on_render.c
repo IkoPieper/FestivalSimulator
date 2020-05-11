@@ -17,8 +17,8 @@ void on_render(object_t* obj) {
     surface_on_draw(
                 obj_dsp->surface, 
                 obj_bg->surface, 
-                (int) obj_bg->scr_pos_x, 
-                (int) obj_bg->scr_pos_y);
+                (int32_t) obj_bg->scr_pos_x, 
+                (int32_t) obj_bg->scr_pos_y);
     
     
     // render early:
@@ -35,8 +35,8 @@ void on_render(object_t* obj) {
                 surface_on_draw(
                     obj_dsp->surface, 
                     obj->surface, 
-                    (int) obj->scr_pos_x, 
-                    (int) obj->scr_pos_y);
+                    (int32_t) obj->scr_pos_x, 
+                    (int32_t) obj->scr_pos_y);
             }
         }
         
@@ -60,8 +60,8 @@ void on_render(object_t* obj) {
                     surface_on_draw(
                         obj_dsp->surface, 
                         obj->surface, 
-                        (int) obj->scr_pos_x, 
-                        (int) obj->scr_pos_y);
+                        (int32_t) obj->scr_pos_x, 
+                        (int32_t) obj->scr_pos_y);
                         
                 } else if (obj->render_blobb != NULL) {
                     
@@ -75,8 +75,8 @@ void on_render(object_t* obj) {
                         surface_on_draw(
                             obj_dsp->surface, 
                             obj_tmp->surface, 
-                            (int) obj_tmp->scr_pos_x, 
-                            (int) obj_tmp->scr_pos_y);
+                            (int32_t) obj_tmp->scr_pos_x, 
+                            (int32_t) obj_tmp->scr_pos_y);
                         
                         blobb = blobb->next;
                     }
@@ -316,7 +316,16 @@ void on_render_item(object_t* obj, object_t* obj_dsp) {
     if (hero->itm != NULL) {
 
         obj = (object_t*) hero->itm->entry;
-        surface_on_draw(obj_dsp->surface, obj->itm_props->surf, 20, 140);
+        
+        // center positon in surface of item meter
+        uint32_t w = obj->itm_props->surf->w;
+        uint32_t h = obj->itm_props->surf->h;
+        list_t* lst = find_id(hero->mtr, METER_ITEM);
+        meter_t* mtr = (meter_t*) lst->entry;
+        uint32_t x = mtr->scr_pos_x + mtr->surf->w / 2 - w / 2;
+        uint32_t y = mtr->scr_pos_y + mtr->surf->h / 2 - h / 2;
+        
+        surface_on_draw(obj_dsp->surface, obj->itm_props->surf, x, y);
     }
 
 }
