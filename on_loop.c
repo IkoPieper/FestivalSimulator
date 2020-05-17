@@ -176,7 +176,7 @@ uint32_t on_loop_get_animation_walk_hero(uint32_t anim_id, bool* keys) {
 uint32_t on_loop_get_animation_walk(
     uint32_t anim_id, float vel_x, float vel_y) {
     
-    if (fabsf(vel_x) < 0.5 && fabsf(vel_y) < 0.5) {
+    if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {
         
         // start a stop animation:
         if (anim_id == ANIMATION_WALK_NORTH) {
