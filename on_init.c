@@ -1,8 +1,8 @@
 #include "on_init.h"
- 
-object_t* on_init() {
-	
-	// init SDL:
+
+video_t* on_init_video() {
+    
+    // init SDL:
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		return(NULL);
 	}
@@ -15,26 +15,96 @@ object_t* on_init() {
 		printf("Error initializing SDL video:  %s\n", SDL_GetError());
 		return(NULL);
 	}
+    
+    // TODO: free video stuff:
+    video_t* vid = (video_t*) malloc(sizeof(video_t));
+	
+    int32_t w = 512;
+    int32_t h = 448;
+    
+	// init SDL video and openGL:
+    vid->window = SDL_CreateWindow("FestivalSimulator",
+                             SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             w, h,
+                             0); // SDL_WINDOW_FULLSCREEN_DESKTOP or 0
 
+    
+	//SDL_ShowCursor(SDL_DISABLE);
+	
+    vid->renderer = SDL_CreateRenderer(vid->window, -1, SDL_RENDERER_ACCELERATED);
+    
+    /*SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); // 3
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8); // 3
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8); // 2
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetSwapInterval(1);*/
+
+    // Create an OpenGL context associated with the window:
+    vid->glcontext = SDL_GL_CreateContext(vid->window);
+    //SDL_GL_MakeCurrent(obj->window, obj->glcontext);
+    // TODO: add glcontext to object and call SDL_GL_DeleteContext(glcontext)
+    // and free if program is closed and object is freed
+    // and maybe think about not using an object to store video stuff.
+    // use a "video" structure instead
+	
+    
+    vid->surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+        32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+	
+	glClearColor(0, 0, 0, 0);
+	glClearDepth(1.0f);
+ 
+	
+    int32_t w_window, h_window;
+    SDL_GetWindowSize(vid->window, &w_window, &h_window);
+    float scale =  (float) h_window / (float) h;
+    float w_viewport = scale * (float) w;
+    float border = ((float) w_window - w_viewport) / 2.0;
+    glViewport(border, 0, w_viewport, (float) h_window);
+	
+    
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glOrtho(0, (float) w, (float) h, 0, 1, -1);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	// create one texture name and tell opengl to use it
+	GLuint textureid;
+	glGenTextures(1, &textureid);
+	glBindTexture(GL_TEXTURE_2D, textureid);
+	vid->render_id = textureid;
+	
+	glEnable(GL_TEXTURE_2D);
+	
+	// these affect how this texture is drawn later on...
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+	return(vid);
+    
+}
+
+object_t* on_init_objects(video_t* vid) {
+	
 	// init objects:
 	object_t* obj = NULL;
 	
-	obj = object_add(obj, OBJECT_SURFDISPLAY_ID);	// surf display
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	
-	if (on_init_surfdisplay(obj)) {	// inits video incl. openGL
+	if (on_init_background(obj, vid)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_background(obj)) {
+	if (on_init_objects_config(obj)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_objects(obj)) {
-		object_clean_up(obj);
-		return(NULL);
-	}
-	if (on_init_hero(obj)) {
+	if (on_init_hero(obj, vid)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
@@ -57,88 +127,9 @@ object_t* on_init() {
 	return(object_get_first(obj));
 }
 
-bool on_init_surfdisplay(object_t* obj) {
-	
-	obj = object_get(obj, OBJECT_SURFDISPLAY_ID);
-	obj->disable_collision = 1;
-	obj->can_move = 0;
-	
-    int32_t w = 512;
-    int32_t h = 448;
-    
-	// init SDL video and openGL:
-	
-    obj->window = SDL_CreateWindow("FestivalSimulator",
-                             SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED,
-                             w, h,
-                             0); // SDL_WINDOW_FULLSCREEN_DESKTOP or 0
-
-    
-	//SDL_ShowCursor(SDL_DISABLE);
-	
-    SDL_CreateRenderer(obj->window, -1, SDL_RENDERER_ACCELERATED);
-    
-	
-    /*SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); // 3
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8); // 3
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8); // 2
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetSwapInterval(1);*/
-
-    // Create an OpenGL context associated with the window:
-    obj->glcontext = SDL_GL_CreateContext(obj->window);
-    //SDL_GL_MakeCurrent(obj->window, obj->glcontext);
-    // TODO: add glcontext to object and call SDL_GL_DeleteContext(glcontext)
-    // and free if program is closed and object is freed
-    // and maybe think about not using an object to store video stuff.
-    // use a "video" structure instead
-	
-    
-    obj->surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-        32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-	
-	glClearColor(0, 0, 0, 0);
-	glClearDepth(1.0f);
- 
-	
-    int32_t w_window, h_window;
-    SDL_GetWindowSize(obj->window, &w_window, &h_window);
-    float scale =  (float) h_window / (float) h;
-    float w_viewport = scale * (float) w;
-    float border = ((float) w_window - w_viewport) / 2.0;
-    glViewport(border, 0, w_viewport, (float) h_window);
-	
-    
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	glOrtho(0, (float) w, (float) h, 0, 1, -1);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	// create one texture name and tell opengl to use it
-	GLuint textureid;
-	glGenTextures(1, &textureid);
-	glBindTexture(GL_TEXTURE_2D, textureid);
-	obj->render_id = textureid;
-	
-	glEnable(GL_TEXTURE_2D);
-	
-	// these affect how this texture is drawn later on...
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	return(false);
-	
-}
-
-bool on_init_background(object_t* obj) {
+bool on_init_background(object_t* obj, video_t* vid) {
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
-	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
 	obj->has_moved = 0;
 	obj->mass = 99999999999.0;
@@ -155,8 +146,8 @@ bool on_init_background(object_t* obj) {
 	
 	obj->pos_x = 0.0;	// the background defines the positions
 	obj->pos_y = 0.0;
-	obj->scr_pos_x = -obj->surface->w / 2 + obj_dsp->surface->w / 2;
-	obj->scr_pos_y = -obj->surface->h / 2 + obj_dsp->surface->h / 2;
+	obj->scr_pos_x = -obj->surface->w / 2 + vid->surface->w / 2;
+	obj->scr_pos_y = -obj->surface->h / 2 + vid->surface->h / 2;
 	
 	obj->min_scr_pos_x = -99999.0;
 	obj->max_scr_pos_x = 99999.0;
@@ -167,27 +158,26 @@ bool on_init_background(object_t* obj) {
 	return(false);
 }
 
-bool on_init_hero(object_t* obj) {
+bool on_init_hero(object_t* obj, video_t* vid) {
 	
 	// see objects/hero.txt for most of the initialization
 	
 	obj = object_get(obj, OBJECT_HERO_ID);
 	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
-	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
 	
 	// start position is middle of screen:
-	obj->scr_pos_x = obj_dsp->surface->w / 2;
-	obj->scr_pos_y = obj_dsp->surface->h / 2;
+	obj->scr_pos_x = vid->surface->w / 2;
+	obj->scr_pos_y = vid->surface->h / 2;
 	obj->pos_x = obj->scr_pos_x - obj_bg->scr_pos_x;
 	obj->pos_y = obj->scr_pos_y - obj_bg->scr_pos_y;
 		
 	// min/max screen positions:
-	obj->min_scr_pos_x = (float) (0 + obj_dsp->surface->w / 5);
-	obj->max_scr_pos_x = (float) (obj_dsp->surface->w 
-		- obj_dsp->surface->w / 5 - obj->surface->w);
-	obj->min_scr_pos_y = (float) (0 + obj_dsp->surface->h / 5);
-	obj->max_scr_pos_y = (float) (obj_dsp->surface->h 
-		- obj_dsp->surface->h / 5 - obj->surface->h);
+	obj->min_scr_pos_x = (float) (0 + vid->surface->w / 5);
+	obj->max_scr_pos_x = (float) (vid->surface->w 
+		- vid->surface->w / 5 - obj->surface->w);
+	obj->min_scr_pos_y = (float) (0 + vid->surface->h / 5);
+	obj->max_scr_pos_y = (float) (vid->surface->h 
+		- vid->surface->h / 5 - obj->surface->h);
     
     object_add_meter(obj, METER_BEER, METER_BEER,   10, 10);
     object_add_meter(obj, METER_MOOD, METER_MOOD,   10, 40);
@@ -221,7 +211,7 @@ bool on_init_hero(object_t* obj) {
 
 	object_activate_waypoints(obj);*/
 	
-bool on_init_objects(object_t* obj) {
+bool on_init_objects_config(object_t* obj) {
 	
 	DIR *hdl_dir;
 	struct dirent *dir;

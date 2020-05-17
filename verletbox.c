@@ -33,8 +33,7 @@ verletbox_t* verletbox_init(object_t* obj) {
 	
 	while (obj != NULL) {
 		
-		if (obj->id != OBJECT_SURFDISPLAY_ID &&
-			obj->id != OBJECT_BACKGROUND_ID) {
+		if (obj->id != OBJECT_BACKGROUND_ID) {
 		
 			x = obj->pos_x / vbox->w;
 			y = obj->pos_y / vbox->h;
@@ -81,7 +80,6 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 	while (obj != NULL) {
 		
 		if ((obj->vel_x != 0.0 || obj->vel_y != 0.0) && // object moved?
-			obj->id != OBJECT_SURFDISPLAY_ID &&
 			obj->id != OBJECT_BACKGROUND_ID) {
 		
 			// calculate new vbox:

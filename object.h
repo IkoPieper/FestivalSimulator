@@ -86,12 +86,6 @@ struct object {
     list_t* render_blobb;       // used to collect overlapping objects
     bool render_is_in_blobb;    // is the obj in this or another blobb?
     bool render_early;          // disable blobb stuff and render early
-    
-	
-    GLuint render_id;           // openGL id
-    SDL_GLContext glcontext;
-    SDL_Window* window;
-
 	
 	// verlet boxes:
 	object_t* next_vbox;
@@ -223,7 +217,6 @@ bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
 bool use_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 
-#define OBJECT_SURFDISPLAY_ID 0
 #define OBJECT_BACKGROUND_ID 1
 #define OBJECT_HERO_ID 2
 #define OBJECT_SCORE_ID 3

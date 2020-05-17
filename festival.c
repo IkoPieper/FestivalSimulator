@@ -1,15 +1,13 @@
 #include "festival.h"
 
-bool toggle_fullscreen(bool fullscreen, object_t* obj) {
+bool toggle_fullscreen(bool fullscreen, video_t* vid) {
     
-    obj = object_get(obj, OBJECT_SURFDISPLAY_ID);
-    
-    uint32_t w = obj->surface->w;
-    uint32_t h = obj->surface->h;
+    uint32_t w = vid->surface->w;
+    uint32_t h = vid->surface->h;
     
     if (fullscreen) {
                     
-        SDL_SetWindowFullscreen(obj->window, 0);
+        SDL_SetWindowFullscreen(vid->window, 0);
         
         glViewport(0, 0, w, h);
         
@@ -19,10 +17,10 @@ bool toggle_fullscreen(bool fullscreen, object_t* obj) {
                     
     } else {
     
-        SDL_SetWindowFullscreen(obj->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowFullscreen(vid->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         
         int32_t w_window, h_window;
-        SDL_GetWindowSize(obj->window, &w_window, &h_window);
+        SDL_GetWindowSize(vid->window, &w_window, &h_window);
         float scale =  (float) h_window / (float) h;
         float w_viewport = scale * (float) w;
         float border = ((float) w_window - w_viewport) / 2.0;
@@ -44,8 +42,13 @@ bool on_execute() {
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
 	
-	object_t* obj = NULL;
-	obj = on_init(obj);
+	video_t* vid = on_init_video();
+	if (vid == NULL) {
+		fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
+		return(true);
+	}
+    
+	object_t* obj = on_init_objects(vid);
 	if (obj == NULL) {
 		fprintf(stderr, "Initialization of objects failed!\n");
 		return(true);
@@ -76,7 +79,7 @@ bool on_execute() {
             
             if (!lock_fullscreen_key && keys[KEY_FULLSCREEN]) {
                 lock_fullscreen_key = 30;
-                fullscreen = toggle_fullscreen(fullscreen, obj);
+                fullscreen = toggle_fullscreen(fullscreen, vid);
             }
             
 			if (keys[KEY_ESCAPE] || event.type == SDL_QUIT) {
@@ -88,7 +91,7 @@ bool on_execute() {
 		on_loop(obj, vbox, keys, frame);
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
 		//time = SDL_GetTicks();
-		on_render(obj);
+		on_render(obj, vid);
 		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
 		// ensure constant frame rate:
@@ -101,7 +104,7 @@ bool on_execute() {
 	}
 	
 	// ALWAYS TODO: keep this up to date
-	on_cleanup(obj, vbox, keys);
+	on_cleanup(obj, vid, vbox, keys);
  
 	return(false);
 }

@@ -161,9 +161,7 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 	// update render list:
 	if (collision &&
         (!obj1->disable_render && !obj2->disable_render) &&
-		obj1->id != OBJECT_SURFDISPLAY_ID &&
 		obj1->id != OBJECT_BACKGROUND_ID &&
-		obj2->id != OBJECT_SURFDISPLAY_ID &&
 		obj2->id != OBJECT_BACKGROUND_ID) {
 		
 		collisions_update_render(obj1, obj2);

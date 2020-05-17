@@ -37,8 +37,7 @@ void movements(object_t* obj, bool* keys) {
 	obj = obj_first;
 	while (obj != NULL) {
 		
-		if (obj->id != OBJECT_SURFDISPLAY_ID &&
-			obj->id != OBJECT_BACKGROUND_ID &&
+		if (obj->id != OBJECT_BACKGROUND_ID &&
 			obj->id != OBJECT_HERO_ID) {
 				
 			obj->pos_x_old = obj->pos_x;

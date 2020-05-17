@@ -33,12 +33,6 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj = object_get_last(obj);
 	obj_new->prev_object = obj;
 	obj_new->next_object = NULL;
-    
-	
-    // video stuff:
-    obj_new->render_id = 0;
-    obj_new->glcontext = NULL;
-    obj_new->window = NULL;
 	
 	// object list:
 	if (obj != NULL) {
@@ -253,9 +247,6 @@ object_t* object_remove(object_t* obj, uint32_t id) {
     }
     if (obj->render_blobb != NULL) {
         delete_all(obj->render_blobb);
-    }
-    if (obj->glcontext != NULL) {
-        SDL_GL_DeleteContext(obj->glcontext);
     }
     if (obj->tsk != NULL) {
         object_free_tasks(obj->tsk);

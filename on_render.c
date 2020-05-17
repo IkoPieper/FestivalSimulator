@@ -1,21 +1,16 @@
 #include "on_render.h"
  
-void on_render(object_t* obj) {
+void on_render(object_t* obj, video_t* vid) {
 	
 	//Uint32 time;
 	object_t* obj_first = object_get_first(obj);
     
     on_render_sort(obj);
     
-	
-	// draw objects on surf display:
-	object_t* obj_dsp = object_get(obj, OBJECT_SURFDISPLAY_ID);
-	
-    
     // render background first:
     object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
     surface_on_draw(
-                obj_dsp->surface, 
+                vid->surface, 
                 obj_bg->surface, 
                 (int32_t) obj_bg->scr_pos_x, 
                 (int32_t) obj_bg->scr_pos_y);
@@ -28,12 +23,11 @@ void on_render(object_t* obj) {
         
         if (!obj->disable_render) {
             
-            if (obj->id != OBJECT_SURFDISPLAY_ID && 
-                obj->id != OBJECT_BACKGROUND_ID && 
+            if (obj->id != OBJECT_BACKGROUND_ID && 
                 obj->render_early) {
                 // render the object:
                 surface_on_draw(
-                    obj_dsp->surface, 
+                    vid->surface, 
                     obj->surface, 
                     (int32_t) obj->scr_pos_x, 
                     (int32_t) obj->scr_pos_y);
@@ -50,15 +44,14 @@ void on_render(object_t* obj) {
 		
         if (!obj->disable_render) {
         
-            if (obj->id != OBJECT_SURFDISPLAY_ID && 
-                obj->id != OBJECT_BACKGROUND_ID && 
+            if (obj->id != OBJECT_BACKGROUND_ID && 
                 !obj->render_early) {
                 
                 if (!obj->render_is_in_blobb) {
                     
                     // render the object:
                     surface_on_draw(
-                        obj_dsp->surface, 
+                        vid->surface, 
                         obj->surface, 
                         (int32_t) obj->scr_pos_x, 
                         (int32_t) obj->scr_pos_y);
@@ -73,7 +66,7 @@ void on_render(object_t* obj) {
                         object_t* obj_tmp = (object_t*) blobb->entry;
                         
                         surface_on_draw(
-                            obj_dsp->surface, 
+                            vid->surface, 
                             obj_tmp->surface, 
                             (int32_t) obj_tmp->scr_pos_x, 
                             (int32_t) obj_tmp->scr_pos_y);
@@ -103,13 +96,13 @@ void on_render(object_t* obj) {
 		
 		if (obj->mtr != NULL) {
 			
-			on_render_meters(obj, obj_dsp);
+			on_render_meters(obj, vid);
 		}
 		
 		obj = obj->next_object;
 	}
     
-    on_render_item(obj_first, obj_dsp);
+    on_render_item(obj_first, vid);
     
     // render texts:
 	obj = obj_first;
@@ -118,13 +111,13 @@ void on_render(object_t* obj) {
 		
 		if (obj->txt != NULL && obj->txt_print != 0) {
 			
-			on_render_text(obj, obj_dsp);
+			on_render_text(obj, vid);
 		}
 		
 		obj = obj->next_object;
 	}
 
-	glBindTexture(GL_TEXTURE_2D, obj_dsp->render_id);
+	glBindTexture(GL_TEXTURE_2D, vid->render_id);
 	glEnable(GL_TEXTURE_2D);
 	
 	
@@ -146,13 +139,13 @@ void on_render(object_t* obj) {
 	// this reads from the sdl surface and puts it into an opengl 
     // texture
 	glTexImage2D(
-		GL_TEXTURE_2D, 0, obj_dsp->surface->format->BytesPerPixel, 
-		obj_dsp->surface->w, obj_dsp->surface->h, 
+		GL_TEXTURE_2D, 0, vid->surface->format->BytesPerPixel, 
+		vid->surface->w, vid->surface->h, 
 		0, 0x80E1, GL_UNSIGNED_BYTE, 
-		obj_dsp->surface->pixels);
+		vid->surface->pixels);
     
 	// clear the color and depth buffers
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
 	
 	// make a rectangle
@@ -164,15 +157,15 @@ void on_render(object_t* obj) {
 
 	// top right
 	glTexCoord2i(1, 0);
-	glVertex3f(obj_dsp->surface->w, 0, 0);
+	glVertex3f(vid->surface->w, 0, 0);
 
 	// bottom right
 	glTexCoord2i(1, 1);
-	glVertex3f(obj_dsp->surface->w, obj_dsp->surface->h, 0);
+	glVertex3f(vid->surface->w, vid->surface->h, 0);
 
 	// bottom left
 	glTexCoord2i(0, 1);
-	glVertex3f(0, obj_dsp->surface->h, 0);
+	glVertex3f(0, vid->surface->h, 0);
 
 	glEnd();
  
@@ -180,7 +173,7 @@ void on_render(object_t* obj) {
  
 	//time = SDL_GetTicks();
  
-    SDL_GL_SwapWindow(obj_dsp->window);
+    SDL_GL_SwapWindow(vid->window);
 	
 	//glDeleteTextures(1, &textureid);
 	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
@@ -292,7 +285,7 @@ bool render_blobb_sort_iter(list_t* blobb) {
     return(swapped);
 }
 
-void on_render_meters(object_t* obj, object_t* obj_dsp) {
+void on_render_meters(object_t* obj, video_t* vid) {
 	
     list_t* lst = obj->mtr;
     
@@ -303,14 +296,14 @@ void on_render_meters(object_t* obj, object_t* obj_dsp) {
         meter_t* mtr = (meter_t*) lst->entry;
         
         surface_on_draw(
-            obj_dsp->surface, mtr->surf, 
+            vid->surface, mtr->surf, 
             mtr->scr_pos_x, mtr->scr_pos_y);
         
         lst = lst->next;
     }	
 }
 
-void on_render_item(object_t* obj, object_t* obj_dsp) {
+void on_render_item(object_t* obj, video_t* vid) {
 	
     object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
@@ -326,12 +319,12 @@ void on_render_item(object_t* obj, object_t* obj_dsp) {
         uint32_t x = mtr->scr_pos_x + mtr->surf->w / 2 - w / 2;
         uint32_t y = mtr->scr_pos_y + mtr->surf->h / 2 - h / 2;
         
-        surface_on_draw(obj_dsp->surface, obj->itm_props->surf, x, y);
+        surface_on_draw(vid->surface, obj->itm_props->surf, x, y);
     }
 
 }
 
-void on_render_text(object_t* obj, object_t* obj_dsp) {
+void on_render_text(object_t* obj, video_t* vid) {
 	
     text_t* txt = (text_t*) obj->txt->entry;
     char str[txt->length + 1];
@@ -360,8 +353,8 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
     
     int32_t w = obj->txt_surface->w;
     int32_t h = obj->txt_surface->h;
-    int32_t w_dsp = obj_dsp->surface->w;
-    int32_t h_dsp = obj_dsp->surface->h;
+    int32_t w_dsp = vid->surface->w;
+    int32_t h_dsp = vid->surface->h;
     if (x < 5) {
         x = 5;
     }
@@ -375,7 +368,7 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
         y = h_dsp - h - 5;
     }
     
-	surface_on_draw(obj_dsp->surface, obj->txt_surface, x, y);
+	surface_on_draw(vid->surface, obj->txt_surface, x, y);
     
 	if (obj->txt_print > txt->duration) {
 		SDL_FreeSurface(obj->txt_surface);
