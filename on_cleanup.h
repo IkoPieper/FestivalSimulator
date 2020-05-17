@@ -1,7 +1,7 @@
 #ifndef _ON_CLEANUP_H_
     #define _ON_CLEANUP_H_
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "object.h"
 #include "verletbox.h"
 

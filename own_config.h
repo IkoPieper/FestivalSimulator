@@ -20,10 +20,10 @@ typedef struct configstruct configentry;
 #define KEYSIZE	128 
 #endif
 #ifndef VALUESIZE
-#define VALUESIZE 128 
+#define VALUESIZE 512 
 #endif
 #ifndef LINESIZE 
-#define LINESIZE 512 
+#define LINESIZE 1024 
 #endif
 
 configentry *conf_load_data(const char *filename);

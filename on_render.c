@@ -150,9 +150,10 @@ void on_render(object_t* obj) {
 		obj_dsp->surface->w, obj_dsp->surface->h, 
 		0, 0x80E1, GL_UNSIGNED_BYTE, 
 		obj_dsp->surface->pixels);
-	
+    
 	// clear the color and depth buffers
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    
 	
 	// make a rectangle
 	glBegin(GL_QUADS);
@@ -163,15 +164,15 @@ void on_render(object_t* obj) {
 
 	// top right
 	glTexCoord2i(1, 0);
-	glVertex3f(400, 0, 0);
+	glVertex3f(obj_dsp->surface->w, 0, 0);
 
 	// bottom right
 	glTexCoord2i(1, 1);
-	glVertex3f(400, 300, 0);
+	glVertex3f(obj_dsp->surface->w, obj_dsp->surface->h, 0);
 
 	// bottom left
 	glTexCoord2i(0, 1);
-	glVertex3f(0, 300, 0);
+	glVertex3f(0, obj_dsp->surface->h, 0);
 
 	glEnd();
  
@@ -179,7 +180,7 @@ void on_render(object_t* obj) {
  
 	//time = SDL_GetTicks();
  
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(obj_dsp->window);
 	
 	//glDeleteTextures(1, &textureid);
 	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
@@ -355,7 +356,7 @@ void on_render_text(object_t* obj, object_t* obj_dsp) {
     // determine text position. possibly close to object, otherwise at
     // edge of screen:
     int32_t x = (int32_t) obj->scr_pos_x - 40;
-    int32_t y = (int32_t) obj->scr_pos_y + 20;
+    int32_t y = (int32_t) obj->scr_pos_y + 5;
     
     int32_t w = obj->txt_surface->w;
     int32_t h = obj->txt_surface->h;

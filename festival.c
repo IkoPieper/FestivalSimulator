@@ -1,5 +1,39 @@
 #include "festival.h"
- 
+
+bool toggle_fullscreen(bool fullscreen, object_t* obj) {
+    
+    obj = object_get(obj, OBJECT_SURFDISPLAY_ID);
+    
+    uint32_t w = obj->surface->w;
+    uint32_t h = obj->surface->h;
+    
+    if (fullscreen) {
+                    
+        SDL_SetWindowFullscreen(obj->window, 0);
+        
+        glViewport(0, 0, w, h);
+        
+        SDL_ShowCursor(SDL_ENABLE);
+        
+        return(false);
+                    
+    } else {
+    
+        SDL_SetWindowFullscreen(obj->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        
+        int32_t w_window, h_window;
+        SDL_GetWindowSize(obj->window, &w_window, &h_window);
+        float scale =  (float) h_window / (float) h;
+        float w_viewport = scale * (float) w;
+        float border = ((float) w_window - w_viewport) / 2.0;
+        glViewport(border, 0, w_viewport, (float) h_window);
+        
+        SDL_ShowCursor(SDL_DISABLE);
+        
+        return(true);
+    }
+}
+
 bool on_execute() {
 	
     bool running = true;				// program running?
@@ -7,6 +41,8 @@ bool on_execute() {
     uint32_t time_start, time_end;		// to measure time per frame
     //Uint32 time;						// to measure time for debug
     uint64_t frame = 0;					// current frame
+    bool fullscreen = false;            // fullscreen mode
+    uint8_t lock_fullscreen_key = 0;
 	
 	object_t* obj = NULL;
 	obj = on_init(obj);
@@ -19,8 +55,8 @@ bool on_execute() {
  	
  	verletbox_t* vbox = verletbox_init(obj);
  	
- 	bool* keys = (bool*) malloc(8 * sizeof(bool));
-	for (uint8_t i = 0; i < 8; i++) {
+ 	bool* keys = (bool*) malloc(9 * sizeof(bool));
+	for (uint8_t i = 0; i < 9; i++) {
 		keys[i] = false;
 	}
  	
@@ -30,10 +66,19 @@ bool on_execute() {
 		
 		time_start = SDL_GetTicks();
 		
+        if (lock_fullscreen_key) {
+            lock_fullscreen_key--;
+        }
+        
 		while (SDL_PollEvent(&event)) {
 			
 			on_event(&event, keys);
-			
+            
+            if (!lock_fullscreen_key && keys[KEY_FULLSCREEN]) {
+                lock_fullscreen_key = 30;
+                fullscreen = toggle_fullscreen(fullscreen, obj);
+            }
+            
 			if (keys[KEY_ESCAPE] || event.type == SDL_QUIT) {
 				running = 0;
 			}

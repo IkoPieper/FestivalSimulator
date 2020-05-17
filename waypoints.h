@@ -1,7 +1,7 @@
 #ifndef _WAYPOINTS_H_
     #define _WAYPOINTS_H_
 
-#include <SDL/SDL.h> // needed only for NULL
+#include <SDL2/SDL.h> // needed only for NULL
 #include <stdbool.h>
 
 typedef struct waypoints waypoints_t;

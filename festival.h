@@ -1,7 +1,7 @@
 #ifndef _FESTIVAL_H_
     #define _FESTIVAL_H_
  
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "object.h"
 #include "verletbox.h"
 #include "on_init.h"

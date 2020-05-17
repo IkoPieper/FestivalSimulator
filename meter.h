@@ -1,8 +1,8 @@
 #ifndef _METER_H_
     #define _METER_H_
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <math.h>
 #include "surface.h"
 

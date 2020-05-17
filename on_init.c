@@ -11,7 +11,7 @@ object_t* on_init() {
 		return(NULL);
 	}
 	
-	if (SDL_VideoInit(NULL, 0) != 0) {
+	if (SDL_VideoInit(NULL) != 0) {
 		printf("Error initializing SDL video:  %s\n", SDL_GetError());
 		return(NULL);
 	}
@@ -63,55 +63,58 @@ bool on_init_surfdisplay(object_t* obj) {
 	obj->disable_collision = 1;
 	obj->can_move = 0;
 	
+    int32_t w = 512;
+    int32_t h = 448;
+    
 	// init SDL video and openGL:
 	
-	SDL_WM_SetCaption("Festival Simulator", "Festival Simulator");
-	SDL_ShowCursor(SDL_DISABLE);
-	
-	//SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0); // disable vsync
-	
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 3);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 3);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 2);
+    obj->window = SDL_CreateWindow("FestivalSimulator",
+                             SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             w, h,
+                             0); // SDL_WINDOW_FULLSCREEN_DESKTOP or 0
 
+    
+	//SDL_ShowCursor(SDL_DISABLE);
 	
-	SDL_Surface* surf = NULL;
-	if((surf = SDL_SetVideoMode(
-		800, 600, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL)) == NULL) { 
-			// add 0,0,32 for native resolution and SDL_FULLSCREEN for fullscreen
-		return(true);
-	}
+    SDL_CreateRenderer(obj->window, -1, SDL_RENDERER_ACCELERATED);
+    
 	
-	SDL_Surface* surf_tmp = NULL;
+    /*SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); // 3
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8); // 3
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8); // 2
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetSwapInterval(1);*/
+
+    // Create an OpenGL context associated with the window:
+    obj->glcontext = SDL_GL_CreateContext(obj->window);
+    //SDL_GL_MakeCurrent(obj->window, obj->glcontext);
+    // TODO: add glcontext to object and call SDL_GL_DeleteContext(glcontext)
+    // and free if program is closed and object is freed
+    // and maybe think about not using an object to store video stuff.
+    // use a "video" structure instead
 	
-	if((surf_tmp = surface_on_load("surfdisplay.bmp")) == NULL) {
-		return(true);
-	}
-	obj->surface = SDL_DisplayFormat(surf_tmp);
-	SDL_FreeSurface(surf_tmp);
+    
+    obj->surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+        32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 	
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0f);
  
-	float ratio, scale, border, width;
-	ratio = (float) surf->w / (float) surf->h;
-	scale =  (float) surf->h / (float) obj->surface->h; // scale
-	width = scale * (float) obj->surface->w;		// width of picture
-	border = ((float) surf->w - width) / 2.0;		// width of border
 	
-	glViewport(border, 0, (int32_t) (width + 0.5), surf->h);
+    int32_t w_window, h_window;
+    SDL_GetWindowSize(obj->window, &w_window, &h_window);
+    float scale =  (float) h_window / (float) h;
+    float w_viewport = scale * (float) w;
+    float border = ((float) w_window - w_viewport) / 2.0;
+    glViewport(border, 0, w_viewport, (float) h_window);
 	
-	//float scale2 = 1.5 * scale; // snes
-	//float scale2 = 1.0 * scale; // 400x300
-	float scale2 = 1.5 * scale;
-	
-	float ortho_w = (float) surf->w / (scale2 * 3.0 / 4.0 * ratio);
-	float ortho_h = (float) surf->h / scale2;
-	
+    
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	glOrtho(0, ortho_w, ortho_h, 0, 1, -1);
+	glOrtho(0, (float) w, (float) h, 0, 1, -1);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

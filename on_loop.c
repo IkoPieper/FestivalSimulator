@@ -65,7 +65,7 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
             object_t* obj = (object_t*) hero->itm->entry;
             obj->itm_props->item_function(obj, NULL, keys, frame);
         }
-        if (frames_wait > 10 && keys[KEY_SHIFT]) {
+        if (frames_wait > 15 && keys[KEY_SHIFT]) {
             // select next item:
             if (hero->itm->next == NULL) {
                 hero->itm = get_first(hero->itm);
@@ -74,7 +74,7 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
             }
             frames_wait = 0;
         }
-        if (frames_wait > 10 && keys[KEY_CTRL]) {
+        if (frames_wait > 15 && keys[KEY_CTRL]) {
             // select previous item:
             if (hero->itm->prev == NULL) {
                 hero->itm = get_last(hero->itm);

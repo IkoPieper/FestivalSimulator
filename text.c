@@ -50,10 +50,11 @@ SDL_Surface* text_print_to_surface(
     TTF_Font* font, char* str, uint32_t length) {
 	
     uint32_t width = 200;    // maximum text width [pixel]
-	SDL_Color fg_color = {255, 255, 255};   // text color
+	SDL_Color fg_color = {  0,   0,   0};   // text color
+    SDL_Color bg_color = {252, 255, 190};   // text background color
  	
-    SDL_Surface* surf = TTF_RenderText_Solid(font, str, fg_color);
-    
+    SDL_Surface* surf = 
+        TTF_RenderText_Shaded(font, str, fg_color, bg_color);
     
     if (surf->w < width) {
         return(surf);
@@ -66,10 +67,10 @@ SDL_Surface* text_print_to_surface(
     SDL_FreeSurface(surf);
     
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-        surf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height,
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
         32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
     #else
-        surf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height,
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
         32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
     #endif
     
@@ -97,7 +98,7 @@ SDL_Surface* text_print_to_surface(
         
         // render word:
         SDL_Surface* surf_word = 
-            TTF_RenderText_Solid(font, str_word, fg_color);
+            TTF_RenderText_Shaded(font, str_word, fg_color, bg_color);
         
         // go to next row if word is over the edge:
         if (x + surf_word->w > surf->w) {

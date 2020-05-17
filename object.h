@@ -1,7 +1,7 @@
 #ifndef _OBJECT_H_
     #define _OBJECT_H_
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "list.h"
 #include "meter.h"
 #include "animation.h"
@@ -87,7 +87,11 @@ struct object {
     bool render_is_in_blobb;    // is the obj in this or another blobb?
     bool render_early;          // disable blobb stuff and render early
     
-	GLuint render_id;           // openGL id
+	
+    GLuint render_id;           // openGL id
+    SDL_GLContext glcontext;
+    SDL_Window* window;
+
 	
 	// verlet boxes:
 	object_t* next_vbox;

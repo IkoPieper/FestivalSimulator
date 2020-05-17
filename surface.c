@@ -9,7 +9,7 @@ SDL_Surface* surface_on_load(const char* File) {
 	}
 	
 	// set the transparent pixel:
-	SDL_SetColorKey(surf, SDL_SRCCOLORKEY, SDL_MapRGB(surf->format, 255, 0, 255));
+	SDL_SetColorKey(surf, SDL_TRUE, SDL_MapRGB(surf->format, 255, 0, 255));
  
 	return(surf);
 }

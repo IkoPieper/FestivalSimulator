@@ -1,7 +1,7 @@
 #ifndef _ANIMATION_H_
     #define _ANIMATION_H_
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 typedef struct surface_ring surface_ring_t;
 typedef struct animation animation_t;

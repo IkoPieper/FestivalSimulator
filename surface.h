@@ -1,7 +1,7 @@
 #ifndef _SURFACE_H_
     #define _SURFACE_H_
  
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <stdbool.h>
  
 SDL_Surface* surface_on_load(const char* File);

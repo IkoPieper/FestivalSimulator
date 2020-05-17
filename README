@@ -63,7 +63,7 @@ Installation:
 Im Moment Linux. Hab aber mal ein anderes Programm, das ebenfalls die 
 SDL library benutzt auf Windows portiert. Sollte also gehen.
 
-Pakete: gcc, libsdl1.2-dev, libsdl-ttf2.0-dev, was ich so vergessen habe
+Pakete: gcc, libsdl1.2-dev, libsdl-ttf2.0-dev, libsdl-mixer1.2-dev, was ich so vergessen habe
 
 Dann:
 make
