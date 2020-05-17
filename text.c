@@ -60,12 +60,52 @@ SDL_Surface* text_print_to_surface(
         return(surf);
     }
     
-    // create transparent surface:
-    uint32_t height_row = 20; // [pixel]
-    uint32_t height = 
-        (uint32_t) ceilf((float) surf->w / (float) width) * height_row;
+    // create a text surface with more than one row:
     SDL_FreeSurface(surf);
     
+    uint32_t height_row = 20; // [pixel]
+    
+    uint32_t i = 0;     // leter
+    uint32_t x = 0;     // x position on surface
+    uint32_t y = 0;     // y position on surface
+    
+    // first, find the surface height we need:
+	while (i < length) {
+         
+        // find word length:
+        uint32_t word_length = 1;
+        uint32_t offset = 0;
+        while (str[i + offset] != ' ' && i + offset < length) {
+            word_length++;
+            offset++;
+        }
+        
+        // copy word:
+        char str_word[word_length + 1];
+        for (uint32_t j = 0; j < word_length; j++) {
+            str_word[j] = str[i];
+            i++;
+        }
+        str_word[word_length] = '\0';
+        
+        // render word:
+        SDL_Surface* surf_word = 
+            TTF_RenderText_Shaded(font, str_word, fg_color, bg_color);
+        
+        // go to next row if word is over the edge:
+        if (x + surf_word->w > width) {
+            x = 0;
+            y = y + height_row;
+        }
+        
+        x = x + surf_word->w;
+        
+        SDL_FreeSurface(surf_word);
+	}
+ 	
+    uint32_t height = y + height_row;
+    
+    // create transparent surface:
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
         surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
         32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
@@ -74,9 +114,10 @@ SDL_Surface* text_print_to_surface(
         32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
     #endif
     
-    uint32_t i = 0;
-    uint32_t x = 0;
-    uint32_t y = 0;
+    // print words on transparent surface:
+    i = 0;
+    x = 0;
+    y = 0;
     
 	while (i < length) {
          
@@ -105,12 +146,13 @@ SDL_Surface* text_print_to_surface(
             x = 0;
             y = y + height_row;
         }
+        
         surface_on_draw(surf, surf_word, x, y);
         x = x + surf_word->w;
         
         SDL_FreeSurface(surf_word);
 	}
- 	
+    
 	return(surf);
 	
 }
