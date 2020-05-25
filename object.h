@@ -212,6 +212,8 @@ void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
 void face(object_t* obj, object_t* obj_target);
 void move_on(object_t* obj);
+void drink_beer(object_t* obj, int16_t value);
+void change_mood(object_t* obj, int16_t value);
 void start_waypoints(object_t* obj, uint32_t id);
 bool waypoints_finished(object_t* obj);
 

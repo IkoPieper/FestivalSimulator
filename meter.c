@@ -17,6 +17,8 @@ meter_t* meter_init(uint8_t type, float scr_pos_x, float scr_pos_y) {
             break;
         case METER_POINTS:
             mtr->surf = surface_on_load("objects/meter_points.bmp");
+            uint8_t* pxl = mtr->surf->pixels;
+            printf("COLOR meter points: %d\n", pxl[0]);
             break;
         case METER_MOOD:
             mtr->surf = surface_on_load("objects/meter_mood.bmp");
@@ -48,12 +50,14 @@ void meter_update(meter_t* mtr, int16_t value) {
             } else if (value > 50) {
                 value = 50;
             }
+            break;
         case METER_URIN:
             if (value < 0) {
                 value = 0;
             } else if (value > 100) {
                 value = 100;
             }
+            break;
     }
     mtr->value = value;
     
@@ -88,8 +92,31 @@ void meter_update(meter_t* mtr, int16_t value) {
     }
 
     // print graphical representation of value:
-    start = border;
-    end = start + value;
+    uint8_t color = 0;
+    
+    switch (mtr->type) {
+        case METER_BEER:
+            color = 198;        // piss yellow
+            start = border;
+            end = start + value;
+            break;
+        case METER_MOOD:
+            if (value > 0) {
+                color = 30;     // green
+                start = mtr->surf->w / 2;
+                end = mtr->surf->w / 2 + value;
+            } else {
+                color = 180;    // red
+                start = mtr->surf->w / 2 + value;
+                end = mtr->surf->w / 2;
+            }
+            break;
+        case METER_URIN:
+            color = 198;
+            start = border;
+            end = start + value;
+            break;
+    }
     
     for (uint32_t x = start; x < end; x += 2) {
         
@@ -97,7 +124,7 @@ void meter_update(meter_t* mtr, int16_t value) {
             
             index = (y * w_bmp) + x;
             if (pxl[index] != 0 && pxl[index] != 215) { // black, white
-                pxl[index] = 198;
+                pxl[index] = color;
             }
         }
     }

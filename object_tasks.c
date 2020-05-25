@@ -44,14 +44,6 @@ void face(object_t* obj, object_t* obj_target) {
     object_animate(obj, 0);
 }
 
-void drink_beer(object_t* obj, int16_t value) {
-    
-    list_t* lst = (list_t*) obj->mtr;
-    lst = find_id(lst, METER_BEER);
-    meter_t* mtr = (meter_t*) lst->entry;
-    meter_update(mtr, mtr->value + value);
-}
-
 void move_on(object_t* obj) {
     
     if (obj->id == OBJECT_HERO_ID) {
@@ -61,6 +53,22 @@ void move_on(object_t* obj) {
         ways->active = true;
     }
     obj->anim_walk = true;
+}
+
+void drink_beer(object_t* obj, int16_t value) {
+    
+    list_t* lst = (list_t*) obj->mtr;
+    lst = find_id(lst, METER_BEER);
+    meter_t* mtr = (meter_t*) lst->entry;
+    meter_update(mtr, mtr->value + value);
+}
+
+void change_mood(object_t* obj, int16_t value) {
+    
+    list_t* lst = (list_t*) obj->mtr;
+    lst = find_id(lst, METER_MOOD);
+    meter_t* mtr = (meter_t*) lst->entry;
+    meter_update(mtr, mtr->value + value);
 }
 
 void start_waypoints(object_t* obj, uint32_t id) {
@@ -244,6 +252,12 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, uint64_t frame)
         static float vel_y;
         
         if (obj->col != NULL && frame == 0) {
+            
+            // reduce heros mood on collision:
+            if (find_id(obj->col, OBJECT_HERO_ID) != NULL) {
+                object_t* hero = object_get(obj, OBJECT_HERO_ID);
+                change_mood(hero, -10);
+            }
             
             collision_t* col = (collision_t*) obj->col->entry;
             
