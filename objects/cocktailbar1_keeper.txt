@@ -54,18 +54,20 @@ surface = hero_e_stand.bmp
 
 waypoints = 1           # waypoints number 1
 num_waypoints = 3       # number of waypoints, this is NOT optional
+active = 1              # activate waypoints
+is_cycle = 1            # waypoints are repeated in cycles
 pos_are_relative = 1    # 0: following positions are absolute
                         # 1: following positions are relative to object
                         
-vel_abs = 2.0           # velocity of object to first waypoint
+vel_abs = 1.5           # velocity of object to first waypoint
 pos_x = 0.0             # first waypoint x position
 pos_y = 0.0             # first waypoint y position
 frames_wait = 100       # frames to wait at first waypoint
-vel_abs = 2.0           # velocity of object to second waypoint
+vel_abs = 1.5           # velocity of object to second waypoint
 pos_x = -70.0           # second waypoint x position
 pos_y = -50.0           # second waypoint y position
 frames_wait = 100       # frames to wait at second waypoint
-vel_abs = 2.0           # i think you got the point ...
+vel_abs = 1.5           # i think you got the point ...
 pos_x = 80.0
 pos_y = 20.0
 frames_wait = 10

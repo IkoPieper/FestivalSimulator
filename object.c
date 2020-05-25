@@ -476,9 +476,6 @@ void object_activate_waypoints(object_t* obj) {
 		printf("Warning: waypoints for screen positions not implemented!\n");
 	}
 	
-	// activate:
-	ways->active = 1;
-	
 }
 
 void object_get_next_waypoint(object_t* obj) {
@@ -487,8 +484,8 @@ void object_get_next_waypoint(object_t* obj) {
     
 	float pos_x_wp = ways->pos_x[ways->n];
 	float pos_y_wp = ways->pos_y[ways->n];
-	float border_x = fabsf(obj->vel_x) + 2.0;
-	float border_y = fabsf(obj->vel_y) + 2.0;
+    float border_x = ways->vel_abs[ways->n] + 5.0;
+	float border_y = ways->vel_abs[ways->n] + 5.0;
 	
 	// object close enough to waypoint?
 	if (obj->pos_x > pos_x_wp - border_x && 
@@ -505,12 +502,18 @@ void object_get_next_waypoint(object_t* obj) {
 		// select next waypoint:
 		ways->n++;
 		
-		// cycle: TODO: make optional
+		// cycle:
 		if (ways->n == ways->num_ways) {
 			ways->n = 0;
+            if (!ways->is_cycle) {
+                ways->active = false;
+                return;
+            }
 		}
 		
-	}
+	} else {
+        ways->frame = 0; // in case object is kicked out of waypoint
+    }
     
     object_aim_for_waypoint(obj);
 }
@@ -527,25 +530,24 @@ void object_aim_for_waypoint(object_t* obj) {
 	
 	vel_x_wanted = pos_x_wp - obj->pos_x;
 	vel_y_wanted = pos_y_wp - obj->pos_y;
-			
-	// normalize:
-	float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
-	vel_x_wanted /= norm;
-	vel_y_wanted /= norm;
-	vel_x_wanted *= ways->vel_abs[ways->n];
-	vel_y_wanted *= ways->vel_abs[ways->n];
 	
-	// modify current velocity a step towards the velocity wanted:
-	if (obj->vel_x < vel_x_wanted - 0.2) {
-		obj->vel_x += 0.2;
-	} else if (obj->vel_x > vel_x_wanted + 0.2) {
-		obj->vel_x -= 0.2;
-	}
-	if (obj->vel_y < vel_y_wanted - 0.2) {
-		obj->vel_y += 0.2;
-	} else if (obj->vel_y > vel_y_wanted + 0.2) {
-		obj->vel_y -= 0.2;
-	}
+    if (ways->frame == 0) {
+    
+        // normalize:
+        float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
+        vel_x_wanted /= norm;
+        vel_y_wanted /= norm;
+        
+        vel_x_wanted *= ways->vel_abs[ways->n];
+        vel_y_wanted *= ways->vel_abs[ways->n];
+        
+        obj->vel_x = vel_x_wanted;
+        obj->vel_y = vel_y_wanted;
+        
+    } else {
+        obj->vel_x = 0.0;
+        obj->vel_y = 0.0;
+    }
 	
 }
 
@@ -577,6 +579,7 @@ collision_t* object_add_collision(object_t* obj, object_t* partner) {
         entry->c_y_old = entry->c_y;
         // init area:
         entry->area = 0;
+        
         return(entry);
     }
 	

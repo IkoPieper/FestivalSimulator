@@ -94,7 +94,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
                                 
-                                if (!obj->disable_collision || !obj->disable_render) {
+                                if (!obj_b->disable_collision || !obj_b->disable_render) {
                                     
                                     collision = collisions_check(obj, obj_b);
                                     
@@ -173,7 +173,7 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
     
 	// check for pixel wise collision:
 	if (collision && (obj1->has_moved || obj2->has_moved)) {
-		
+        
 		collision = false;
 		
 		collision_t* col1 = NULL;
@@ -403,14 +403,22 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 						if (obj1->can_move) {
 							obj1->pos_x = obj1->pos_x_old;
 							obj1->pos_y = obj1->pos_y_old;
-							obj1->vel_x = -vel_abs1 * col1->c_x * 1.1 - col1->c_x * 0.3;
-							obj1->vel_y = -vel_abs1 * col1->c_y * 1.1 - col1->c_y * 0.3;
+							//obj1->vel_x = -vel_abs1 * col1->c_x * 1.1 - col1->c_x * 0.3;
+							//obj1->vel_y = -vel_abs1 * col1->c_y * 1.1 - col1->c_y * 0.3;
+                            obj1->vel_x = -vel_abs1 * col1->c_x * 1.1;
+							obj1->vel_y = -vel_abs1 * col1->c_y * 1.1;
+                            obj1->vel_x -= col1->c_x * 0.5 * (float) rand() / (float) RAND_MAX;
+							obj1->vel_y -= col1->c_y * 0.5 * (float) rand() / (float) RAND_MAX;
 						}
 						if (obj2->can_move) {
 							obj2->pos_x = obj2->pos_x_old;
 							obj2->pos_y = obj2->pos_y_old;
-							obj2->vel_x = -vel_abs2 * col2->c_x * 1.1 - col1->c_x * 0.3;
-							obj2->vel_y = -vel_abs2 * col2->c_y * 1.1 - col1->c_y * 0.3;
+							//obj2->vel_x = -vel_abs2 * col2->c_x * 1.1 - col1->c_x * 0.3; !!! col2!?
+							//obj2->vel_y = -vel_abs2 * col2->c_y * 1.1 - col1->c_y * 0.3;
+                            obj2->vel_x = -vel_abs2 * col2->c_x * 1.1;
+							obj2->vel_y = -vel_abs2 * col2->c_y * 1.1;
+                            obj2->vel_x -= col2->c_x * 0.5 * (float) rand() / (float) RAND_MAX;
+							obj2->vel_y -= col2->c_y * 0.5 * (float) rand() / (float) RAND_MAX;
 						}
 						
 					} else {

@@ -10,6 +10,8 @@ struct waypoints {
 	
 	bool active;                   // is activated?
 	
+    bool is_cycle;                 // waypoints are repeated in a cycle
+    
 	int8_t pos_are_relative;       //  1: positions are relative to the 
 	                               //     object position. 
 	                               //  0: (default) absolute positions

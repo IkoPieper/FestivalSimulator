@@ -6,6 +6,8 @@ waypoints_t* waypoints_init(uint32_t num_ways) {
 	
 	ways = (waypoints_t*) malloc(sizeof(waypoints_t));
 	
+    ways->active = false;
+    ways->is_cycle = false;
 	ways->pos_are_relative = 0;
 	ways->num_ways = num_ways;
 	ways->n = 0;

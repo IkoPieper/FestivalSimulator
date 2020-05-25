@@ -9,7 +9,7 @@ void movements(object_t* obj, bool* keys) {
 	obj_first = object_get_first(obj);
 	obj_hero = object_get(obj, OBJECT_HERO_ID);
 	obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
-	
+    
 	obj_hero->pos_x_old = obj_hero->pos_x;
 	obj_hero->pos_y_old = obj_hero->pos_y;
 	

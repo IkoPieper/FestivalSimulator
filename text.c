@@ -2,9 +2,7 @@
 
 text_t* text_init() {
 	
-	text_t* txt = NULL;
-	
-	txt = (text_t*) malloc(sizeof(text_t));
+	text_t* txt = (text_t*) malloc(sizeof(text_t));
 	
 	txt->str = NULL;
 	txt->length = 0;

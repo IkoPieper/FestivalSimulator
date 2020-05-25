@@ -97,8 +97,9 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
         float vel_x = obj->pos_x - obj->pos_x_old;
         float vel_y = obj->pos_y - obj->pos_y_old;
         
-        // select walk cycle animation:
         uint32_t anim_id = 0;
+        
+        // select walk cycle animation:
         if (obj->id == OBJECT_HERO_ID) {
             
             if (obj->can_move) {
@@ -113,6 +114,7 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
                     obj->anim->id, vel_x, vel_y);
             }
         }
+        
         
         if (anim_id != 0) {
             
@@ -196,21 +198,21 @@ uint32_t on_loop_get_animation_walk(
         
         // start a walk animation:
         if (fabsf(vel_y) > fabsf(vel_x)) {
-            if (vel_y < 0) {
+            if (vel_y < -0.8) {
                 return(ANIMATION_WALK_NORTH);
-            } else {
+            } else if (vel_y > 0.8) {
                 return(ANIMATION_WALK_SOUTH);
             }
         } else {
-            if (vel_x < 0) {
+            if (vel_x < -0.8) {
                 return(ANIMATION_WALK_WEST);
-            } else {
+            } else if (vel_x > 0.8) {
                 return(ANIMATION_WALK_EAST);
             }
         }
     }
     
-    return(0);
+    return(anim_id);
 }
 
 void on_loop_waypoints(object_t* obj, uint64_t frame) {

@@ -210,9 +210,18 @@ configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj
         return (entry);
     }
     
-    if (strcmp(entry->key, "pos_are_relative") == 0) {
-        waypoints_t* ways = (waypoints_t*) obj->ways->entry;
-        ways->pos_are_relative = atoi(entry->value);
+    waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+    
+    while (strcmp(entry->key, "vel_abs") != 0) {
+        
+        if (strcmp(entry->key, "active") == 0) {
+            ways->active = atoi(entry->value);
+        } else if (strcmp(entry->key, "pos_are_relative") == 0) {
+            ways->pos_are_relative = atoi(entry->value);
+        } else if (strcmp(entry->key, "is_cycle") == 0) {
+            ways->is_cycle = atoi(entry->value);
+        }
+        
         entry = entry->next;
     }
     
@@ -221,25 +230,18 @@ configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj
         for (uint8_t m = 0; m < 4; m++) {
 	
             if (strcmp(entry->key, "vel_abs") == 0) {
-                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
                 ways->vel_abs[n] = atof(entry->value);
-                entry = entry->next;
             } else if (strcmp(entry->key, "pos_x") == 0) {
-                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
                 ways->pos_x[n] = atof(entry->value);
-                entry = entry->next;
             } else if (strcmp(entry->key, "pos_y") == 0) {
-                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
                 ways->pos_y[n] = atof(entry->value);
-                entry = entry->next;
             } else if (strcmp(entry->key, "frames_wait") == 0) {
-                waypoints_t* ways = (waypoints_t*) obj->ways->entry;
                 ways->frames_wait[n] = atof(entry->value);
-                entry = entry->next;
             } else {
                 printf("Error reading waypoints of object %d\n! skipping...", obj->id);
                 return (entry);
             }
+            entry = entry->next;
 		}
         
     }

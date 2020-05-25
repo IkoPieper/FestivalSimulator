@@ -205,12 +205,15 @@ void object_free_items(list_t* lst);
 bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, uint64_t);
 bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
+bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
 void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
 void face(object_t* obj, object_t* obj_target);
 void move_on(object_t* obj);
+void start_waypoints(object_t* obj, uint32_t id);
+bool waypoints_finished(object_t* obj);
 
 // functions in object_items.c:
 bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
@@ -223,6 +226,7 @@ bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t fr
 
 #define TASK_FIND_BOB 0
 #define TASK_FIND_EVA 1
+#define TASK_SECURITY_FENCE 2
 
 #define ITEM_STONE 0
 #define ITEM_RED_STONE 1
