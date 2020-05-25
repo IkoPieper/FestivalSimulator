@@ -141,6 +141,7 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
             move_on(hero);
             
             drink_beer(hero, 10);
+            change_mood(hero, 10);
             
             tsk->step++;
             

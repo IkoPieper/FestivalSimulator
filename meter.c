@@ -76,7 +76,7 @@ void meter_update(meter_t* mtr, int16_t value) {
     const uint32_t border = 4;
     
     // errase display:
-    uint32_t start = border;
+    uint32_t start = border - 1;
     uint32_t end = w_bmp - border;
     uint32_t index;
     
