@@ -1,0 +1,50 @@
+object = 906
+pos_x = 640
+pos_y = 620
+surface = hero_s_1.bmp
+walls = hero_walls.bmp
+can_move = 1
+mass = 1.0
+damping = 0.2
+
+anim_walk = 1           # use animations 1 to 8 for walk cycles
+
+animation = 1           # animation for walking north
+delay_frames = 7        # animation speed: lower value is faster
+surface = hero_n_1.bmp  # first picture ...
+surface = hero_n_2.bmp  # second picture ...
+
+animation = 2           # animation for walking south
+delay_frames = 7
+surface = hero_s_1.bmp
+surface = hero_s_2.bmp
+
+animation = 3           # animation for walking west
+delay_frames = 7
+surface = hero_w_1.bmp
+surface = hero_w_stand.bmp
+surface = hero_w_2.bmp
+surface = hero_w_stand.bmp
+
+animation = 4           # animation for walking east
+delay_frames = 7
+surface = hero_e_1.bmp
+surface = hero_e_stand.bmp
+surface = hero_e_2.bmp
+surface = hero_e_stand.bmp
+
+animation = 5           # animation for stopping north
+delay_frames = 1
+surface = hero_n_stand.bmp
+
+animation = 6           # animation for stopping south
+delay_frames = 1
+surface = hero_s_stand.bmp
+
+animation = 7           # animation for stopping west
+delay_frames = 1
+surface = hero_w_stand.bmp
+
+animation = 8           # animation for stopping east
+delay_frames = 1
+surface = hero_e_stand.bmp
