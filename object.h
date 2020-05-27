@@ -2,13 +2,13 @@
     #define _OBJECT_H_
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "list.h"
 #include "meter.h"
 #include "animation.h"
 #include "text.h"
 #include "waypoints.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include "video.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>

@@ -348,8 +348,8 @@ void on_render_text(object_t* obj, video_t* vid) {
 	
     // determine text position. possibly close to object, otherwise at
     // edge of screen:
-    int32_t x = (int32_t) obj->scr_pos_x - 40;
-    int32_t y = (int32_t) obj->scr_pos_y + 5;
+    int32_t x = (int32_t) obj->scr_pos_x + obj->surface->w;
+    int32_t y = (int32_t) obj->scr_pos_y - 10;
     
     int32_t w = obj->txt_surface->w;
     int32_t h = obj->txt_surface->h;

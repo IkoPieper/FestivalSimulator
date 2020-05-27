@@ -1,9 +1,126 @@
 #include "on_init.h"
 
+sound_t* on_init_sound() {
+    
+    // Set up the audio stream
+    int32_t result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 512);
+    if (result < 0) {
+        fprintf(stderr, "Unable to open audio: %s\n", SDL_GetError());
+        exit(-1);
+    }
+
+    result = Mix_AllocateChannels(8);
+    if (result < 0) {
+        fprintf(stderr, "Unable to allocate mixing channels: %s\n", SDL_GetError());
+        exit(-1);
+    }
+    
+    sound_t* snd = (sound_t*) malloc(sizeof(sound_t));
+    
+    snd = on_init_sound_samples(snd);
+    snd = on_init_sound_songs(snd);
+    
+    return(snd);
+}
+
+// load audio samples as defined in sound.h:
+sound_t* on_init_sound_samples(sound_t* snd) {
+    
+    
+    return(snd);
+}
+
+// automatically load a list of music files and load the first 
+// audiofile for playback:
+sound_t* on_init_sound_songs(sound_t* snd) {
+    
+    snd->pos_x = 745.0;
+    snd->pos_y = -200.0;
+    snd->n = 0;
+    
+    DIR* hdl_dir;
+	struct dirent* dir;
+	char path[256];
+	
+	hdl_dir = opendir("songs");
+	
+    // count files:
+    uint32_t n = 0;
+    while ((dir = readdir(hdl_dir)) != NULL) {
+        if (on_init_sound_supported(dir->d_name)) {
+            n++;
+        }
+    }
+    
+    if (n == 0) {
+        printf("No supported sound files found in songs folder!\n");
+        snd->num_songs = n;
+        snd->songs = NULL;
+        return(snd);
+    }
+    
+    snd->num_songs = n;
+    snd->songs = (char**) malloc(n * sizeof(char*));
+    
+    rewinddir(hdl_dir);
+    n = 0;
+	while ((dir = readdir(hdl_dir)) != NULL) {
+      
+		if (on_init_sound_supported(dir->d_name)) {
+            
+			// build path to file:
+			strncpy(path, "songs", 256);
+			strncat(path, "/", 256);
+			strncat(path, dir->d_name, 256);
+            
+            // save path:
+            snd->songs[n] = (char*) malloc(256 * sizeof(char));
+            strncpy(snd->songs[n], path, 256);
+            
+            n++;
+		}
+	}
+    
+    closedir(hdl_dir);
+    
+    for (n = 0; n < snd->num_songs; n++) {
+        printf("song %d: %s\n", n, snd->songs[n]);
+    }
+    
+    
+    // load first song:
+    if(!(snd->music = Mix_LoadMUS(snd->songs[0]))) {
+		fprintf(stderr, "Error loading song %s!\n", snd->songs[0]);
+    }
+    
+    Mix_PlayMusic(snd->music, 1);
+    Mix_VolumeMusic(0);
+    
+    return(snd);
+}
+
+bool on_init_sound_supported(char* filename) {
+    
+    return(
+        strcmp(filename, ".") && 
+        strcmp(filename, "..") && (
+            strstr(filename, ".wav") != NULL ||
+            strstr(filename, ".WAV") != NULL ||
+            strstr(filename, ".mp3") != NULL ||
+            strstr(filename, ".MP3") != NULL ||
+            strstr(filename, ".ogg") != NULL ||
+            strstr(filename, ".OGG") != NULL ||
+            strstr(filename, ".aiff") != NULL ||
+            strstr(filename, ".AIFF") != NULL ||
+            strstr(filename, ".flac") != NULL ||
+            strstr(filename, ".FLAC") != NULL)
+          );
+}
+
 video_t* on_init_video() {
     
     // init SDL:
-	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		return(NULL);
 	}
 	// init SDL fonts TTF:
@@ -11,10 +128,10 @@ video_t* on_init_video() {
 		return(NULL);
 	}
 	
-	if (SDL_VideoInit(NULL) != 0) {
+	/*if (SDL_VideoInit(NULL) != 0) {
 		printf("Error initializing SDL video:  %s\n", SDL_GetError());
 		return(NULL);
-	}
+	}*/
     
     // TODO: free video stuff:
     video_t* vid = (video_t*) malloc(sizeof(video_t));
@@ -166,18 +283,18 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	// start position is middle of screen:
-	obj->scr_pos_x = vid->surface->w / 2;
-	obj->scr_pos_y = vid->surface->h / 2;
-	obj->pos_x = obj->scr_pos_x - obj_bg->scr_pos_x;
-	obj->pos_y = obj->scr_pos_y - obj_bg->scr_pos_y;
+	obj->scr_pos_x = vid->surface->w / 2 - obj->surface->w / 2;
+	obj->scr_pos_y = vid->surface->h / 2 - obj->surface->h / 2;
+	obj->pos_x = obj_bg->surface->w / 2;
+	obj->pos_y = obj_bg->surface->h / 2;
 		
 	// min/max screen positions:
-	obj->min_scr_pos_x = (float) (0 + vid->surface->w / 5);
+	obj->min_scr_pos_x = (float) (0 + vid->surface->w / 3);
 	obj->max_scr_pos_x = (float) (vid->surface->w 
-		- vid->surface->w / 5 - obj->surface->w);
-	obj->min_scr_pos_y = (float) (0 + vid->surface->h / 5);
+		- vid->surface->w / 3 - obj->surface->w);
+	obj->min_scr_pos_y = (float) (0 + vid->surface->h / 3);
 	obj->max_scr_pos_y = (float) (vid->surface->h 
-		- vid->surface->h / 5 - obj->surface->h);
+		- vid->surface->h / 3 - obj->surface->h);
     
     object_add_meter(obj, METER_BEER, METER_BEER,   10, 10);
     object_add_meter(obj, METER_MOOD, METER_MOOD,   10, 40);
@@ -213,8 +330,8 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	
 bool on_init_objects_config(object_t* obj) {
 	
-	DIR *hdl_dir;
-	struct dirent *dir;
+	DIR* hdl_dir;
+	struct dirent* dir;
 	char path[100];
 	
 	hdl_dir = opendir("objects");
@@ -227,7 +344,7 @@ bool on_init_objects_config(object_t* obj) {
 	
 			// build path to file:
 			strncpy(path, "objects", 100);
-			strncat(path, "/", 100);		// TODO: Windows compatible
+			strncat(path, "/", 100);
 			strncat(path, dir->d_name, 100);
 	
 			configentry* data = conf_load_data(path);

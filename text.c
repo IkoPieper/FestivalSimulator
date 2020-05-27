@@ -8,7 +8,7 @@ text_t* text_init() {
 	txt->length = 0;
     txt->duration = TEXT_DURATION_DEFAULT;
 	
-	if((txt->font = TTF_OpenFont("FreeSansBold.ttf", 16)) == NULL) {
+	if((txt->font = TTF_OpenFont("FreeSansBold.ttf", 13)) == NULL) {
 		fprintf(stderr, "Error: Font FreeSansBold.ttf is missing!");
 		return(NULL);
 	}
@@ -61,7 +61,7 @@ SDL_Surface* text_print_to_surface(
     // create a text surface with more than one row:
     SDL_FreeSurface(surf);
     
-    uint32_t height_row = 20; // [pixel]
+    uint32_t height_row = 17; // [pixel]
     
     uint32_t i = 0;     // leter
     uint32_t x = 0;     // x position on surface

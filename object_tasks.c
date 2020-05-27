@@ -103,8 +103,8 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-        if (fabsf(hero->pos_x - obj->pos_x) < 150 &&
-            fabsf(hero->pos_y - obj->pos_y) < 150) {
+        if (fabsf(hero->pos_x - obj->pos_x) < 100 &&
+            fabsf(hero->pos_y - obj->pos_y) < 100) {
         
             face(obj, hero);
             say(obj, 1, 300);

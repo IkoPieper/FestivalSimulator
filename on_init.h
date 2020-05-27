@@ -7,22 +7,17 @@
 #include "animation.h"
 #include "own_config.h"  // TODO: check if still needed
 #include "load_config.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include "video.h"
+#include "sound.h"
 #include <dirent.h>
 #include <math.h>
 #include <stdbool.h>
 
-typedef struct video video_t;
 
-struct video {
-	GLuint render_id;           // openGL id
-    SDL_GLContext glcontext;
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    SDL_Surface* surface;
-};
-
+sound_t* on_init_sound();
+sound_t* on_init_sound_samples(sound_t* snd);
+sound_t* on_init_sound_songs(sound_t* snd);
+bool on_init_sound_supported(char* filename);
 video_t* on_init_video();
 object_t* on_init_objects(video_t* vid);
 bool on_init_background(object_t* obj, video_t* vid);

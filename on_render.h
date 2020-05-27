@@ -2,13 +2,11 @@
     #define _ON_RENDER_H_
 
 #include "object.h"
-#include "on_init.h"
+#include "video.h"
 #include "surface.h"
 #include "meter.h"
 #include "text.h"
 #include "list.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 void on_render(object_t* obj, video_t* vid);
 void on_render_sort(object_t* obj);

@@ -4,7 +4,8 @@
 #include "animation.h"
 #include "waypoints.h"
 
-void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame) {
+void on_loop(object_t* obj, sound_t* snd, 
+    verletbox_t* vbox, bool* keys, uint64_t frame) {
 	
 	//Uint32 time;
 	
@@ -26,6 +27,7 @@ void on_loop(object_t* obj, verletbox_t* vbox, bool* keys, uint64_t frame) {
 	on_loop_waypoints(obj, frame);
 	//printf("time for animations and waypoints: %d\n", SDL_GetTicks() - time);
 
+    on_loop_sounds(obj, snd);
 }
 
 // call all the task functions of the objects:
@@ -235,4 +237,61 @@ void on_loop_waypoints(object_t* obj, uint64_t frame) {
 		obj = obj->next_object;
 	}
 	
+}
+
+void on_loop_sounds(object_t* obj, sound_t* snd) {
+    
+    object_t* obj_hero = object_get(obj, OBJECT_HERO_ID);
+    
+    /* if (sound collision play finished) {
+    
+        obj = object_get_first(obj);
+        
+        while (obj != NULL) {
+        
+            if (obj->col != NULL) {
+            
+                // Play sound
+                
+                break;
+            }
+        
+            obj = obj->next_object;
+        }
+    }*/
+    
+    // stage music:
+    if (snd->num_songs > 0) {
+        
+        // set volume according to distance to sound source:
+        float dist_x = obj_hero->pos_x - snd->pos_x;
+        float dist_y = obj_hero->pos_y - snd->pos_y;
+        float dist = sqrtf(dist_x * dist_x + dist_y * dist_y);
+        if (dist < 100.0) {
+            dist = 100.0;
+        }
+        int32_t volume = 100.0 * (float) MIX_MAX_VOLUME / dist;
+        if (volume < 1) {
+            volume = 1;
+        }
+        //int32_t volume = MIX_MAX_VOLUME - 0.2 * dist;
+        printf("\ndist: %f\n", dist);
+        printf("volume: %d\n", volume);
+        Mix_VolumeMusic(volume);
+        
+        // load next song in loop if finished playing:
+        if (!Mix_PlayingMusic()) {
+            
+            Mix_FreeMusic(snd->music);
+            
+            snd->n++;
+            if (snd->n == snd->num_songs) {
+                snd->n = 0;
+            }
+            if(!(snd->music = Mix_LoadMUS(snd->songs[snd->n]))) {
+                fprintf(stderr, "Error loading song %s!\n", snd->songs[snd->n]);
+            }
+            Mix_PlayMusic(snd->music, 1);
+        }
+    }
 }

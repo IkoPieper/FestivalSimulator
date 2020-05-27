@@ -42,6 +42,8 @@ bool on_execute() {
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
 	
+    sound_t* snd = on_init_sound();
+    
 	video_t* vid = on_init_video();
 	if (vid == NULL) {
 		fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
@@ -88,7 +90,7 @@ bool on_execute() {
 		}
 
 		//time = SDL_GetTicks();
-		on_loop(obj, vbox, keys, frame);
+		on_loop(obj, snd, vbox, keys, frame);
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
 		//time = SDL_GetTicks();
 		on_render(obj, vid);
@@ -99,12 +101,11 @@ bool on_execute() {
 		if(1000 / FPS > time_end - time_start) {
 			SDL_Delay(1000 / FPS - (time_end - time_start));
 		}
-		
 		frame++;
 	}
 	
 	// ALWAYS TODO: keep this up to date
-	on_cleanup(obj, vid, vbox, keys);
+	on_cleanup(obj, vid, snd, vbox, keys);
  
 	return(false);
 }
