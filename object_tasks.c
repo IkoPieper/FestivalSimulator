@@ -86,7 +86,8 @@ bool waypoints_finished(object_t* obj) {
     return(!ways->active);
 }
 
-bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, uint64_t) {
+bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, 
+    uint64_t, float) {
     
     switch (id) {
         case TASK_FIND_BOB: return(&task_find_bob); break;
@@ -97,7 +98,8 @@ bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, uint64_t) {
     return(NULL);
 }
 
-bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
+bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, 
+    uint64_t frame, float dt) {
     
     if (tsk->step == 0) {
         
@@ -166,13 +168,15 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
     
 }
 
-bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
+bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, 
+    uint64_t frame, float dt) {
     
     return(false);
     
 }
 
-bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, uint64_t frame) {
+bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, 
+    uint64_t frame, float dt) {
     
     if (tsk->step == 0) {
         
@@ -285,9 +289,9 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, uint64_t frame)
             obj->vel_x = vel_x;
             obj->vel_y = vel_y;
             
-            frame = 30;
+            frame = (uint16_t) (30.0 / dt);
             
-        } else if (frame > 0) {
+        } else if (frame > 0.0) {
             
             // go away from collision:
             obj->vel_x = vel_x;

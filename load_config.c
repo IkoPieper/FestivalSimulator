@@ -151,7 +151,8 @@ configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
 	
 }
 
-configentry* load_config_animation(configentry* entry, char* path, object_t* obj) {
+configentry* load_config_animation(configentry* entry, char* path, 
+    object_t* obj, float dt) {
 	
 	SDL_Surface* surf = NULL;
 	char* file_name;
@@ -168,7 +169,12 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 		} else if (strcmp(entry->key, "delay_frames") == 0) {
 			
             animation_t* anim = (animation_t*) obj->anim->entry;
-			anim->delay_frames = atoi(entry->value);
+            
+			anim->delay_frames = (uint32_t) (atof(entry->value) / dt);
+            if (anim->delay_frames < 1) {
+                anim->delay_frames = 1;
+            }
+            
 			entry = entry->next;
 			
 		} else if (strcmp(entry->key, "surface") == 0) {
@@ -195,7 +201,8 @@ configentry* load_config_animation(configentry* entry, char* path, object_t* obj
 	
 }
 
-configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj) {
+configentry* load_config_waypoints(configentry* entry, char* path, 
+    object_t* obj, float dt) {
 	
     uint32_t num_waypoints = 0;
     uint32_t id = atoi(entry->value);
@@ -236,7 +243,10 @@ configentry* load_config_waypoints(configentry* entry, char* path, object_t* obj
             } else if (strcmp(entry->key, "pos_y") == 0) {
                 ways->pos_y[n] = atof(entry->value);
             } else if (strcmp(entry->key, "frames_wait") == 0) {
-                ways->frames_wait[n] = atof(entry->value);
+                ways->frames_wait[n] = (uint32_t) (atof(entry->value) / dt);
+                if (ways->frames_wait[n] < 1) {
+                    ways->frames_wait[n] = 1;
+                }
             } else {
                 printf("Error reading waypoints of object %d\n! skipping...", obj->id);
                 return (entry);

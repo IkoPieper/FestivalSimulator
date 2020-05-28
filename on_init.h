@@ -18,12 +18,12 @@ sound_t* on_init_sound();
 sound_t* on_init_sound_samples(sound_t* snd);
 sound_t* on_init_sound_songs(sound_t* snd);
 bool on_init_sound_supported(char* filename);
-video_t* on_init_video();
-object_t* on_init_objects(video_t* vid);
+video_t* on_init_video(bool VSYNC);
+object_t* on_init_objects(video_t* vid, float dt);
 bool on_init_background(object_t* obj, video_t* vid);
 bool on_init_hero(object_t* obj, video_t* vid);
 bool on_init_buden(object_t* obj);
-bool on_init_objects_config(object_t* obj);
+bool on_init_objects_config(object_t* obj, float dt);
 bool on_init_items(object_t* obj);
 
 #endif

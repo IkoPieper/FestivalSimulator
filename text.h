@@ -12,7 +12,7 @@ struct text {
 	char* str;
 	uint32_t length;
 	TTF_Font* font;
-    uint32_t duration;		// how many frames the text is visible
+    uint32_t duration;		// how long the text is visible
 };
 
 text_t* text_init();

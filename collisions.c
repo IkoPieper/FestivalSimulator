@@ -1,6 +1,6 @@
 #include "collisions.h"
 
-void collisions(object_t* obj, verletbox_t* vbox) {
+void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 	
 	bool collision = false;
 	uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
@@ -25,7 +25,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 		
 			obj->vel_lock = false;
 			
-			collision = collisions_check(obj_bg, obj);
+			collision = collisions_check(obj_bg, obj, dt);
 				
 			if (collision == false) {
 				object_remove_collision(obj_bg, obj);
@@ -96,7 +96,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
                                 
                                 if (!obj_b->disable_collision || !obj_b->disable_render) {
                                     
-                                    collision = collisions_check(obj, obj_b);
+                                    collision = collisions_check(obj, obj_b, dt);
                                     
                                     if (collision == false) {
                                         object_remove_collision(obj, obj_b);
@@ -122,7 +122,7 @@ void collisions(object_t* obj, verletbox_t* vbox) {
 	
 }
 
-bool collisions_check(object_t* obj1, object_t* obj2) {
+bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 	
 	bool collision = false;
 	
@@ -389,6 +389,15 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 				
 				// this changes the velocities of the objects:
 				collisions_impulse(obj1, obj2, col1, col2);
+                // add a little randomness to prevent collision loops:
+                /*if (obj1->can_move) {
+                    obj1->vel_x += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
+                    obj1->vel_y += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
+                }
+                if (obj2->can_move) {
+                    obj2->vel_x += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
+                    obj2->vel_y += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
+                }*/
 				
 			// if collision area inceases, move away from each other:
 			} else {
@@ -424,15 +433,15 @@ bool collisions_check(object_t* obj1, object_t* obj2) {
 					} else {
 						// move away:
 						if (obj1->can_move) {
-							obj1->vel_x -= col1->c_x * 0.2;
-							obj1->vel_y -= col1->c_y * 0.2;
+							obj1->vel_x -= col1->c_x * 0.2 * dt;
+							obj1->vel_y -= col1->c_y * 0.2 * dt;
 						}
 						if (obj2->can_move) {
-							obj2->vel_x -= col2->c_x * 0.2;
-							obj2->vel_y -= col2->c_y * 0.2;
+							obj2->vel_x -= col2->c_x * 0.2 * dt;
+							obj2->vel_y -= col2->c_y * 0.2 * dt;
 						}
 					}
-					
+                    
 					/*if (obj1->id == OBJECT_HERO_ID || obj2->id == OBJECT_HERO_ID) {
 						printf("\ncollision area increase\n");
 						printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
@@ -543,13 +552,13 @@ void collisions_impulse(
 	v2r = c2y * v2x - c2x * v2y;
 	
 	if (obj1->can_move) {
-		obj1->vel_x = c1x * v1n + c1y * v1r;
-		obj1->vel_y = c1y * v1n - c1x * v1r;
+		obj1->vel_x = (c1x * v1n + c1y * v1r);
+		obj1->vel_y = (c1y * v1n - c1x * v1r);
 	}
 	
 	if (obj2->can_move) {
-		obj2->vel_x = c1x * v2n + c2y * v2r;
-		obj2->vel_y = c1y * v2n - c2x * v2r;
+		obj2->vel_x = (c1x * v2n + c2y * v2r);
+		obj2->vel_y = (c1y * v2n - c2x * v2r);
 	}
 	
 	// for debuging:

@@ -117,7 +117,7 @@ bool on_init_sound_supported(char* filename) {
           );
 }
 
-video_t* on_init_video() {
+video_t* on_init_video(bool VSYNC) {
     
     // init SDL:
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -150,6 +150,10 @@ video_t* on_init_video() {
 	//SDL_ShowCursor(SDL_DISABLE);
 	
     vid->renderer = SDL_CreateRenderer(vid->window, -1, SDL_RENDERER_ACCELERATED);
+
+    if (VSYNC) {
+        SDL_GL_SetSwapInterval(1);
+    }
     
     /*SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); // 3
@@ -202,11 +206,17 @@ video_t* on_init_video() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
+    
+    // Get frames per second:
+    SDL_DisplayMode dsp_mode;
+    SDL_GetCurrentDisplayMode(0, &dsp_mode);
+    vid->fps = dsp_mode.refresh_rate;
+    
 	return(vid);
     
 }
 
-object_t* on_init_objects(video_t* vid) {
+object_t* on_init_objects(video_t* vid, float dt) {
 	
 	// init objects:
 	object_t* obj = NULL;
@@ -217,7 +227,7 @@ object_t* on_init_objects(video_t* vid) {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_objects_config(obj)) {
+	if (on_init_objects_config(obj, dt)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
@@ -328,7 +338,7 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 
 	object_activate_waypoints(obj);*/
 	
-bool on_init_objects_config(object_t* obj) {
+bool on_init_objects_config(object_t* obj, float dt) {
 	
 	DIR* hdl_dir;
 	struct dirent* dir;
@@ -364,9 +374,9 @@ bool on_init_objects_config(object_t* obj) {
                 } else if (strcmp(entry->key, "item") == 0) {
 					entry = load_config_item(entry, path, obj);
 				} else if (strcmp(entry->key, "animation") == 0) {
-					entry = load_config_animation(entry, path, obj);
+					entry = load_config_animation(entry, path, obj, dt);
                 } else if (strcmp(entry->key, "waypoints") == 0) {
-					entry = load_config_waypoints(entry, path, obj);
+					entry = load_config_waypoints(entry, path, obj, dt);
 				} else if (strcmp(entry->key, "text") == 0) {
 					entry = load_config_text(entry, obj);
 				} 

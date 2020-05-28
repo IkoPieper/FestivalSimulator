@@ -7,8 +7,8 @@
 #include <math.h>
 #include <stdbool.h>
 
-void collisions(object_t* obj, verletbox_t* vbox);
-bool collisions_check(object_t* obj1, object_t* obj2);
+void collisions(object_t* obj, verletbox_t* vbox, float dt);
+bool collisions_check(object_t* obj1, object_t* obj2, float dt);
 void collisions_impulse(
 	object_t* obj1, object_t* obj2, 
 	collision_t* col1, collision_t* col2);

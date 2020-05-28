@@ -106,6 +106,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->txt_language[2] = '\0';
 	obj_new->txt = NULL;
 	obj_new->txt_print = 0;
+    obj_new->txt_next_letter = 0.0;
 	obj_new->txt_surface = NULL;
 
 	// waypoints:
@@ -405,6 +406,7 @@ void object_select_text(object_t* obj, uint32_t id) {
 void object_print_text(object_t* obj) {
 	
 	obj->txt_print = 1;
+    obj->txt_next_letter = 0.0;
 	
 }
 
@@ -478,7 +480,7 @@ void object_activate_waypoints(object_t* obj) {
 	
 }
 
-void object_get_next_waypoint(object_t* obj) {
+void object_get_next_waypoint(object_t* obj, float dt) {
 	
     waypoints_t* ways = (waypoints_t*) obj->ways->entry;
     
@@ -493,6 +495,9 @@ void object_get_next_waypoint(object_t* obj) {
 		obj->pos_y > pos_y_wp - border_y && 
 		obj->pos_y < pos_y_wp + border_y ) {
 		
+        obj->vel_x = 0.0;
+        obj->vel_y = 0.0;
+        
         if (ways->frames_wait[ways->n] > ways->frame) {
             ways->frame++;
             return;
@@ -543,12 +548,7 @@ void object_aim_for_waypoint(object_t* obj) {
         
         obj->vel_x = vel_x_wanted;
         obj->vel_y = vel_y_wanted;
-        
-    } else {
-        obj->vel_x = 0.0;
-        obj->vel_y = 0.0;
     }
-	
 }
 
 void object_free_waypoints(list_t* ways) {
@@ -593,12 +593,12 @@ collision_t* object_add_collision(object_t* obj, object_t* partner) {
     entry->partner = partner;	// add new partner (TODO: Check if stil required)
     entry->area = 0;
     entry->area_old = 0;
-    entry->c_x = 0;
-    entry->c_y = 0;
-    entry->c_x_old = 0;
-    entry->c_y_old = 0;
-    entry->vel_x = 0;
-    entry->vel_y = 0;
+    entry->c_x = 0.0;
+    entry->c_y = 0.0;
+    entry->c_x_old = 0.0;
+    entry->c_y_old = 0.0;
+    entry->vel_x = 0.0;
+    entry->vel_y = 0.0;
     
     return(entry);
 }

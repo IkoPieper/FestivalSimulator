@@ -58,7 +58,7 @@ struct collision {
 struct task {
     uint32_t step;
     void* variables;
-    bool (*task_function)(task_t*, object_t*, bool*, uint64_t);
+    bool (*task_function)(task_t*, object_t*, bool*, uint64_t, float);
 };
 
 struct item {
@@ -146,6 +146,7 @@ struct object {
 	list_t* txt;				// current text from list of texts
 	SDL_Surface* txt_surface;	// string of current text as surface
 	uint32_t txt_print;			// > 0 print current text
+    float txt_next_letter;      // wait for next letter to print
 	
 	// waypoints:
 	list_t* ways;
@@ -185,7 +186,7 @@ void object_free_texts(list_t* txt);
 void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways);
 void object_select_waypoints(object_t* obj, uint32_t id);
 void object_activate_waypoints(object_t* obj);
-void object_get_next_waypoint(object_t* obj);
+void object_get_next_waypoint(object_t* obj, float dt);
 void object_aim_for_waypoint(object_t* obj);
 void object_free_waypoints(list_t* ways);
 
@@ -202,10 +203,14 @@ void object_add_item(object_t* obj, object_t* obj_item, uint32_t id);
 void object_free_items(list_t* lst);
 
 // functions in object_tasks.c:
-bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, uint64_t);
-bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
-bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
-bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, uint64_t frame);
+bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, 
+    uint64_t, float);
+bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, 
+    uint64_t frame, float dt);
+bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, 
+    uint64_t frame, float dt);
+bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, 
+    uint64_t frame, float dt);
 void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);

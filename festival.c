@@ -35,7 +35,9 @@ bool toggle_fullscreen(bool fullscreen, video_t* vid) {
 bool on_execute() {
 	
     bool running = true;				// program running?
-	const uint8_t FPS = 60;				// frames per second
+    const bool VSYNC = true;            // enable vertical sync
+	const uint16_t FPS = 60;			// frames per second
+    float dt = 1;                       // time step
     uint32_t time_start, time_end;		// to measure time per frame
     //Uint32 time;						// to measure time for debug
     uint64_t frame = 0;					// current frame
@@ -44,13 +46,20 @@ bool on_execute() {
 	
     sound_t* snd = on_init_sound();
     
-	video_t* vid = on_init_video();
+	video_t* vid = on_init_video(VSYNC);
 	if (vid == NULL) {
 		fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
 		return(true);
 	}
     
-	object_t* obj = on_init_objects(vid);
+    if (VSYNC) {
+        dt = 60.0 / vid->fps;
+        printf("Vertical Syncronisation enabled. fps = %d\n", vid->fps);
+    } else {
+        dt = 60.0 / (float) FPS;
+    }
+    
+	object_t* obj = on_init_objects(vid, dt);
 	if (obj == NULL) {
 		fprintf(stderr, "Initialization of objects failed!\n");
 		return(true);
@@ -64,12 +73,14 @@ bool on_execute() {
 	for (uint8_t i = 0; i < 9; i++) {
 		keys[i] = false;
 	}
- 	
+    
 	SDL_Event event;
 	
 	while (running) {
 		
-		time_start = SDL_GetTicks();
+        if (!VSYNC) {
+            time_start = SDL_GetTicks();
+        }
 		
         if (lock_fullscreen_key) {
             lock_fullscreen_key--;
@@ -90,17 +101,20 @@ bool on_execute() {
 		}
 
 		//time = SDL_GetTicks();
-		on_loop(obj, snd, vbox, keys, frame);
+		on_loop(obj, snd, vbox, keys, frame, dt);
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
 		//time = SDL_GetTicks();
-		on_render(obj, vid);
+		on_render(obj, vid, dt);
 		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
 		// ensure constant frame rate:
-		time_end = SDL_GetTicks();
-		if(1000 / FPS > time_end - time_start) {
-			SDL_Delay(1000 / FPS - (time_end - time_start));
-		}
+        if (!VSYNC) {
+            time_end = SDL_GetTicks();
+            if(1000 / FPS > time_end - time_start) {
+                SDL_Delay(1000 / FPS - (time_end - time_start));
+            }
+        }
+        
 		frame++;
 	}
 	

@@ -8,7 +8,7 @@
 #include "text.h"
 #include "list.h"
 
-void on_render(object_t* obj, video_t* vid);
+void on_render(object_t* obj, video_t* vid, float dt);
 void on_render_sort(object_t* obj);
 list_t* render_blobb(list_t* blobb, list_t* current);
 list_t* render_blobb_sort(list_t* blobb);

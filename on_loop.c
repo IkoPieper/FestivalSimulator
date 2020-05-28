@@ -5,33 +5,33 @@
 #include "waypoints.h"
 
 void on_loop(object_t* obj, sound_t* snd, 
-    verletbox_t* vbox, bool* keys, uint64_t frame) {
+    verletbox_t* vbox, bool* keys, uint64_t frame, float dt) {
 	
 	//Uint32 time;
 	
 	//time = SDL_GetTicks();
-	collisions(obj, vbox);
+	collisions(obj, vbox, dt);
 	//printf("time for collisions: %d\n", SDL_GetTicks() - time);
 	
 	//time = SDL_GetTicks();
-	movements(obj, keys);
+	movements(obj, keys, dt);
 	//printf("time for movements: %d\n", SDL_GetTicks() - time);
 	
-    on_loop_tasks(obj, keys, frame);
+    on_loop_tasks(obj, keys, frame, dt);
     
     on_loop_items(obj, keys, frame);
     
 	//time = SDL_GetTicks();
-	on_loop_animations(obj, keys, frame);
+	on_loop_animations(obj, keys, frame, dt);
 	
-	on_loop_waypoints(obj, frame);
+	on_loop_waypoints(obj, frame, dt);
 	//printf("time for animations and waypoints: %d\n", SDL_GetTicks() - time);
 
     on_loop_sounds(obj, snd);
 }
 
 // call all the task functions of the objects:
-void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame) {
+void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame, float dt) {
     
     obj = object_get_first(obj);
 	while (obj != NULL) {
@@ -42,7 +42,7 @@ void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame) {
             while (lst != NULL) {
                 
                 task_t* tsk = (task_t*) lst->entry;
-                tsk->task_function(tsk, obj, keys, frame);
+                tsk->task_function(tsk, obj, keys, frame, dt);
                 
                 lst = lst->next;
             }
@@ -56,8 +56,8 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
     
     object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-    static uint16_t frames_wait = 0;
-    frames_wait++;
+    static bool released_key_shift = true;
+    static bool released_key_ctrl = true;
     
     if (hero->itm != NULL) {
         
@@ -67,37 +67,44 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
             object_t* obj = (object_t*) hero->itm->entry;
             obj->itm_props->item_function(obj, NULL, keys, frame);
         }
-        if (frames_wait > 15 && keys[KEY_SHIFT]) {
+        if (!keys[KEY_SHIFT]) {
+            released_key_shift = true;
+        }
+        if (released_key_shift && keys[KEY_SHIFT]) {
             // select next item:
             if (hero->itm->next == NULL) {
                 hero->itm = get_first(hero->itm);
             } else {
                 hero->itm = hero->itm->next;
             }
-            frames_wait = 0;
+            released_key_shift = false;
         }
-        if (frames_wait > 15 && keys[KEY_CTRL]) {
+        if (!keys[KEY_CTRL]) {
+            released_key_ctrl = true;
+        }
+        if (released_key_ctrl && keys[KEY_CTRL]) {
             // select previous item:
             if (hero->itm->prev == NULL) {
                 hero->itm = get_last(hero->itm);
             } else {
                 hero->itm = hero->itm->prev;
             }
-            frames_wait = 0;
+            released_key_ctrl = false;
         }
         
     }
 }
 
-void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
+void on_loop_animations(object_t* obj, bool* keys, 
+    uint64_t frame, float dt) {
 	
 	obj = object_get_first(obj);
 	
 	while (obj != NULL) {
 		
         // calculate actual velocity:
-        float vel_x = obj->pos_x - obj->pos_x_old;
-        float vel_y = obj->pos_y - obj->pos_y_old;
+        float vel_x = (obj->pos_x - obj->pos_x_old) / dt;
+        float vel_y = (obj->pos_y - obj->pos_y_old) / dt;
         
         uint32_t anim_id = 0;
         
@@ -128,12 +135,14 @@ void on_loop_animations(object_t* obj, bool* keys, uint64_t frame) {
             float abs_vel = fabsf(
                 obj->vel_x * obj->vel_x + obj->vel_y * obj->vel_y);
             int32_t delay_frames = (int32_t) 20 - 20 * abs_vel;
-            if (delay_frames < 5) {
-                delay_frames = 5;
+            if (delay_frames < 6) {
+                delay_frames = 6;
             }
             animation_t* anim = (animation_t*) obj->anim->entry;
             anim->delay_frames = delay_frames;
-                    
+            
+            // correct delay for monitor refresh rate:
+            anim->delay_frames /= dt;
         }
         
 		// animate:
@@ -217,7 +226,7 @@ uint32_t on_loop_get_animation_walk(
     return(anim_id);
 }
 
-void on_loop_waypoints(object_t* obj, uint64_t frame) {
+void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
 	
 	obj = object_get_first(obj);
 	
@@ -229,7 +238,7 @@ void on_loop_waypoints(object_t* obj, uint64_t frame) {
         
             if (ways->active && !obj->vel_lock) {
 
-                object_get_next_waypoint(obj);
+                object_get_next_waypoint(obj, dt);
                 
             }
 		}
@@ -274,9 +283,7 @@ void on_loop_sounds(object_t* obj, sound_t* snd) {
         if (volume < 1) {
             volume = 1;
         }
-        //int32_t volume = MIX_MAX_VOLUME - 0.2 * dist;
-        printf("\ndist: %f\n", dist);
-        printf("volume: %d\n", volume);
+        
         Mix_VolumeMusic(volume);
         
         // load next song in loop if finished playing:

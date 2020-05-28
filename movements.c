@@ -1,6 +1,6 @@
 #include "movements.h"
 
-void movements(object_t* obj, bool* keys) {
+void movements(object_t* obj, bool* keys, float dt) {
 	
 	object_t* obj_first = NULL;
 	object_t* obj_hero = NULL;
@@ -18,7 +18,7 @@ void movements(object_t* obj, bool* keys) {
 	
 	// hero movements first:
 	movements_hero(obj_hero, keys);
-	movements_accelerate(obj_hero);
+	movements_accelerate(obj_hero, dt);
     
 	// display / background movements:
 	movements_background(obj_bg, obj_hero);
@@ -41,7 +41,7 @@ void movements(object_t* obj, bool* keys) {
 			obj->pos_x_old = obj->pos_x;
 			obj->pos_y_old = obj->pos_y;
 			
-			movements_accelerate(obj);
+			movements_accelerate(obj, dt);
 			movements_screen_position(obj, obj_bg);
 			
 			if (obj->can_move) {
@@ -93,20 +93,20 @@ void movements_background(object_t* obj, object_t* obj_hero) {
     obj->scr_pos_y = -obj_hero->pos_y + obj_hero->scr_pos_y;
 }
 
-void movements_accelerate(object_t* obj) {
+void movements_accelerate(object_t* obj, float dt) {
 	
 	if (obj->can_move) {
 	
-		const float vel_min = 0.1;
+		const float vel_min = 0.1 * dt;
 		
 		// derive velocity from acceleration:
 		if (!obj->vel_lock) {
-			obj->vel_x += obj->acc_x;
-			obj->vel_y += obj->acc_y;
+			obj->vel_x += obj->acc_x * dt;
+			obj->vel_y += obj->acc_y * dt;
 		
 			// add linear damping:
-			obj->vel_x -= obj->damping * obj->vel_x;
-			obj->vel_y -= obj->damping * obj->vel_y;
+			obj->vel_x -= obj->damping * obj->vel_x * dt;
+			obj->vel_y -= obj->damping * obj->vel_y * dt;
 			// set small velocities to zero:
 			if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
 				obj->vel_x = 0.0;
@@ -117,8 +117,8 @@ void movements_accelerate(object_t* obj) {
 		}
 		
 		// derive position from velovity:
-		obj->pos_x += obj->vel_x;
-		obj->pos_y += obj->vel_y;
+		obj->pos_x += obj->vel_x * dt;
+		obj->pos_y += obj->vel_y * dt;
 	}
 }
 

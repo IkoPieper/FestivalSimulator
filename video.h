@@ -13,6 +13,7 @@ struct video {
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Surface* surface;
+    uint32_t fps;
 };
 
 #endif

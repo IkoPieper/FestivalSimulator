@@ -1,6 +1,6 @@
 #include "on_render.h"
  
-void on_render(object_t* obj, video_t* vid) {
+void on_render(object_t* obj, video_t* vid, float dt) {
 	
 	//Uint32 time;
 	object_t* obj_first = object_get_first(obj);
@@ -111,7 +111,12 @@ void on_render(object_t* obj, video_t* vid) {
 		
 		if (obj->txt != NULL && obj->txt_print != 0) {
 			
-			on_render_text(obj, vid);
+            obj->txt_next_letter += dt;
+            if (obj->txt_next_letter > 1.9) {
+                obj->txt_next_letter = 0.0;
+                obj->txt_print++;	// counter
+            }
+            on_render_text(obj, vid);
 		}
 		
 		obj = obj->next_object;
@@ -328,9 +333,6 @@ void on_render_text(object_t* obj, video_t* vid) {
 	
     text_t* txt = (text_t*) obj->txt->entry;
     char str[txt->length + 1];
-	
-	
-	obj->txt_print++;	// frame counter
 	
 	uint32_t i = 0;
 	while (i < obj->txt_print && i < txt->length) {
