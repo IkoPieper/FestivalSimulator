@@ -23,7 +23,7 @@
 
 #include "animation.h"
 
-animation_t* animation_init() {
+animation_t* animation_init(float dt) {
 	
 	animation_t* anim = NULL;
 	
@@ -31,7 +31,8 @@ animation_t* animation_init() {
 	
 	anim->cycle_first = NULL;
 	anim->cycle = NULL;
-	anim->delay_frames = 10;
+	anim->delay_frames = (uint32_t) (10.0 / dt);
+    anim->time_active = 0.0;
 	
 	return(anim);
 }

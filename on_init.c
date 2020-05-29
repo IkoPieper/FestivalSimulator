@@ -144,7 +144,7 @@ video_t* on_init_video(bool VSYNC) {
                              SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED,
                              w, h,
-                             0); // SDL_WINDOW_FULLSCREEN_DESKTOP or 0
+                             SDL_WINDOW_OPENGL); // Windows needs this flag. Linux: 0
 
     
 	//SDL_ShowCursor(SDL_DISABLE);
@@ -155,12 +155,11 @@ video_t* on_init_video(bool VSYNC) {
         SDL_GL_SetSwapInterval(1);
     }
     
-    /*SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); // 3
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8); // 3
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8); // 2
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetSwapInterval(1);*/
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	/*SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 3); // 3
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 3); // 3
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 2); // 2*/
+    //SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
     // Create an OpenGL context associated with the window:
     vid->glcontext = SDL_GL_CreateContext(vid->window);

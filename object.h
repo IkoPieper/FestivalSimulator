@@ -171,10 +171,10 @@ void object_add_meter(object_t* obj, uint32_t id,
     uint8_t type, float scr_pos_x, float scr_pos_y);
 void object_free_meters(list_t* mtr);
 
-void object_add_animation(object_t* obj, uint32_t id);
+void object_add_animation(object_t* obj, uint32_t id, float dt);
 void object_select_animation(object_t* obj, uint32_t id);
 void object_select_animation_target(object_t* obj, float x, float y);
-void object_animate(object_t* obj, uint64_t frame);
+void object_animate(object_t* obj, uint64_t frame, float dt);
 void object_free_animations(list_t* anim);
 
 void object_add_text(object_t* obj, uint32_t id);
@@ -215,7 +215,7 @@ void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
-void face(object_t* obj, object_t* obj_target);
+void face(object_t* obj, object_t* obj_target, float dt);
 void move_on(object_t* obj);
 void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);

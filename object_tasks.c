@@ -28,7 +28,7 @@ void say_free(object_t* obj) {
     object_remove_text(obj, 0);
 }
 
-void face(object_t* obj, object_t* obj_target) {
+void face(object_t* obj, object_t* obj_target, float dt) {
     
     if (obj->id == OBJECT_HERO_ID) {
         obj->can_move = false;
@@ -41,7 +41,7 @@ void face(object_t* obj, object_t* obj_target) {
     float x = obj_target->pos_x;
     float y = obj_target->pos_y;
     object_select_animation_target(obj, x, y);
-    object_animate(obj, 0);
+    object_animate(obj, 0, dt);
 }
 
 void move_on(object_t* obj) {
@@ -108,7 +108,7 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
         if (fabsf(hero->pos_x - obj->pos_x) < 100 &&
             fabsf(hero->pos_y - obj->pos_y) < 100) {
         
-            face(obj, hero);
+            face(obj, hero, dt);
             say(obj, 1, 300);
             
             tsk->step++;
@@ -122,7 +122,7 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
         if (said(obj)) {
             
             object_t* hero = object_get(obj, OBJECT_HERO_ID);
-            face(hero, obj);
+            face(hero, obj, dt);
             say_new(hero, "Ich liebe dich auch!", 100);
             
             tsk->step++;

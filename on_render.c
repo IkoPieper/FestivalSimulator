@@ -121,7 +121,7 @@ void on_render(object_t* obj, video_t* vid, float dt) {
 		
 		obj = obj->next_object;
 	}
-
+	
 	glBindTexture(GL_TEXTURE_2D, vid->render_id);
 	glEnable(GL_TEXTURE_2D);
 	
@@ -177,10 +177,10 @@ void on_render(object_t* obj, video_t* vid, float dt) {
 	glDisable(GL_TEXTURE_2D);
  
 	//time = SDL_GetTicks();
- 
+	
     SDL_GL_SwapWindow(vid->window);
 	
-	//glDeleteTextures(1, &textureid);
+	//glDeleteTextures(1, &vid->render_id);
 	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
 
 }

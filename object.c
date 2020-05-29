@@ -322,9 +322,9 @@ void object_free_meters(list_t* mtr) {
     delete_all(mtr_tmp);
 }
 
-void object_add_animation(object_t* obj, uint32_t id) {
+void object_add_animation(object_t* obj, uint32_t id, float dt) {
 	
-    animation_t* anim = animation_init();
+    animation_t* anim = animation_init(dt);
     
     // place at first place in list and set as current animation:
     obj->anim = create_before(obj->anim, (void*) anim, id);
@@ -333,6 +333,8 @@ void object_add_animation(object_t* obj, uint32_t id) {
 void object_select_animation(object_t* obj, uint32_t id) {
 	
 	obj->anim = find_id(obj->anim, id);
+    animation_t* anim = (animation_t*) obj->anim->entry;
+    anim->time_active = 0.0;
 }
 
 void object_select_animation_target(object_t* obj, float x, float y) {
@@ -358,7 +360,7 @@ void object_select_animation_target(object_t* obj, float x, float y) {
     }
 }
 
-void object_animate(object_t* obj, uint64_t frame) {
+void object_animate(object_t* obj, uint64_t frame, float dt) {
 	
 	// free original surface if it is not part of the animation:
 	if (obj->anim_first_call) {
@@ -366,9 +368,13 @@ void object_animate(object_t* obj, uint64_t frame) {
 		SDL_FreeSurface(obj->surface);
 	}
 	
+    animation_t* anim = (animation_t*) obj->anim->entry;
+    
 	// get next picture:
-	obj->surface = animation_get_next_surface(
-        (animation_t*) obj->anim->entry, frame);
+	obj->surface = animation_get_next_surface(anim, frame);
+    
+    // increase time counter:    
+    anim->time_active += dt;
 }
 
 void object_free_animations(list_t* anim) {

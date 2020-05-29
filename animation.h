@@ -14,10 +14,11 @@ struct surface_ring {
 struct animation {
 	surface_ring_t* cycle;
 	surface_ring_t* cycle_first;
-	uint32_t delay_frames;
+	uint32_t delay_frames;          // frames to wait for next surf
+    float time_active;              // time animation is active
 };
 
-animation_t* animation_init();
+animation_t* animation_init(float dt);
 void animation_free(animation_t* anim);
 void animation_add_surface(animation_t* anim, SDL_Surface* surf);
 SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame);

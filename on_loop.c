@@ -102,52 +102,53 @@ void on_loop_animations(object_t* obj, bool* keys,
 	
 	while (obj != NULL) {
 		
-        // calculate actual velocity:
-        float vel_x = (obj->pos_x - obj->pos_x_old) / dt;
-        float vel_y = (obj->pos_y - obj->pos_y_old) / dt;
+        if (obj->anim_walk && obj->can_move) {
         
-        uint32_t anim_id = 0;
-        
-        // select walk cycle animation:
-        if (obj->id == OBJECT_HERO_ID) {
+            // calculate actual velocity:
+            float vel_x = (obj->pos_x - obj->pos_x_old) / dt;
+            float vel_y = (obj->pos_y - obj->pos_y_old) / dt;
             
-            if (obj->can_move) {
+            uint32_t anim_id = 0;
+            
+            // select walk cycle animation:
+            if (obj->id == OBJECT_HERO_ID) {
+                
                 anim_id = on_loop_get_animation_walk_hero(
                     obj->anim->id, keys);
-            }
+                
+            } else {
             
-        } else {
-            
-            if (obj->anim_walk) {
-                anim_id = on_loop_get_animation_walk(
-                    obj->anim->id, vel_x, vel_y);
-            }
-        }
-        
-        
-        if (anim_id != 0) {
-            
-            if (anim_id != obj->anim->id) {
-                object_select_animation(obj, anim_id);
+                animation_t* anim = (animation_t*) obj->anim->entry;
+                if (anim->time_active > 20.0) { // avoid fast changes
+                    
+                    anim_id = on_loop_get_animation_walk(
+                        obj->anim->id, vel_x, vel_y);
+                }
             }
         
-            // set speed of animation depending on object velocity:
-            float abs_vel = fabsf(
-                obj->vel_x * obj->vel_x + obj->vel_y * obj->vel_y);
-            int32_t delay_frames = (int32_t) 20 - 20 * abs_vel;
-            if (delay_frames < 6) {
-                delay_frames = 6;
-            }
-            animation_t* anim = (animation_t*) obj->anim->entry;
-            anim->delay_frames = delay_frames;
+            if (anim_id != 0) {
             
-            // correct delay for monitor refresh rate:
-            anim->delay_frames /= dt;
+                if (anim_id != obj->anim->id) {
+                    object_select_animation(obj, anim_id);
+                }
+            
+                // set speed of animation depending on object velocity:
+                float abs_vel = fabsf(vel_x * vel_x + vel_y * vel_y);
+                int32_t delay_frames = (int32_t) 20 - 20 * abs_vel;
+                if (delay_frames < 6) {
+                    delay_frames = 6;
+                }
+                animation_t* anim = (animation_t*) obj->anim->entry;
+                anim->delay_frames = delay_frames;
+                
+                // correct delay for monitor refresh rate:
+                anim->delay_frames /= dt;
+            }
         }
         
 		// animate:
 		if (obj->anim != NULL) {
-			object_animate(obj, frame);
+			object_animate(obj, frame, dt);
 		}
         
 		obj = obj->next_object;

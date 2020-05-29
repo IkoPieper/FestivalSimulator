@@ -162,7 +162,7 @@ configentry* load_config_animation(configentry* entry, char* path,
 		
 		if        (strcmp(entry->key, "animation") == 0) {
 			
-			object_add_animation(obj, atoi(entry->value));
+			object_add_animation(obj, atoi(entry->value), dt);
 			printf("Animation %d added\n", atoi(entry->value));
 			entry = entry->next;
 			
