@@ -9,6 +9,7 @@
 #include "text.h"
 #include "waypoints.h"
 #include "video.h"
+#include "event.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -62,6 +63,7 @@ struct task {
 };
 
 struct item {
+    uint32_t id;
     SDL_Surface* surf;      // item picture
     void* variables;        // any additional variables
     uint32_t step;          // step in item use function
@@ -226,6 +228,7 @@ bool waypoints_finished(object_t* obj);
 bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
 bool use_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
+bool use_money(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 
 #define OBJECT_BACKGROUND_ID 1
 #define OBJECT_HERO_ID 2
@@ -237,5 +240,6 @@ bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t fr
 
 #define ITEM_STONE 0
 #define ITEM_RED_STONE 1
+#define ITEM_MONEY 2
 
 #endif

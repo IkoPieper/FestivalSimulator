@@ -74,4 +74,7 @@ frames_wait = 10
 
 
 text = 1
-de = "Knuddelbaer! Schoen dich zu sehen, was kann ich dir zu saufen anbieten? Unser Bier kickt ganz gut!"
+de = "Knuddelbär! Schön dich zu sehen, was kann ich dir zu saufen anbieten? Unser Bier kickt ganz gut!"
+
+text = 2
+de = "Wohl bekommt's!"

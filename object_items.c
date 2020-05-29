@@ -5,6 +5,7 @@ bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t) {
     switch (id) {
         case ITEM_STONE: return(&use_stone); break;
         case ITEM_RED_STONE: return(&use_red_stone); break;
+        case ITEM_MONEY: return(&use_money); break;
     }
     
     return(NULL);
@@ -69,6 +70,12 @@ bool use_red_stone(
             return(1);
         }
     }
+    
+    return(0);
+}
+
+bool use_money(
+    object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame) {
     
     return(0);
 }

@@ -500,9 +500,15 @@ void object_get_next_waypoint(object_t* obj, float dt) {
 		obj->pos_x < pos_x_wp + border_x &&
 		obj->pos_y > pos_y_wp - border_y && 
 		obj->pos_y < pos_y_wp + border_y ) {
-		
+        
         obj->vel_x = 0.0;
         obj->vel_y = 0.0;
+        
+        // disable fast animation switch protection:
+        if (obj->anim_walk) {
+            animation_t* anim = (animation_t*) obj->anim->entry;
+            anim->time_active = 666.0;
+        }
         
         if (ways->frames_wait[ways->n] > ways->frame) {
             ways->frame++;
@@ -667,6 +673,7 @@ void object_free_tasks(list_t* lst) {
 void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id) {
     
     obj->itm_props = (item_t*) malloc(sizeof(item_t));
+    obj->itm_props->id = id;
     obj->itm_props->surf = surf;
     obj->itm_props->variables = NULL;
     obj->itm_props->step = 0;

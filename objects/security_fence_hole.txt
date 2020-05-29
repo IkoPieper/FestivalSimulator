@@ -25,16 +25,16 @@ surface = coplennon_s_2.bmp
 animation = 3           # animation for walking west
 delay_frames = 7
 surface = coplennon_w_1.bmp
-surface = coplennon_w_stand.bmp
+surface = coplennon_w_mid.bmp
 surface = coplennon_w_2.bmp
-surface = coplennon_w_stand.bmp
+surface = coplennon_w_mid.bmp
 
 animation = 4           # animation for walking east
 delay_frames = 7
 surface = coplennon_e_1.bmp
-surface = coplennon_e_stand.bmp
+surface = coplennon_e_mid.bmp
 surface = coplennon_e_2.bmp
-surface = coplennon_e_stand.bmp
+surface = coplennon_e_mid.bmp
 
 animation = 5           # animation for stopping north
 delay_frames = 1

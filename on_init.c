@@ -408,6 +408,7 @@ bool on_init_items(object_t* obj) {
                 itm->entry = (void*) obj_item;
                 obj_item->disable_collision = true;
                 obj_item->disable_render = true;
+                obj_item->can_move = false;
                 itm = itm->prev;
             }
         }

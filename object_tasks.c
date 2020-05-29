@@ -105,13 +105,13 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-        if (fabsf(hero->pos_x - obj->pos_x) < 100 &&
-            fabsf(hero->pos_y - obj->pos_y) < 100) {
+        if (fabsf(hero->pos_x - obj->pos_x) < 100.0 &&
+            fabsf(hero->pos_y - obj->pos_y) < 100.0) {
         
             face(obj, hero, dt);
-            say(obj, 1, 300);
+            say(obj, 1, 150);
             
-            tsk->step++;
+            tsk->step = 1;
             
             return(true);
         }
@@ -119,13 +119,27 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
     
     if (tsk->step == 1) {
         
+        object_t* hero = object_get(obj, OBJECT_HERO_ID);
+        
+        if (keys[KEY_SPACE] && hero->itm != NULL) {
+                
+            object_t* obj_itm = (object_t*) hero->itm->entry;
+            if (obj_itm->itm_props->id == ITEM_MONEY) {
+                
+                face(hero, obj, dt);
+                say_new(hero, "Hier! Nimm mein Geld!", 60);
+                
+                tsk->step = 2;
+                
+                return(true);
+            }
+        }
+        
         if (said(obj)) {
             
-            object_t* hero = object_get(obj, OBJECT_HERO_ID);
-            face(hero, obj, dt);
-            say_new(hero, "Ich liebe dich auch!", 100);
+            move_on(obj);
             
-            tsk->step++;
+            tsk->step = 0;
             
             return(true);
         }
@@ -139,13 +153,15 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
             
             say_free(hero);
             
+            say(obj, 2, 50);
+            
             move_on(obj);
             move_on(hero);
             
             drink_beer(hero, 10);
             change_mood(hero, 10);
             
-            tsk->step++;
+            tsk->step = 3;
             
             return(true);
         }
@@ -182,7 +198,7 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-        if (hero->pos_x < 350 && hero->pos_y < 450) {
+        if (hero->pos_x < 350.0 && hero->pos_y < 450.0) {
         
             start_waypoints(obj, 1);
             
@@ -210,7 +226,7 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
         
-        if (hero->pos_x > 350 || hero->pos_y > 450) {
+        if (hero->pos_x > 350.0 || hero->pos_y > 450.0) {
             
             obj->can_move = true;
             
@@ -221,12 +237,11 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             return(true);
         }
         
-        if (hero->itm != NULL) {
-            
+        if (keys[KEY_SPACE] && hero->itm != NULL) {
+                
             object_t* obj_itm = (object_t*) hero->itm->entry;
-            if (obj_itm->itm_props->variables != NULL &&
-                (bool) obj_itm->itm_props->variables == true) {
-                    
+            if (obj_itm->itm_props->id == ITEM_RED_STONE) {
+            
                 say(obj, 2, 250);
                 
                 obj->can_move = true;

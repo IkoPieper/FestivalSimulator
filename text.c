@@ -52,7 +52,7 @@ SDL_Surface* text_print_to_surface(
     SDL_Color bg_color = {252, 255, 190};   // text background color
  	
     SDL_Surface* surf = 
-        TTF_RenderText_Shaded(font, str, fg_color, bg_color);
+        TTF_RenderUTF8_Shaded(font, str, fg_color, bg_color);
     
     if (surf->w < width) {
         return(surf);
@@ -88,7 +88,7 @@ SDL_Surface* text_print_to_surface(
         
         // render word:
         SDL_Surface* surf_word = 
-            TTF_RenderText_Shaded(font, str_word, fg_color, bg_color);
+            TTF_RenderUTF8_Shaded(font, str_word, fg_color, bg_color);
         
         // go to next row if word is over the edge:
         if (x + surf_word->w > width) {
@@ -137,7 +137,7 @@ SDL_Surface* text_print_to_surface(
         
         // render word:
         SDL_Surface* surf_word = 
-            TTF_RenderText_Shaded(font, str_word, fg_color, bg_color);
+            TTF_RenderUTF8_Shaded(font, str_word, fg_color, bg_color);
         
         // go to next row if word is over the edge:
         if (x + surf_word->w > surf->w) {

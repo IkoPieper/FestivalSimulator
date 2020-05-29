@@ -1,4 +1,4 @@
-object = 601
+object = 2000
 pos_x = 810
 pos_y = 800
 surface = stone.bmp

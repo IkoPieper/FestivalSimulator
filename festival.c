@@ -35,7 +35,7 @@ bool toggle_fullscreen(bool fullscreen, video_t* vid) {
 bool on_execute() {
 	
     bool running = true;				// program running?
-    const bool VSYNC = false;            // enable vertical sync
+    const bool VSYNC = true;            // enable vertical sync
 	const uint16_t FPS = 60;			// frames per second
     float dt = 1.0;                     // time step
     uint32_t time_start, time_end;		// to measure time per frame
