@@ -125,6 +125,6 @@ void movements_accelerate(object_t* obj, float dt) {
 void movements_screen_position(object_t* obj, object_t* obj_bg) {
 	
 	// derive screen position:
-	obj->scr_pos_x = obj->pos_x + obj_bg->scr_pos_x;
-	obj->scr_pos_y = obj->pos_y + obj_bg->scr_pos_y;
+	obj->scr_pos_x = (int32_t) obj->pos_x + (int32_t) obj_bg->scr_pos_x;
+	obj->scr_pos_y = (int32_t) obj->pos_y + (int32_t) obj_bg->scr_pos_y;
 }
