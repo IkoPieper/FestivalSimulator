@@ -2,6 +2,7 @@
     #define _VIDEO_H_
  
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
  
@@ -14,6 +15,7 @@ struct video {
     SDL_Renderer* renderer;
     SDL_Surface* surface;
     uint32_t fps;
+    TTF_Font* font;
 };
 
 #endif

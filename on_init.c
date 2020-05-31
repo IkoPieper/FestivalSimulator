@@ -211,6 +211,12 @@ video_t* on_init_video(bool VSYNC) {
     SDL_GetCurrentDisplayMode(0, &dsp_mode);
     vid->fps = dsp_mode.refresh_rate;
     
+    // include a nice font:
+    if((vid->font = TTF_OpenFont("FreeSansBold.ttf", 13)) == NULL) {
+		fprintf(stderr, "Error: Font FreeSansBold.ttf is missing!");
+		return(NULL);
+	}
+    
 	return(vid);
     
 }
@@ -294,10 +300,10 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	// start position is middle of screen:
 	obj->scr_pos_x = vid->surface->w / 2 - obj->surface->w / 2;
 	obj->scr_pos_y = vid->surface->h / 2 - obj->surface->h / 2;
-	//obj->pos_x = obj_bg->surface->w / 2;
-	//obj->pos_y = obj_bg->surface->h / 2;
-    obj->pos_x = 1020;
-	obj->pos_y = 1220;
+	obj->pos_x = obj_bg->surface->w / 2;
+	obj->pos_y = obj_bg->surface->h / 2;
+    //obj->pos_x = 1020;
+	//obj->pos_y = 1220;
 		
 	// min/max screen positions:
 	obj->min_scr_pos_x = (float) (0 + vid->surface->w / 3);

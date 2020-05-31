@@ -10,6 +10,7 @@ void on_cleanup(object_t* obj, video_t* vid, sound_t* snd,
     SDL_GL_DeleteContext(vid->glcontext);
     SDL_DestroyRenderer(vid->renderer);
     SDL_FreeSurface(vid->surface);
+    TTF_CloseFont(vid->font);
     free(vid);
     SDL_VideoQuit();
     

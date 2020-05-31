@@ -1,6 +1,6 @@
 object = 901
 pos_x = 500
-pos_y = 550
+pos_y = 1200
 surface = hero_s_1.bmp
 walls = hero_walls.bmp
 can_move = 1
@@ -48,3 +48,22 @@ surface = hero_w_stand.bmp
 animation = 8           # animation for stopping east
 delay_frames = 1
 surface = hero_e_stand.bmp
+
+waypoints = 1           # waypoints number 1
+num_waypoints = 3       # number of waypoints, this is NOT optional
+active = 1              # activate waypoints
+is_cycle = 1            # waypoints are repeated in cycles
+pos_are_relative = 0    # 0: following positions are absolute
+                        # 1: following positions are relative to object
+vel_abs = 1.1
+pos_x = 620.0
+pos_y = 30.0
+frames_wait = 10
+vel_abs = 1.5
+pos_x = 845.0
+pos_y = 30.0
+frames_wait = 10
+vel_abs = 1.5
+pos_x = 500.0
+pos_y = 1200.0
+frames_wait = 10

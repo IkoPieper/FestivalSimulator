@@ -56,6 +56,8 @@ void on_render(object_t* obj, video_t* vid, float dt) {
                         (int32_t) obj->scr_pos_x, 
                         (int32_t) obj->scr_pos_y);
                         
+                    on_render_object_id(vid, obj);
+                        
                 } else if (obj->render_blobb != NULL) {
                     
                     // render all objects in the sorted render blobb:
@@ -70,6 +72,8 @@ void on_render(object_t* obj, video_t* vid, float dt) {
                             obj_tmp->surface, 
                             (int32_t) obj_tmp->scr_pos_x, 
                             (int32_t) obj_tmp->scr_pos_y);
+                        
+                        on_render_object_id(vid, obj_tmp);
                         
                         blobb = blobb->next;
                     }
@@ -378,4 +382,19 @@ void on_render_text(object_t* obj, video_t* vid) {
 		obj->txt_print = 0; // disable printing
 	}
 	
+}
+
+void on_render_object_id(video_t* vid, object_t* obj) {
+    
+    SDL_Color fg_color = {0, 255, 0};   // text color
+ 	
+    char str[8];
+    
+    sprintf(&str, "%d", obj->id);
+    
+    SDL_Surface* surf = TTF_RenderText_Solid(vid->font, str, fg_color);
+    
+    surface_on_draw(vid->surface, surf, obj->scr_pos_x, obj->scr_pos_y);
+    
+    SDL_FreeSurface(surf);
 }
