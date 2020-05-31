@@ -1,0 +1,38 @@
+object = 2001
+pos_x = 810
+pos_y = 800
+surface = stone_red.bmp
+walls = stone_walls.bmp
+can_move = 1            # object can move
+mass = 0.1              # mass of the object reduces acceleration
+damping = 0.02          # damping slows a moving object down
+
+item = 1                # this object is an item using item function 1
+item_surface = stone_red.bmp #  picture shown to indicate the item to user
+
+#trigger_on_collision = 0 # fast trigger: on collision in quest 0 (quest 0: always)
+#trigger_partner = 2	  # object id of partner (2: hero)
+
+#Idee wie ein Quest strukturiert wird (unvollständig):
+# quest = 1
+# scripted_action = 1
+# object = 601
+# de = "Bla bla bla!"
+# object = 2
+# de = "Ich bin der Hero!"
+# object = 601
+# de = "Freut mich dich kennenzulernen, Hero. Klaus, kommst du auch bitte her!"
+# object = 333
+# waypoints = 1           # waypoints number 1
+# num_waypoints = 2       # number of waypoints, this is NOT optional
+# pos_are_relative = 1
+# vel_abs = 1.0           # velocity of object to first waypoint
+# pos_x = -50.0           # first waypoint x position
+# pos_y = 30.0            # first waypoint y position
+# frames_wait = 100       # frames to wait at first waypoint
+# vel_abs = 1.0           # velocity of object to second waypoint
+# pos_x = -70.0           # second waypoint x position
+# pos_y = -50.0           # second waypoint y position
+# frames_wait = 100       # frames to wait at second waypoint
+# de = "Hallo ich bin Klaus! Was gibts denn?"
+# 

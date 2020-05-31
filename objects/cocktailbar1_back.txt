@@ -1,0 +1,5 @@
+object = 701
+pos_x = 840
+pos_y = 300
+surface = cocktailbar_back.bmp
+walls = cocktailbar_walls_back.bmp
