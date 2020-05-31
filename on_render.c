@@ -188,9 +188,9 @@ void on_render(object_t* obj, video_t* vid, float dt) {
 // sort the objects in the render list:
 void on_render_sort(object_t* obj) {
     
-    // construct render blobbs:
     object_t* obj_first = object_get_first(obj);
     
+    // construct render blobbs:
     obj = obj_first;
     while (obj != NULL) {
         

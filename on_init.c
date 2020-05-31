@@ -314,29 +314,6 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	return(false);
 }
 	
-	// waypoints:
-	/*uint32_t num_ways = 5;
-	object_add_waypoints(obj, 1, num_ways);
-	* 
-	obj->ways->pos_are_relative = 1;
-	obj->ways->pos_x[0] = 0.0;
-	obj->ways->pos_y[0] = 0.0;
-	obj->ways->vel_abs[0] = 1.5;
-	obj->ways->pos_x[1] = 4.0;
-	obj->ways->pos_y[1] = 300.0;
-	obj->ways->vel_abs[1] = 1.0;
-	obj->ways->pos_x[2] = -20.0;
-	obj->ways->pos_y[2] = 0.0;
-	obj->ways->vel_abs[2] = 3.0;
-	obj->ways->pos_x[3] = 20.0;
-	obj->ways->pos_y[3] = 20.0;
-	obj->ways->vel_abs[3] = 1.0;
-	obj->ways->pos_x[4] = -20.0;
-	obj->ways->pos_y[4] = 20.0;
-	obj->ways->vel_abs[4] = 3.0;
-
-	object_activate_waypoints(obj);*/
-	
 bool on_init_objects_config(object_t* obj, float dt) {
 	
 	DIR* hdl_dir;
@@ -400,16 +377,16 @@ bool on_init_items(object_t* obj) {
     while (obj != NULL) {
         
         if (obj->itm != NULL) {
-            list_t* itm = obj->itm;
-            itm = get_last(itm);
+            list_t* lst = obj->itm;
+            lst = get_last(lst);
             
-            while (itm != NULL) {
-                object_t* obj_item = object_get(obj, itm->id);
-                itm->entry = (void*) obj_item;
+            while (lst != NULL) {
+                object_t* obj_item = object_get(obj, lst->id);
+                lst->entry = (void*) obj_item;
                 obj_item->disable_collision = true;
                 obj_item->disable_render = true;
                 obj_item->can_move = false;
-                itm = itm->prev;
+                lst = lst->prev;
             }
         }
         

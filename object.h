@@ -81,14 +81,14 @@ struct object {
 	
 	// render lists:
     bool disable_render;
-    list_t* render_before;      // objects which need to be rendered
-                                // before this object
-    list_t* render_after;       // objects which need to be rendered
-                                // after this object
+    list_t* render_before;      // this object needs to be rendered
+                                // before the objects in this list
+    list_t* render_after;       // this objects needs to be rendered
+                                // after the objects in this list
     list_t* render_blobb;       // used to collect overlapping objects
     bool render_is_in_blobb;    // is the obj in this or another blobb?
     bool render_early;          // disable blobb stuff and render early
-	
+                                // TODO: could be removed
 	// verlet boxes:
 	object_t* next_vbox;
 	object_t* prev_vbox;
