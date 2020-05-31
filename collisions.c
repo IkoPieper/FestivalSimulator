@@ -5,12 +5,7 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 	bool collision = false;
 	uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
 	
-	//uint32_t time;
-	//time = SDL_GetTicks();
-	
 	verletbox_update(vbox, obj);
-	//printf("time for verletbox_update: %d\n", SDL_GetTicks() - time);
-	//time = SDL_GetTicks();
 	
 	// check collisions with background first, 
 	// because background is too big for verlet boxes:
@@ -37,9 +32,6 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 		obj = obj->next_object;
 	}
 	
-	
-	//printf("time for background collisions: %d\n", SDL_GetTicks() - time);
-	//time = SDL_GetTicks();
 	// iterate over verlet boxes:
 	object_t* obj_b = NULL;
 	
@@ -118,8 +110,6 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 			
 		}					
 	}
-	//printf("time for other collisions: %d\n", SDL_GetTicks() - time);
-	
 }
 
 bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
@@ -244,25 +234,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 			y_max = h1 - (yh1 - yh2);
 		}
 		
-		// debug:
-		/*if (obj1->id == OBJECT_HERO_ID || obj2->id == OBJECT_HERO_ID) {
-			fprintf(stderr, "\n\n\n");
-			fprintf(stderr, "obj1->id = %d, obj2->id = %d\n", 
-				obj1->id, obj2->id);
-			fprintf(stderr, "obj1->scr_pos_x = %f, obj2->scr_pos_x = %f\n", 
-				obj1->scr_pos_x, obj2->scr_pos_x);
-			fprintf(stderr, "obj1->surface->w = %d, obj2->surface->w = %d\n", 
-				obj1->surface->w, obj2->surface->w);
-			fprintf(stderr, "obj1->scr_pos_y = %f, obj2->scr_pos_y = %f\n", 
-				obj1->scr_pos_y, obj2->scr_pos_y);
-			fprintf(stderr, "obj1->surface->h = %d, obj2->surface->h = %d\n", 
-				obj1->surface->h, obj2->surface->h);
-			fprintf(stderr, "x_min = %d, x_max = %d, x2_min = %d\n", 
-				x_min, x_max, x2_min);
-			fprintf(stderr, "y_min = %d, y_max = %d, y2_min = %d\n", 
-				y_min, y_max, y2_min);
-		}*/
-		
 		for (y1 = y_min; y1 < y_max; y1++) {
 			
 			for (x1 = x_min; x1 < x_max; x1++) {
@@ -328,38 +299,12 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 						} else {
 							y2_dir--;
 						}
-					} else {
-						/*if (obj2->id == OBJECT_HERO_ID) {
-							fprintf(stderr, "o");
-						}*/
 					}
-				} else {
-					/*if (obj2->id == OBJECT_HERO_ID) {
-						fprintf(stderr, "0");
-					}*/
 				}
 			}
-			/*if (obj2->id == OBJECT_HERO_ID) {
-				fprintf(stderr, "\n");
-			}*/
 		}
 		
 		if (collision) {
-			
-			/*printf("\n");
-			printf("x01: %d, x02: %d\n", x01, x02);
-			printf("y01: %d, y02: %d\n", y01, y02);
-			printf("x_max: %d\n", x_max);
-			printf("y_max: %d\n", y_max);
-			printf("\n");
-			printf("x_min: %d, x2_min: %d\n", x_min, x2_min);
-			printf("y_min: %d, y2_min: %d\n", y_min, y2_min);
-			printf("x_max: %d, x2: %d\n", x2);
-			printf("y_max: %d, y2: %d\n", y2);
-			printf("\n");
-			printf("x1_dir: %d, x2_dir: %d\n", x1_dir, x2_dir);
-			printf("y1_dir: %d, y2_dir: %d\n", y1_dir, y2_dir);
-			printf("\n");*/
 			
 			// save direction of collision:
 			col1->c_x_old = col1->c_x;
@@ -389,15 +334,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 				
 				// this changes the velocities of the objects:
 				collisions_impulse(obj1, obj2, col1, col2);
-                // add a little randomness to prevent collision loops:
-                /*if (obj1->can_move) {
-                    obj1->vel_x += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
-                    obj1->vel_y += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
-                }
-                if (obj2->can_move) {
-                    obj2->vel_x += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
-                    obj2->vel_y += 0.5 * (0.5 - (float) rand() / (float) RAND_MAX);
-                }*/
 				
 			// if collision area inceases, move away from each other:
 			} else {
@@ -412,8 +348,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 						if (obj1->can_move) {
 							obj1->pos_x = obj1->pos_x_old;
 							obj1->pos_y = obj1->pos_y_old;
-							//obj1->vel_x = -vel_abs1 * col1->c_x * 1.1 - col1->c_x * 0.3;
-							//obj1->vel_y = -vel_abs1 * col1->c_y * 1.1 - col1->c_y * 0.3;
                             obj1->vel_x = -vel_abs1 * col1->c_x * 1.1;
 							obj1->vel_y = -vel_abs1 * col1->c_y * 1.1;
                             obj1->vel_x -= col1->c_x * 0.5 * (float) rand() / (float) RAND_MAX;
@@ -422,8 +356,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 						if (obj2->can_move) {
 							obj2->pos_x = obj2->pos_x_old;
 							obj2->pos_y = obj2->pos_y_old;
-							//obj2->vel_x = -vel_abs2 * col2->c_x * 1.1 - col1->c_x * 0.3; !!! col2!?
-							//obj2->vel_y = -vel_abs2 * col2->c_y * 1.1 - col1->c_y * 0.3;
                             obj2->vel_x = -vel_abs2 * col2->c_x * 1.1;
 							obj2->vel_y = -vel_abs2 * col2->c_y * 1.1;
                             obj2->vel_x -= col2->c_x * 0.5 * (float) rand() / (float) RAND_MAX;
@@ -442,27 +374,16 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 						}
 					}
                     
-					/*if (obj1->id == OBJECT_HERO_ID || obj2->id == OBJECT_HERO_ID) {
-						printf("\ncollision area increase\n");
-						printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
-						printf("col1->c_x: %f, col2->c_x: %f\n", col1->c_x, col2->c_x);
-						printf("col1->c_y: %f, col2->c_y: %f\n", col1->c_y, col2->c_y);
-						printf("obj1->vel_x: %f, obj2->vel_x: %f\n", obj1->vel_x, obj2->vel_x);
-						printf("obj1->vel_y: %f, obj2->vel_y: %f\n\n", obj1->vel_y, obj2->vel_y);
-					}*/
-					
 					// forbid all velocity changes:
 					obj1->vel_lock = 1;	
 					obj2->vel_lock = 1;
 					
 				}
 			}
-			
 		}
 	}
 	
 	return(collision);
-	
 }
 
 void collisions_impulse(
@@ -560,34 +481,6 @@ void collisions_impulse(
 		obj2->vel_x = (c1x * v2n + c2y * v2r);
 		obj2->vel_y = (c1y * v2n - c2x * v2r);
 	}
-	
-	// for debuging:
-	
-	/*fprintf(stderr, "\nobj1->id = %d\n", obj1->id);
-	fprintf(stderr, "scr_pos_x = %d, c1x = %e, v1x = %e, vel_x = %e, acc_x = %e\n", obj1->scr_pos_x, c1x, v1x, obj1->vel_x, obj1->acc_x);
-	fprintf(stderr, "scr_pos_y = %d, c1y = %e, v1y = %e, vel_y = %e, acc_y = %e\n", obj1->scr_pos_y, c1y, v1y, obj1->vel_y, obj1->acc_y);
-	fprintf(stderr, "m1 = %e, v1n_pre = %e, v1r = %e, v1n = %e\n", m1, v1n_pre, v1r, v1n);
-	fprintf(stderr, "collisions:\n");
-	collision_t* col;
-	col = obj1->col;
-	while (col != NULL) {
-		fprintf(stderr, "%d, ", col->partner->id);
-		col = col->next;
-	}
-	fprintf(stderr, "\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "\nobj2->id = %d\n", obj2->id);
-	fprintf(stderr, "scr_pos_x = %d, c2x = %e, v2x = %e, vel_x = %e, acc_x = %e\n", obj2->scr_pos_x, c2x, v2x, obj2->vel_x, obj2->acc_x);
-	fprintf(stderr, "scr_pos_y = %d, c2y = %e, v2y = %e, vel_y = %e, acc_y = %e\n", obj2->scr_pos_y, c2y, v2y, obj2->vel_y, obj2->acc_x);
-	fprintf(stderr, "m2 = %e, v2n_pre = %e, v2r = %e, v2n = %e\n", m2, v2n_pre, v2r, v2n);
-	fprintf(stderr, "collisions:\n");
-	col = obj2->col;
-	while (col != NULL) {
-		fprintf(stderr, "%d, ", col->partner->id);
-		col = col->next;
-	}
-	fprintf(stderr, "\n");*/
-	
 }
 
 void collisions_update_render(object_t* obj1, object_t* obj2) {
@@ -596,18 +489,10 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         return;
     }
     
-	// calculate points on lines between most left and most right 
-	// collision pixel:
-	
 	float x01 = obj1->pos_x + (float) obj1->wall->x;
 	float y01 = obj1->pos_y + (float) obj1->wall->y;
 	float x02 = obj2->pos_x + (float) obj2->wall->x;
 	float y02 = obj2->pos_y + (float) obj2->wall->y;
-	
-	float offset1 = y01 + obj1->wall->offset;
-	float offset2 = y02 + obj2->wall->offset;
-	
-	// x coordinates on lines:
 	
 	// absolute x values of most left/right collision pixel:
 	float xl1 = x01 + obj1->wall->lx;
@@ -615,38 +500,76 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	float xl2 = x02 + obj2->wall->lx;
 	float xr2 = x02 + obj2->wall->rx;
 	
-	// use collision pixel in overlapping area:
-	float xl = xl1;
-	float xr = xr1;
-	if (xl1 < xl2) {
-		xl = xl2;
-	}
-	if (xr1 > xr2) {
-		xr = xr2;
-	}
-	
-	// line equation needs x values relative to wall coordinates:
-	xl1 = xl - x01;
-	xr1 = xr - x01;
-	xl2 = xl - x02;
-	xr2 = xr - x02;
-	
-	// y coordinates on lines:
-	float yl1 = offset1 + obj1->wall->slope * xl1;
-	float yr1 = offset1 + obj1->wall->slope * xr1;
-	float yl2 = offset2 + obj2->wall->slope * xl2;
-	float yr2 = offset2 + obj2->wall->slope * xr2;
-    
     bool obj1_before_obj2 = false;
+    
     if (obj1->can_move && !obj2->can_move &&
-        obj2->wall->pxl != NULL) {
-        // xl should be sufficient, I guess:
-        obj1_before_obj2 = collisions_beam(xl - x02, yl1 - y02, obj2);
+        obj2->wall->pxl != NULL) {      
+        
+        int32_t x;
+        int32_t y;
+        
+        if (xl1 < xl2) {
+            // start beam at most right collision point of obj1:
+            x = xr1 - x02;
+            y = y01 + obj1->wall->ry_beam - y02;
+        } else {
+            // start beam at most left collision point of obj1:
+            x = xl1 - x02;
+            y = y01 + obj1->wall->ly_beam - y02;
+        }
+        
+        obj1_before_obj2 = collisions_beam(obj2, x, y);
+        
     } else if (!obj1->can_move && obj2->can_move && 
         obj1->wall->pxl != NULL) {
-        obj1_before_obj2 = !collisions_beam(xl - x01, yl2 - y01, obj1);
+        
+        int32_t x;
+        int32_t y;
+        
+        if (xl2 < xl1) {
+            // start beam at most right collision point of obj2:
+            x = xr2 - x01;
+            y = y02 + obj2->wall->ry_beam - y01;
+        } else {
+            // start beam at most left collision point of obj2:
+            x = xl2 - x01;
+            y = y02 + obj2->wall->ly_beam - y01;
+        }
+        
+        obj1_before_obj2 = !collisions_beam(obj1, x, y);
+        
     } else {
-        // use fast method:
+        // use fast method. calculate points on lines between most left 
+        // and most right collision pixel:
+        
+        // x coordinates on lines:
+        
+        // use collision pixel in overlapping area:
+        float xl = xl1;
+        float xr = xr1;
+        if (xl1 < xl2) {
+            xl = xl2;
+        }   
+        if (xr1 > xr2) {
+            xr = xr2;
+        }
+        
+        // line equation needs x values relative to wall coordinates:
+        xl1 = xl - x01;
+        xr1 = xr - x01;
+        xl2 = xl - x02;
+        xr2 = xr - x02;
+        
+        // y coordinates on lines:
+        
+        float offset1 = y01 + obj1->wall->offset;
+        float offset2 = y02 + obj2->wall->offset;
+        
+        float yl1 = offset1 + obj1->wall->slope * xl1;
+        float yr1 = offset1 + obj1->wall->slope * xr1;
+        float yl2 = offset2 + obj2->wall->slope * xl2;
+        float yr2 = offset2 + obj2->wall->slope * xr2;
+        
         if (yl2 >= yl1 && yr2 >= yr1) {
             obj1_before_obj2 = true;
         } else {
@@ -668,14 +591,19 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	}
 }
 
-bool collisions_beam(int32_t x, int32_t y, object_t* obj) {
+bool collisions_beam(object_t* obj, int32_t x, int32_t y) {
     
+    if (x < 0) {
+        x = 0;
+    }
     if (y < 0) {
         y = 0;
     }
     
     for (y = y; y < obj->wall->h; y++) {
+        
         if (obj->wall->pxl[(y * obj->wall->w_bmp) + x]) {
+            
             return(true);
         }
     }

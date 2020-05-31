@@ -137,11 +137,11 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		}
 		wall->h = surf_wall->h;
 		// find most left pixel:
-		bool pixel_found = 0;
-		for (wall->lx = 0; wall->lx < wall->w_bmp; wall->lx++) {
+		bool pixel_found = false;
+		for (wall->lx = 0; wall->lx < wall->w; wall->lx++) {
 			for (wall->ly = wall->h - 1; wall->ly > 0; wall->ly--) {
-				if (wall->pxl[(wall->ly * wall->w_bmp) + wall->lx] != 0) {
-					pixel_found = 1;
+				if (wall->pxl[(wall->ly * wall->w_bmp) + wall->lx]) {
+					pixel_found = true;
 					break;
 				}
 			}
@@ -149,12 +149,18 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 				break;
 			}
 		}
+        // go to bottom until black pixel found:
+        wall->ly_beam = wall->ly;
+        while (wall->pxl[(wall->ly_beam * wall->w_bmp) + wall->lx]) {
+            wall->ly_beam++;
+        }
+        
 		// find most right pixel:
-		pixel_found = 0;
-		for (wall->rx = wall->w_bmp - 1; wall->rx >= 0; wall->rx--) {
+		pixel_found = false;
+		for (wall->rx = wall->w - 1; wall->rx >= 0; wall->rx--) {
 			for (wall->ry = wall->h - 1; wall->ry > 0; wall->ry--) {
-				if (wall->pxl[(wall->ry * wall->w_bmp) + wall->rx] != 0) {
-					pixel_found = 1;
+				if (wall->pxl[(wall->ry * wall->w_bmp) + wall->rx]) {
+					pixel_found = true;
 					break;
 				}
 			}
@@ -162,6 +168,12 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 				break;
 			}
 		}
+        // go to bottom until black pixel found:
+        wall->ry_beam = wall->ry;
+        while (wall->pxl[(wall->ry_beam * wall->w_bmp) + wall->rx]) {
+            wall->ry_beam++;
+        }
+        
 		wall->slope = 
 			((float) wall->ry - (float) wall->ly) / 
 			((float) wall->rx - (float) wall->lx);
@@ -169,7 +181,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->offset = 
 			(float) wall->ly - 
 			(float) wall->lx * wall->slope;
-			
+        
 	} else {
 		wall->x = 0;
 		wall->y = 0;
@@ -181,9 +193,11 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		}
 		wall->h = surf->h;
 		wall->rx = surf->w;
-		wall->ry = surf->h;
+		wall->ry = 0;
+        wall->ry_beam = surf->h + 1;
 		wall->lx = 0;
 		wall->ly = surf->h;
+        wall->ly_beam = surf->h + 1;
 		wall->slope = 0;
 		wall->offset = surf->h;
 	}

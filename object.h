@@ -36,9 +36,11 @@ struct walls {
 	// position of most left pixel:
 	uint32_t lx;
 	uint32_t ly;
+    uint32_t ly_beam; // use 1 below lowest left pixel for render beams
 	// position of most right pixel:
 	uint32_t rx;
 	uint32_t ry;
+    uint32_t ry_beam; // use 1 below lowest right pixel for render beams
 	// line between those pixels:
 	float slope;
 	float offset;
