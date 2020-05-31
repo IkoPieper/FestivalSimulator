@@ -294,8 +294,10 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	// start position is middle of screen:
 	obj->scr_pos_x = vid->surface->w / 2 - obj->surface->w / 2;
 	obj->scr_pos_y = vid->surface->h / 2 - obj->surface->h / 2;
-	obj->pos_x = obj_bg->surface->w / 2;
-	obj->pos_y = obj_bg->surface->h / 2;
+	//obj->pos_x = obj_bg->surface->w / 2;
+	//obj->pos_y = obj_bg->surface->h / 2;
+    obj->pos_x = 1000;
+	obj->pos_y = 700;
 		
 	// min/max screen positions:
 	obj->min_scr_pos_x = (float) (0 + vid->surface->w / 3);

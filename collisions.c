@@ -636,13 +636,49 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	float yr1 = offset1 + obj1->wall->slope * xr1;
 	float yl2 = offset2 + obj2->wall->slope * xl2;
 	float yr2 = offset2 + obj2->wall->slope * xr2;
-	
+    
+    bool obj1_before_obj2 = false;
+    if (obj1->can_move && !obj2->can_move &&
+        obj2->wall->pxl != NULL) {
+        // xl should be sufficient, I guess:
+        obj1_before_obj2 = collisions_beam(xl - x02, yl1 - y02, obj2);
+    } else if (!obj1->can_move && obj2->can_move && 
+        obj1->wall->pxl != NULL) {
+        obj1_before_obj2 = !collisions_beam(xl - x01, yl2 - y01, obj1);
+    } else {
+        // use fast method:
+        if (yl2 >= yl1 && yr2 >= yr1) {
+            obj1_before_obj2 = true;
+        } else {
+            obj1_before_obj2 = false;
+        }
+    }
+    
 	// update render lists:
-	if (yl2 >= yl1 && yr2 >= yr1) {
-        obj1->render_before = create_before(obj1->render_before, (void*) obj2, 0);
-        obj2->render_after = create_before(obj2->render_after, (void*) obj1, 0);
+	if (obj1_before_obj2) {
+        obj1->render_before = create_before(
+            obj1->render_before, (void*) obj2, 0);
+        obj2->render_after = create_before(
+            obj2->render_after, (void*) obj1, 0);
 	} else {
-        obj1->render_after = create_before(obj1->render_after, (void*) obj2, 0);
-        obj2->render_before = create_before(obj2->render_before, (void*) obj1, 0);
+        obj1->render_after = create_before(
+            obj1->render_after, (void*) obj2, 0);
+        obj2->render_before = create_before(
+            obj2->render_before, (void*) obj1, 0);
 	}
+}
+
+bool collisions_beam(int32_t x, int32_t y, object_t* obj) {
+    
+    if (y < 0) {
+        y = 0;
+    }
+    
+    for (y = y; y < obj->wall->h; y++) {
+        if (obj->wall->pxl[(y * obj->wall->w_bmp) + x]) {
+            return(true);
+        }
+    }
+    
+    return(false);
 }

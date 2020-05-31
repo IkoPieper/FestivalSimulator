@@ -6,7 +6,6 @@ surface = hero_s_1.bmp
 can_move = 1
 mass = 1.0
 damping = 0.2
-disable_collision = 0
 
 anim_walk = 1           # use animations 1 to 8 for walk cycles
 
