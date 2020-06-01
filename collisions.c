@@ -42,7 +42,7 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 			
 			while (obj != NULL) {
 				
-				if (!obj->disable_collision || !obj->disable_render) {
+				//if (!obj->disable_collision || !obj->disable_render) {
 					
 					obj->vel_lock = false;	// allow all velocity changes TODO: move up?
 					
@@ -86,16 +86,13 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 							// interactions with other objects in selected vbox:
 							while (obj_b != NULL) {
                                 
-                                if (!obj_b->disable_collision || !obj_b->disable_render) {
-                                    
-                                    collision = collisions_check(obj, obj_b, dt);
-                                    
-                                    if (collision == false) {
-                                        object_remove_collision(obj, obj_b);
-                                        object_remove_collision(obj_b, obj);
-                                    }
-								
+                                collision = collisions_check(obj, obj_b, dt);
+                                
+                                if (collision == false) {
+                                    object_remove_collision(obj, obj_b);
+                                    object_remove_collision(obj_b, obj);
                                 }
+								
 								// get next object obj_b:
 								obj_b = obj_b->next_vbox;
 							}
@@ -103,7 +100,7 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 						}
 					}
 				
-				}
+				//}
 				// get next object obj:
 				obj = obj->next_vbox;
 			}
@@ -147,7 +144,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         }
     }
 	
-		
 	// update render list:
 	if (collision &&
         (!obj1->disable_render && !obj2->disable_render) &&
@@ -334,7 +330,7 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 				
 				// this changes the velocities of the objects:
 				collisions_impulse(obj1, obj2, col1, col2);
-				
+                
 			// if collision area inceases, move away from each other:
 			} else {
 				if (col1->area >= col1->area_old || 
@@ -375,8 +371,8 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 					}
                     
 					// forbid all velocity changes:
-					obj1->vel_lock = 1;	
-					obj2->vel_lock = 1;
+					obj1->vel_lock = true;	
+					obj2->vel_lock = true;
 					
 				}
 			}

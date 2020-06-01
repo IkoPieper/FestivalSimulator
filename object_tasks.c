@@ -30,6 +30,14 @@ void say_free(object_t* obj) {
 
 void face(object_t* obj, object_t* obj_target, float dt) {
     
+    float x = obj_target->pos_x;
+    float y = obj_target->pos_y;
+    object_select_animation_target(obj, x, y);
+    object_animate(obj, 0, dt);
+}
+
+void stop(object_t* obj) {
+    
     if (obj->id == OBJECT_HERO_ID) {
         obj->can_move = false;
     } else {
@@ -37,11 +45,6 @@ void face(object_t* obj, object_t* obj_target, float dt) {
         ways->active = false;
     }
     obj->anim_walk = false;
-    
-    float x = obj_target->pos_x;
-    float y = obj_target->pos_y;
-    object_select_animation_target(obj, x, y);
-    object_animate(obj, 0, dt);
 }
 
 void move_on(object_t* obj) {
@@ -77,6 +80,7 @@ void start_waypoints(object_t* obj, uint32_t id) {
     waypoints_t* ways = (waypoints_t*) obj->ways->entry;
     ways->n = 0;
     ways->active = true;
+    obj->can_move = true;
 }
 
 bool waypoints_finished(object_t* obj) {
@@ -90,16 +94,28 @@ bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*,
     uint64_t, float) {
     
     switch (id) {
-        case TASK_FIND_BOB: return(&task_find_bob); break;
-        case TASK_FIND_EVA: return(&task_find_eva); break;
-        case TASK_SECURITY_FENCE: return(&task_security_fence); break;
+        case TASK_FIND_BOB: 
+            return(&task_find_bob); 
+            break;
+        case TASK_FIND_EVA: 
+            return(&task_find_eva); 
+            break;
+        case TASK_SECURITY_FENCE: 
+            return(&task_security_fence); 
+            break;
+        case TASK_BUS_PASSENGER: 
+            return(&task_bus_passenger); 
+            break;
+        case TASK_BUS: 
+            return(&task_bus); 
+            break;
     }
     
     return(NULL);
 }
 
-bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, 
-    uint64_t frame, float dt) {
+bool task_find_bob(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt) {
     
     if (tsk->step == 0) {
         
@@ -108,6 +124,7 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
         if (fabsf(hero->pos_x - obj->pos_x) < 100.0 &&
             fabsf(hero->pos_y - obj->pos_y) < 100.0) {
         
+            stop(obj);
             face(obj, hero, dt);
             say(obj, 1, 150);
             
@@ -126,6 +143,7 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
             object_t* obj_itm = (object_t*) hero->itm->entry;
             if (obj_itm->itm_props->id == ITEM_MONEY) {
                 
+                stop(hero);
                 face(hero, obj, dt);
                 say_new(hero, "Hier! Nimm mein Geld!", 60);
                 
@@ -184,8 +202,8 @@ bool task_find_bob(task_t* tsk, object_t* obj, bool* keys,
     
 }
 
-bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, 
-    uint64_t frame, float dt) {
+bool task_find_eva(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt) {
     
     return(false);
     
@@ -336,6 +354,159 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
         
         return(true);
     }
+    
+    return(false);
+}
+
+bool task_bus_passenger(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt) {
+        
+    if (tsk->step == 0) {
+        
+        if (waypoints_finished(obj)) {
+            
+            // wait for the bus:
+            obj->disable_collision = true;
+            obj->disable_render = true;
+            
+            tsk->step = 1;
+            return(true);
+        }
+    }
+    
+    if (tsk->step == 1) {
+        
+        object_t* bus = object_get(obj, OBJECT_BUS);
+        task_t* tsk_bus = (task_t*) bus->tsk->entry;
+        if (tsk_bus->step == 0 && count(bus->itm) < 4) {
+            
+            // enter the bus:
+            object_add_item(bus, obj, obj->id);
+            
+            tsk->step = 2;
+            return(true);
+        }
+        
+    }
+    
+    return(false);
+}
+
+bool task_bus(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt) {
+    
+    if (tsk->step == 0) {
+        
+        // count passengers:
+        if (count(obj->itm) == 4) {
+            
+            // take them to a nice bus ride:
+            list_t* lst = get_first(obj->itm);
+            
+            float x_shift = 60;
+            while (lst != NULL) {
+                object_t* passenger = (object_t*) lst->entry;
+                passenger->pos_x = obj->pos_x + x_shift;
+                passenger->pos_y = obj->pos_y + 32.0;
+                face(passenger, obj, dt);
+                passenger->disable_render = false;
+                passenger->anim_walk = false;
+                x_shift += 60.0;
+                lst = lst->next;
+            }
+            
+            start_waypoints(obj, 2);
+            
+            tsk->step = 1;
+            return (true);
+        }
+    }
+    
+    if (tsk->step == 1) {
+        // drive to bus stop:
+        
+        list_t* lst = get_first(obj->itm);
+        
+        float x_shift = 70;
+        while (lst != NULL) {
+            object_t* passenger = (object_t*) lst->entry;
+            passenger->pos_x = obj->pos_x + x_shift;
+            x_shift += 60.0;
+            lst = lst->next;
+        }
+        
+        if (obj->pos_x < 1000.0) {
+            obj->disable_collision = false;
+        }
+        
+        if (waypoints_finished(obj)) {
+            
+            // walk inside of bus:
+            lst = get_first(obj->itm);
+            while (lst != NULL) {
+                
+                object_t* passenger = (object_t*) lst->entry;
+                passenger->anim_walk = true;
+                start_waypoints(passenger, 2);
+                
+                lst = lst->next;
+            }
+            
+            tsk->step = 2;
+            return(true);
+        }
+    }
+    
+    if (tsk->step == 2) {
+        
+        list_t* lst = get_first(obj->itm);
+        while (lst != NULL) {
+            
+            object_t* passenger = (object_t*) lst->entry;
+            if (waypoints_finished(passenger)) {
+                // release passenger:
+                passenger->disable_collision = false;
+                start_waypoints(passenger, 1);
+                task_t* tskp = (task_t*) passenger->tsk->entry;
+                tskp->step = 0;
+                list_t* lst_tmp = lst->next;
+                obj->itm = delete_single(lst);
+                lst = lst_tmp;
+                
+            } else {
+                lst = lst->next;
+            }
+        }
+        
+        // wait until all passengers released:
+        if (count(obj->itm) == 0) {
+            
+            // drive away to the left side:
+            start_waypoints(obj, 3);
+            
+            tsk->step = 3;
+            
+            return(true);
+        }
+    }
+    
+    if (tsk->step == 3) {
+        
+        // return to the start position:
+        if (obj->pos_x < 300.0) {
+            obj->disable_collision = true;
+        }
+        
+        if (waypoints_finished(obj)) {
+            
+            obj->pos_x = 1400;
+            obj->pos_y = 1250;
+            
+            tsk->step = 0;
+            return(true);
+        }
+    }
+    
     
     return(false);
 }

@@ -93,6 +93,8 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
         }
         
     }
+    
+    
 }
 
 void on_loop_animations(object_t* obj, bool* keys, 
@@ -236,6 +238,16 @@ void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
 		if (obj->ways != NULL) {
             
             waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+        
+            /*if (obj->id == 901 || obj->id == 902 || obj->id == OBJECT_BUS) {
+                printf("%d: waypoint: %d\n", obj->id, obj->ways->id);
+                printf("%d: active: %d\n", obj->id, ways->active);
+                printf("%d: n: %d\n", obj->id, ways->n);
+                printf("%d: frame: %d\n", obj->id, ways->frame);
+                printf("%d: frames_wait: %d\n", obj->id, ways->frames_wait[ways->n]);
+                printf("%d: frames_max: %d\n\n", obj->id, ways->frames_max[ways->n]);
+            }*/
+            
         
             if (ways->active && !obj->vel_lock) {
 

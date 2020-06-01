@@ -54,8 +54,8 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->vbox_y = 0;
 	
 	// physics:
-	obj_new->can_move = 0;
-	obj_new->has_moved = 1;	// init with 1 to set up render list
+	obj_new->can_move = false;
+	obj_new->has_moved = true;	// init with true to set up render list
 	obj_new->mass = 1.0;
 	obj_new->damping = 0.2;
 	obj_new->pos_x = 1.0;
@@ -270,7 +270,7 @@ object_t* object_remove(object_t* obj, uint32_t id) {
         object_free_item_props(obj->itm_props);
     }
     if (obj->itm != NULL) {
-        object_free_items(obj->itm);
+        object_free_items(obj);
     }
     if (obj->ways != NULL) {
         object_free_waypoints(obj->ways);
@@ -455,8 +455,8 @@ void object_add_waypoints(object_t* obj, uint32_t id, uint32_t num_ways) {
 	
     waypoints_t* ways = waypoints_init(num_ways);
     
-    // place at first place in list and set as current waypoints:
-    obj->ways = create_before(obj->ways, (void*) ways, id);
+    // place at last place in list:
+    obj->ways = create_after(obj->ways, (void*) ways, id);
 }
 
 void object_select_waypoints(object_t* obj, uint32_t id) {
@@ -709,8 +709,9 @@ void object_add_item(object_t* obj, object_t* obj_item, uint32_t id) {
     obj->itm = create_before(obj->itm, obj_item, id);
 }
 
-void object_free_items(list_t* lst) {
+void object_free_items(object_t* obj) {
     
-    delete_all(lst);
+    delete_all(obj->itm);
+    obj->itm = NULL;
 }
 

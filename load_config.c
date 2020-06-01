@@ -258,6 +258,9 @@ configentry* load_config_waypoints(configentry* entry, char* path,
 	
     object_activate_waypoints(obj);
     
+    // select the first waypoints:
+    obj->ways = get_first(obj->ways);
+    
 	return(entry);
 	
 }

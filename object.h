@@ -204,22 +204,27 @@ void object_free_tasks(list_t* lst);
 void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id);
 void object_free_item_props(item_t* itm_props);
 void object_add_item(object_t* obj, object_t* obj_item, uint32_t id);
-void object_free_items(list_t* lst);
+void object_free_items(object_t* obj);
 
 // functions in object_tasks.c:
-bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, 
-    uint64_t, float);
-bool task_find_bob(task_t* tsk, object_t* obj, bool* keys, 
-    uint64_t frame, float dt);
-bool task_find_eva(task_t* tsk, object_t* obj, bool* keys, 
-    uint64_t frame, float dt);
-bool task_security_fence(task_t* tsk, object_t* obj, bool* keys, 
-    uint64_t frame, float dt);
+bool (*get_task_function(uint32_t id))(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+bool task_find_bob(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+bool task_find_eva(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+bool task_security_fence(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+bool task_bus_passenger(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+bool task_bus(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
 void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
 void face(object_t* obj, object_t* obj_target, float dt);
+void stop(object_t* obj);
 void move_on(object_t* obj);
 void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
@@ -235,10 +240,13 @@ bool use_money(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame)
 #define OBJECT_BACKGROUND_ID 1
 #define OBJECT_HERO_ID 2
 #define OBJECT_SCORE_ID 3
+#define OBJECT_BUS 3001
 
 #define TASK_FIND_BOB 0
 #define TASK_FIND_EVA 1
 #define TASK_SECURITY_FENCE 2
+#define TASK_BUS_PASSENGER 3
+#define TASK_BUS 4
 
 #define ITEM_STONE 0
 #define ITEM_RED_STONE 1

@@ -79,8 +79,7 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 	
 	while (obj != NULL) {
 		
-		if ((obj->vel_x != 0.0 || obj->vel_y != 0.0) && // object moved?
-			obj->id != OBJECT_BACKGROUND_ID) {
+        if (obj->has_moved && obj->id != OBJECT_BACKGROUND_ID) {
 		
 			// calculate new vbox:
 			x_old = obj->vbox_x;

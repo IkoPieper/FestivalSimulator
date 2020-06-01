@@ -17,8 +17,8 @@ void movements(object_t* obj, bool* keys, float dt) {
 	obj_bg->pos_y_old = obj_bg->pos_y;
 	
 	// hero movements first:
-	movements_hero(obj_hero, keys);
-	movements_accelerate(obj_hero, dt);
+    movements_hero(obj_hero, keys);
+    movements_accelerate(obj_hero, dt);
     
 	// display / background movements:
 	movements_background(obj_bg, obj_hero);
@@ -38,20 +38,20 @@ void movements(object_t* obj, bool* keys, float dt) {
 		if (obj->id != OBJECT_BACKGROUND_ID &&
 			obj->id != OBJECT_HERO_ID) {
 				
+            if (obj->can_move) {
+				if (obj->pos_x != obj->pos_x_old ||
+					obj->pos_y != obj->pos_y_old) {
+					obj->has_moved = true;
+				} else {
+					obj->has_moved = false;
+				}
+			}
+                
 			obj->pos_x_old = obj->pos_x;
 			obj->pos_y_old = obj->pos_y;
 			
 			movements_accelerate(obj, dt);
 			movements_screen_position(obj, obj_bg);
-			
-			if (obj->can_move) {
-				if (obj->pos_x != obj->pos_x_old ||
-					obj->pos_y != obj->pos_y_old) {
-					obj->has_moved = 1;
-				} else {
-					obj->has_moved = 0;
-				}
-			}
 				
 		}
 		

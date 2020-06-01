@@ -389,8 +389,7 @@ void on_render_object_id(video_t* vid, object_t* obj) {
     SDL_Color fg_color = {0, 255, 0};   // text color
  	
     char str[8];
-    
-    sprintf(&str, "%d", obj->id);
+    snprintf(str, 8, "%d", obj->id);
     
     SDL_Surface* surf = TTF_RenderText_Solid(vid->font, str, fg_color);
     
