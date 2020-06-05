@@ -17,7 +17,9 @@ void movements(object_t* obj, bool* keys, float dt) {
 	obj_bg->pos_y_old = obj_bg->pos_y;
 	
 	// hero movements first:
-    movements_hero(obj_hero, keys);
+    if (!obj_hero->vel_lock) {
+        movements_hero(obj_hero, keys);
+    }
     movements_accelerate(obj_hero, dt);
     
 	// display / background movements:
@@ -25,11 +27,10 @@ void movements(object_t* obj, bool* keys, float dt) {
 	
 	if (obj_hero->pos_x != obj_hero->pos_x_old ||
 		obj_hero->pos_y != obj_hero->pos_y_old) {
-		obj_hero->has_moved = 1;
+		obj_hero->has_moved = true;
 	} else {
-		obj_hero->has_moved = 0;
+		obj_hero->has_moved = false;
 	}
-	
 	
 	// all objects:
 	obj = obj_first;
@@ -97,10 +98,11 @@ void movements_accelerate(object_t* obj, float dt) {
 	
 	if (obj->can_move) {
 	
-		const float vel_min = 0.1 * dt;
+		const float vel_min = 0.1;
 		
 		// derive velocity from acceleration:
 		if (!obj->vel_lock) {
+            
 			obj->vel_x += obj->acc_x * dt;
 			obj->vel_y += obj->acc_y * dt;
 		

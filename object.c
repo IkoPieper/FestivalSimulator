@@ -115,6 +115,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	// collisions:
 	obj_new->col = NULL;
     obj_new->disable_collision = false;
+    obj_new->impulse_calculated = false;
 	
 	return(obj_new);
 }
@@ -545,8 +546,6 @@ void object_get_next_waypoint(object_t* obj, float dt) {
 	} else {
         ways->frame = 0; // in case object is kicked out of waypoint
     }
-    
-    object_aim_for_waypoint(obj);
 }
 
 void object_aim_for_waypoint(object_t* obj) {

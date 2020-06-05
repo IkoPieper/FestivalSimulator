@@ -101,6 +101,7 @@ bool on_execute() {
 		}
 
 		//time = SDL_GetTicks();
+        printf("FRAME: %lu\n", frame);
 		on_loop(obj, snd, vbox, keys, frame, dt);
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
 		//time = SDL_GetTicks();

@@ -20,7 +20,8 @@ verletbox_t* verletbox_init(object_t* obj) {
 	vbox->w = obj->surface->w / vbox->num_w + 1;
 	vbox->h = obj->surface->h / vbox->num_h + 1;
 	
-	object_t*** boxes = (object_t***) malloc(vbox->num_w * sizeof(object_t**));
+	object_t*** boxes = (object_t***) malloc(
+        vbox->num_w * sizeof(object_t**));
 	
 	for (x = 0; x < vbox->num_w; x++) {
 		boxes[x] = (object_t**) malloc(vbox->num_h * sizeof(object_t*));

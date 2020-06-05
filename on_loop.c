@@ -7,27 +7,29 @@
 void on_loop(object_t* obj, sound_t* snd, 
     verletbox_t* vbox, bool* keys, uint64_t frame, float dt) {
 	
-	//Uint32 time;
+	//collisions(obj, vbox, dt);
 	
-	//time = SDL_GetTicks();
-	collisions(obj, vbox, dt);
-	//printf("time for collisions: %d\n", SDL_GetTicks() - time);
-	
-	//time = SDL_GetTicks();
-	movements(obj, keys, dt);
-	//printf("time for movements: %d\n", SDL_GetTicks() - time);
+	//movements(obj, keys, dt);
 	
     on_loop_tasks(obj, keys, frame, dt);
     
     on_loop_items(obj, keys, frame);
-    
-	//time = SDL_GetTicks();
+	
 	on_loop_animations(obj, keys, frame, dt);
 	
 	on_loop_waypoints(obj, frame, dt);
-	//printf("time for animations and waypoints: %d\n", SDL_GetTicks() - time);
 
     on_loop_sounds(obj, snd);
+    
+    collisions(obj, vbox, dt);
+	
+    object_t* obj_tmp = object_get(obj, OBJECT_HERO_ID);
+    if (obj_tmp->col != NULL) {
+        printf("frame: %lu\n", frame);
+        printf("hero, vel_lock: %d\n", obj_tmp->vel_lock);
+    }
+    
+	movements(obj, keys, dt);
 }
 
 // call all the task functions of the objects:
@@ -252,7 +254,7 @@ void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
             if (ways->active && !obj->vel_lock) {
 
                 object_get_next_waypoint(obj, dt);
-                
+                object_aim_for_waypoint(obj);
             }
 		}
 	

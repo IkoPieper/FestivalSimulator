@@ -158,6 +158,7 @@ struct object {
 	// collisions:
 	list_t* col;
     bool disable_collision;
+    bool impulse_calculated;
 };
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);

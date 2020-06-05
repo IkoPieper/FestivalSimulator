@@ -341,7 +341,9 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             
             float vel_x_wanted = hero->pos_x - obj->pos_x;
             float vel_y_wanted = hero->pos_y - obj->pos_y;
-            float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
+            float norm = sqrtf(
+                vel_x_wanted * vel_x_wanted + 
+                vel_y_wanted * vel_y_wanted);
             vel_x_wanted /= norm;
             vel_y_wanted /= norm;
             
@@ -370,8 +372,9 @@ bool task_bus_passenger(
             obj->disable_render = true;
             
             tsk->step = 1;
-            return(true);
         }
+        
+        return(true);
     }
     
     if (tsk->step == 1) {
@@ -384,9 +387,9 @@ bool task_bus_passenger(
             object_add_item(bus, obj, obj->id);
             
             tsk->step = 2;
-            return(true);
         }
         
+        return(true);
     }
     
     return(false);
@@ -401,6 +404,8 @@ bool task_bus(
         if (count(obj->itm) == 4) {
             
             // take them to a nice bus ride:
+            
+            // take seats in the bus:
             list_t* lst = get_first(obj->itm);
             
             float x_shift = 60;
@@ -418,8 +423,9 @@ bool task_bus(
             start_waypoints(obj, 2);
             
             tsk->step = 1;
-            return (true);
         }
+        
+        return (true);
     }
     
     if (tsk->step == 1) {
@@ -441,7 +447,7 @@ bool task_bus(
         
         if (waypoints_finished(obj)) {
             
-            // walk inside of bus:
+            // walk inside of bus to bus door:
             lst = get_first(obj->itm);
             while (lst != NULL) {
                 
@@ -453,8 +459,9 @@ bool task_bus(
             }
             
             tsk->step = 2;
-            return(true);
         }
+        
+        return(true);
     }
     
     if (tsk->step == 2) {
@@ -485,9 +492,9 @@ bool task_bus(
             start_waypoints(obj, 3);
             
             tsk->step = 3;
-            
-            return(true);
         }
+        
+        return(true);
     }
     
     if (tsk->step == 3) {
@@ -503,8 +510,9 @@ bool task_bus(
             obj->pos_y = 1250;
             
             tsk->step = 0;
-            return(true);
         }
+        
+        return(true);
     }
     
     
