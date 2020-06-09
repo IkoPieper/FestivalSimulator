@@ -9,8 +9,8 @@ verletbox_t* verletbox_init(object_t* obj) {
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	// width and height wanted:
-	vbox->w = 600;
-	vbox->h = 450;
+	vbox->w = 500;
+	vbox->h = 500;
 	
 	// number of boxes:
 	vbox->num_w = obj->surface->w / vbox->w + 1;
@@ -39,21 +39,25 @@ verletbox_t* verletbox_init(object_t* obj) {
 			x = obj->pos_x / vbox->w;
 			y = obj->pos_y / vbox->h;
 			
-			obj->vbox_x = x;
-			obj->vbox_y = y;
-			
-			if (boxes[x][y] == NULL) {
-				obj->prev_vbox = NULL;
-				obj->next_vbox = NULL;
-				boxes[x][y] = obj;
-			} else {
-				object_t* obj2 = boxes[x][y];
-				obj->prev_vbox = NULL;
-				obj->next_vbox = obj2;
-				obj2->prev_vbox = obj;
-				boxes[x][y] = obj;
-			}
-		
+            if (x >= 0 && y >= 0 && x < vbox->num_w && y < vbox->num_h) {
+                
+                obj->vbox_x = x;
+                obj->vbox_y = y;
+                
+                if (boxes[x][y] == NULL) {
+                    obj->prev_vbox = NULL;
+                    obj->next_vbox = NULL;
+                    boxes[x][y] = obj;
+                } else {
+                    object_t* obj2 = boxes[x][y];
+                    obj->prev_vbox = NULL;
+                    obj->next_vbox = obj2;
+                    obj2->prev_vbox = obj;
+                    boxes[x][y] = obj;
+                }
+                
+                obj->in_vbox = true;
+            }
 		}
 		obj = obj->next_object;
 	}
@@ -83,45 +87,29 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
         if (obj->has_moved && obj->id != OBJECT_BACKGROUND_ID) {
 		
 			// calculate new vbox:
-			x_old = obj->vbox_x;
-			y_old = obj->vbox_y;			
+            x_old = obj->vbox_x;
+            y_old = obj->vbox_y;
 			x = obj->pos_x / vbox->w;
 			y = obj->pos_y / vbox->h;
 			
 			// check for error:
 			if (x < 0 || y < 0 || x >= vbox->num_w || y >= vbox->num_h) {
-				fprintf(stderr, "object with id %d left vboxes!\n", obj->id);
-				fprintf(stderr, "opj->pos_x = %f\n", obj->pos_x);
-				fprintf(stderr, "opj->pos_y = %f\n", obj->pos_y);
-			}
-			
-			// check if vbox changed:
-			if (x_old != x || y_old != y) {
+                if (obj->in_vbox) {
+                    verletbox_remove_object(vbox, obj, x_old, y_old);
+                    fprintf(stderr, "object with id %d left vboxes!\n", obj->id);
+                    fprintf(stderr, "obj->pos_x = %f\n", obj->pos_x);
+                    fprintf(stderr, "obj->pos_y = %f\n", obj->pos_y);
+                }
+			} else if (x_old != x || y_old != y) { // vbox changed?
+                
 				// move to another vbox:
-				
 				obj->vbox_x = x;
 				obj->vbox_y = y;
 				
-				// remove from vbox list:
-				if (obj->prev_vbox != NULL && obj->next_vbox != NULL) {
-					obj->prev_vbox->next_vbox = obj->next_vbox;
-					obj->next_vbox->prev_vbox = obj->prev_vbox;
-					if (vbox->boxes[x_old][y_old] == obj) {
-						vbox->boxes[x_old][y_old] = obj->prev_vbox;
-					}
-				} else if (obj->prev_vbox == NULL && obj->next_vbox == NULL) {
-					vbox->boxes[x_old][y_old] = NULL;
-				} else if (obj->prev_vbox == NULL) {
-					obj->next_vbox->prev_vbox = obj->prev_vbox;
-					if (vbox->boxes[x_old][y_old] == obj) {
-						vbox->boxes[x_old][y_old] = obj->next_vbox;
-					}
-				} else if (obj->next_vbox == NULL) {
-					obj->prev_vbox->next_vbox = obj->next_vbox;
-					if (vbox->boxes[x_old][y_old] == obj) {
-						vbox->boxes[x_old][y_old] = obj->prev_vbox;
-					}
-				}
+                if (obj->in_vbox) {
+                    // remove from vbox list:
+                    verletbox_remove_object(vbox, obj, x_old, y_old);
+                }
 				
 				// add to another vbox list:
 				if (vbox->boxes[x][y] == NULL) { // no object in vbox
@@ -136,7 +124,8 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 					vbox->boxes[x][y] = obj;     // add to current vbox
 				}
 				
-				
+				obj->in_vbox = true;
+                
 				/*printf("vbox changed, obj->id: %d \n", obj->id);
 				
 				printf("x_old: %d, x: %d\n", x_old, x);
@@ -164,6 +153,31 @@ void verletbox_update(verletbox_t* vbox, object_t* obj) {
 	
 }
 
+void verletbox_remove_object(
+    verletbox_t* vbox, object_t* obj, uint32_t x, uint32_t y) {
+    
+    if (obj->prev_vbox != NULL && obj->next_vbox != NULL) {
+        obj->prev_vbox->next_vbox = obj->next_vbox;
+        obj->next_vbox->prev_vbox = obj->prev_vbox;
+        if (vbox->boxes[x][y] == obj) {
+            vbox->boxes[x][y] = obj->prev_vbox;
+        }
+    } else if (obj->prev_vbox == NULL && obj->next_vbox == NULL) {
+        vbox->boxes[x][y] = NULL;
+    } else if (obj->prev_vbox == NULL) {
+        obj->next_vbox->prev_vbox = obj->prev_vbox;
+        if (vbox->boxes[x][y] == obj) {
+            vbox->boxes[x][y] = obj->next_vbox;
+        }
+    } else if (obj->next_vbox == NULL) {
+        obj->prev_vbox->next_vbox = obj->next_vbox;
+        if (vbox->boxes[x][y] == obj) {
+            vbox->boxes[x][y] = obj->prev_vbox;
+        }
+    }
+    
+    obj->in_vbox = false;
+}
 
 object_t* verletbox_get_first_object(object_t* obj) {
 	

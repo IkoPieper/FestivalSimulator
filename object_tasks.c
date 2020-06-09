@@ -43,7 +43,7 @@ void stop(object_t* obj) {
     } else {
         waypoints_t* ways = (waypoints_t*) obj->ways->entry;
         ways->active = false;
-        obj->can_move = false;
+        //obj->can_move = false;
     }
     obj->anim_walk = false;
     obj->vel_x = 0.0;
@@ -85,7 +85,9 @@ void start_waypoints(object_t* obj, uint32_t id) {
     ways->n = 0;
     ways->active = true;
     obj->can_move = true;
-    obj->anim_walk = true;
+    if (count(obj->anim) >= 8) {
+        obj->anim_walk = true;
+    }
 }
 
 bool waypoints_finished(object_t* obj) {
@@ -238,6 +240,7 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             say(obj, 1, 150);
             
             stop(obj);
+            obj->can_move = false;
             
             tsk->step++;
             
@@ -363,22 +366,35 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
 
 bool task_bus_passenger(
     task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt) {
-        
+    
     if (tsk->step == 0) {
         
         if (waypoints_finished(obj)) {
             
-            // wait for the bus:
+            // leave area:
             obj->disable_collision = true;
-            obj->disable_render = true;
+            start_waypoints(obj, 3);
             
             tsk->step = 1;
         }
         
         return(true);
     }
-    
+        
     if (tsk->step == 1) {
+        
+        if (waypoints_finished(obj)) {
+            
+            // wait for the bus:
+            obj->disable_render = true;
+            
+            tsk->step = 2;
+        }
+        
+        return(true);
+    }
+    
+    if (tsk->step == 2) {
         
         object_t* bus = object_get(obj, OBJECT_BUS);
         task_t* tsk_bus = (task_t*) bus->tsk->entry;
@@ -387,7 +403,7 @@ bool task_bus_passenger(
             // enter the bus:
             object_add_item(bus, obj, obj->id);
             
-            tsk->step = 2;
+            tsk->step = 3;
         }
         
         return(true);
@@ -442,9 +458,9 @@ bool task_bus(
             lst = lst->next;
         }
         
-        if (obj->pos_x < 1000.0) {
+        /*if (obj->pos_x < 1000.0) {
             obj->disable_collision = false;
-        }
+        }*/
         
         if (waypoints_finished(obj)) {
             
@@ -501,14 +517,14 @@ bool task_bus(
     if (tsk->step == 3) {
         
         // return to the start position:
-        if (obj->pos_x < 300.0) {
+        /*if (obj->pos_x < 360.0) {
             obj->disable_collision = true;
-        }
+        }*/
         
         if (waypoints_finished(obj)) {
             
-            obj->pos_x = 1400;
-            obj->pos_y = 1250;
+            obj->pos_x = 2000.0;
+            obj->pos_y = 1643.0;
             
             tsk->step = 0;
         }

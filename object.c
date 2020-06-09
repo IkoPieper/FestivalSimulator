@@ -52,6 +52,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->next_vbox = NULL;
 	obj_new->vbox_x = 0;
 	obj_new->vbox_y = 0;
+    obj_new->in_vbox = false;
 	
 	// physics:
 	obj_new->can_move = false;

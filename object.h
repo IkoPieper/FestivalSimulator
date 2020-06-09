@@ -91,6 +91,7 @@ struct object {
 	object_t* prev_vbox;
 	uint32_t vbox_x;
 	uint32_t vbox_y;
+    bool in_vbox;
 	
 	// physics:
 	bool can_move;

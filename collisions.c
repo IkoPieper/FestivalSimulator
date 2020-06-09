@@ -753,24 +753,7 @@ void collisions_surface_vector(
         }
     }
 }
-bool collisions_pixels_shared(
-    uint8_t* pxl1, uint8_t* pxl2, 
-    int32_t x1, int32_t y1, 
-    int32_t x1_min, int32_t y1_min, int32_t w1_bmp, 
-    int32_t x2_min, int32_t y2_min, int32_t w2_bmp) {
-    
-    if (collisions_pixel(x1, y1, pxl1, w1_bmp)) {
-        
-        int32_t x2 = x2_min + x1 - x1_min;
-        int32_t y2 = y2_min + y1 - y1_min;
-        
-        return(collisions_pixel(x2, y2, pxl2, w2_bmp));
-    }
-    
-    return(false);
-}
 
-// as collisions_pixel_shared(), but check for boundaries:
 bool collisions_pixels_shared_protected(
     uint8_t* pxl1, uint8_t* pxl2, 
     int32_t x1, int32_t y1, int32_t x1_min, int32_t y1_min, 
@@ -805,9 +788,8 @@ bool collisions_pixels_empty(
 
 bool collisions_pixel(
     int32_t x, int32_t y, uint8_t* pxl, int32_t w_bmp) {
-    //printf("collisions_pixel()\n");
+    
     if (pxl != NULL) {
-        //printf("pxl[(y * w_bmp) + x]: %d\n", pxl[(y * w_bmp) + x]);
         return(pxl[(y * w_bmp) + x]);
     } else { // use rectangular boundaries
         return(1);
@@ -882,12 +864,7 @@ void collisions_impulse_chain(
                 
                 // if angle not smaller than 90°:
                 if (!((cx < -vy && cy < -vx) || (cx > -vy && cy > -vx))) {
-                    // TODO: lock vel for at least 2 frames (not here :-))
-                    // TODO: update pos hier direkt nach vel. schiebe das objekt 
-                    // vielleicht sogar noch weiter, sodass es sicher ausserhalb der 
-                    // kollisionszone ist
-                    // TODO: force vel after collision into a miniumum angle.
-                    // v soll immer ein paar grad von der senkrechten flaeche wegzeigen
+                    
                     collisions_impulse(obj, col->partner, col, col_partner);
                     printf("After collisions_impulse():\n");
                     printf("obj->vel_x: %f\n", obj->vel_x);
@@ -931,17 +908,11 @@ void collisions_impulse(
 	if (obj1->can_move) {
 		v1x = obj1->vel_x;
 		v1y = obj1->vel_y;
-	} else {
-		c1x = -c2x;
-		c1y = -c2y;
 	}
 	
 	if (obj2->can_move) {
 		v2x = obj2->vel_x;
 		v2y = obj2->vel_y;
-	} else {
-		c2x = -c1x;
-		c2y = -c1y;
 	}
 	
 	// make shure surface vectors point directly toward each other:
@@ -1134,10 +1105,3 @@ bool collisions_beam(object_t* obj, int32_t x, int32_t y) {
     
     return(false);
 }
-
-/*int main(int argc, char* argv[]) {
-	
-	
-	
-	return(0);
-}*/
