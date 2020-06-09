@@ -9,11 +9,11 @@
 
 void collisions(object_t* obj, verletbox_t* vbox, float dt);
 
+list_t* collisions_blobb(list_t* blobb, list_t* current);
+
 bool collisions_check(object_t* obj1, object_t* obj2, float dt);
 
-bool collisions_dimensions_overlapp(
-    int32_t* x1_min_new, int32_t* x1_max_new, 
-    int32_t* y1_min_new, int32_t* y1_max_new, 
+bool collisions_detect_pixel_collision(
     uint8_t* pxl1, uint8_t* pxl2,
     int32_t x1_min, int32_t x1_max, 
     int32_t y1_min, int32_t y1_max, int32_t w1_bmp, int32_t w1, int32_t h1, 
@@ -23,8 +23,6 @@ bool collisions_dimensions_overlapp(
 void collisions_surface_vector(
     float* c1x, float* c1y, float* c2x, float* c2y,
     uint8_t* pxl1, uint8_t* pxl2,
-    int32_t x1_min_new, int32_t x1_max_new, 
-    int32_t y1_min_new, int32_t y1_max_new,
     int32_t x1_min, int32_t x1_max, 
     int32_t y1_min, int32_t y1_max, int32_t w1_bmp, int32_t w1, int32_t h1, 
     int32_t x2_min, 

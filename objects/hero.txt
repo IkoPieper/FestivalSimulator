@@ -5,7 +5,7 @@ has_item = 2002         # money id
 surface = hero_s_1.bmp  # main picture
 walls = hero_walls.bmp  # collision zones
 can_move = 1            # object can move
-mass = 4.0              # mass of the object
+mass = 1.0              # mass of the object
 damping = 0.2           # damping slows a moving object down
 acc_abs = 0.6           # acceleration on key press (only used for hero)
 

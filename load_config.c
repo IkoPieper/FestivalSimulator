@@ -77,6 +77,11 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			
 			obj->damping = atof(entry->value);
 			entry = entry->next;
+            
+        } else if (strcmp(entry->key, "elasticity") == 0) {
+			
+			obj->elasticity = atof(entry->value);
+			entry = entry->next;
 			
 		} else if (strcmp(entry->key, "acc_abs") == 0) {
 			

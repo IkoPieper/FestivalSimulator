@@ -22,12 +22,6 @@ void on_loop(object_t* obj, sound_t* snd,
     on_loop_sounds(obj, snd);
     
     collisions(obj, vbox, dt);
-	
-    object_t* obj_tmp = object_get(obj, OBJECT_HERO_ID);
-    if (obj_tmp->col != NULL) {
-        printf("frame: %lu\n", frame);
-        printf("hero, vel_lock: %d\n", obj_tmp->vel_lock);
-    }
     
 	movements(obj, keys, dt);
 }

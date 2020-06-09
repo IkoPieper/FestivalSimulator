@@ -106,6 +106,7 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
 	}
     
     // calculate impulses (new velocites):
+    
     obj = obj_first;
     while (obj != NULL) {
         
@@ -120,22 +121,35 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
         if (obj->col != NULL && !obj->impulse_calculated) {
             
             // bei objekt mit hoechsten |v| anfangen:
+            printf("\nFind object with highest |v| in collisions():\n");
+            
+            printf("Start with obj->id: %d\n", obj->id);
             
             object_t* obj_vel_max = obj;
             float vel_x = obj->vel_x;
             float vel_y = obj->vel_y;
             float vel = sqrtf(vel_x * vel_x + vel_y * vel_y);
+            
+            printf("vel_x: %f\n", vel_x);
+            printf("vel_y: %f\n", vel_y);
+            printf("vel: %f\n", vel);
+            
             float vel_max = vel;
             
-            list_t* lst = obj->col;
+            list_t* lst = NULL;
+            lst = collisions_blobb(lst, obj->col);
             lst = get_first(lst);
             while (lst != NULL) {
                 
                 collision_t* col = (collision_t*) lst->entry;
                 
+                printf("col->partner->id: %d\n", col->partner->id);
                 vel_x = col->partner->vel_x;
                 vel_y = col->partner->vel_y;
                 vel = sqrtf(vel_x * vel_x + vel_y * vel_y);
+                printf("vel_x: %f\n", vel_x);
+                printf("vel_y: %f\n", vel_y);
+                printf("vel: %f\n", vel);
                 
                 if (vel > vel_max) {
                     vel_max = vel;
@@ -145,6 +159,7 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
                 lst = lst->next;
             }
             
+            printf("obj_vel_max->id: %d\n\n", obj_vel_max->id);
             // impuls mit allen berechnen, dessen c-vektor entgegen-
             // gesetzt von v zeigt. bei den anderen wieder: impuls
             // mit allen berechnen dessen c-vektor entgegengesetzt
@@ -164,6 +179,31 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
         }
         obj = obj->next_object;
     }
+}
+
+// collect objects that collide and put them into a "blobb":
+list_t* collisions_blobb(list_t* blobb, list_t* current) {
+    
+    current = get_first(current);
+    while (current != NULL) {
+        
+        collision_t* col = (collision_t*) current->entry;
+        
+        if (!col->is_in_blobb) {
+            
+            blobb = create_before(blobb, (void*) col, 0);
+            col->is_in_blobb = true;
+            
+            if (col->partner->col != NULL) {
+                blobb = collisions_blobb(blobb, col->partner->col);
+            } else {
+                printf("col != NULL in collisions_blobb()! How is that possible?\n");
+            }
+        }
+        current = current->next;
+    }
+    
+    return(blobb);
 }
 
 bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
@@ -217,9 +257,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
     
 	// check for pixel wise collision:
 	if (collision && (obj1->has_moved || obj2->has_moved)) {
-        
-        printf("\n---------------------- collisions_check() pixel wise ----------------------\n");
-        printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
         
 		collision = false;
 		
@@ -277,26 +314,25 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 			y1_max = h1 - (yh1 - yh2);
 		}
 		
-        printf("\nx1_min: %d\n", x1_min);
-        printf("x1_max: %d\n", x1_max);
-        printf("y1_min: %d\n", y1_min);
-        printf("y1_max: %d\n", y1_max);
+        if (x1_max < x1_min || y1_max < y1_min) {
+            return(false);
+        }
         
-        // width and height of overlapping pixels:
-        int32_t x1_min_new, x1_max_new, y1_min_new, y1_max_new;
-        collision = collisions_dimensions_overlapp(
-            &x1_min_new, &x1_max_new, &y1_min_new, &y1_max_new, 
+        
+        collision = collisions_detect_pixel_collision(
             obj1->wall->pxl, obj2->wall->pxl, 
             x1_min, x1_max, y1_min, y1_max, w1_bmp, w1, h1,
             x2_min, y2_min, w2_bmp, w2, h2);
+            
         if (collision) {
             col1 = object_add_collision(obj1, obj2);
             col2 = object_add_collision(obj2, obj1);
-            col1->area = 0;
-            col2->area = 0;
         } else {
-            return(collision);
+            return(false);
         }
+        
+        printf("\n---------------------- collisions_check() pixel collision ----------------------\n");
+        printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id); 
         
         // find the two pixels that are zero for both objects. the line 
         // between them is the collision surface (90° to c).
@@ -308,41 +344,30 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         collisions_surface_vector(
             &c1x, &c1y, &c2x, &c2y, 
             obj1->wall->pxl, obj2->wall->pxl,
-            x1_min_new, x1_max_new, y1_min_new, y1_max_new,
             x1_min, x1_max, y1_min, y1_max, w1_bmp, w1, h1,
             x2_min, y2_min, w2_bmp, w2, h2);
-        // TODO: distinguish between c1 and c2!
         
+        if (c1x == 666.0) {
+            // obj1 is buried inside obj2:
+            c1x = obj1->vel_x;
+            c1y = obj1->vel_y;
+            float norm = sqrtf(c1x * c1x + c1y * c1y);
+            c1x /= norm;
+            c1y /= norm;
+            c2x = -c1x;
+            c2y = -c1y;
+        } else if (c2x == 666.0) {
+            // obj2 is buried inside obj1:
+            c2x = obj2->vel_x;
+            c2y = obj2->vel_y;
+            float norm = sqrtf(c2x * c2x + c2y * c2y);
+            c2x /= norm;
+            c2y /= norm;
+            c1x = -c2x;
+            c1y = -c2y;
+        }
         
-        // if less than the two pixels are found, this means that one 
-        // object is burried inside of the other. in this case, first 
-        // identify the object, that is burried. then, search for the 
-        // fastest way out in x and y-directions: start at middle of 
-        // top, bottom, left and right side of collision area. go 
-        // outwards, and stop if a free pixel is found in one of the 
-        // four directions.
-        /*bool escape = false;
-        
-        if (c1x == 0.0 && c1y == 0.0) {
-            collisions_surface_vector_escape(
-                &c1x, &c1y, &c2x, &c2y, 
-                obj1->wall->pxl, obj2->wall->pxl,
-                x1_min_new, x1_max_new, y1_min_new, y1_max_new,
-                x1_min, x1_max, y1_min, y1_max, w1_bmp, 
-                x2_min, y2_min, w2_bmp);
-                
-            escape = true;
-        }*/
-        
-		
-		
 		if (collision) {
-            
-			// save direction of collision:
-			col1->c_x_old = col1->c_x;
-			col1->c_y_old = col1->c_y;
-			col2->c_x_old = col2->c_x;
-			col2->c_y_old = col2->c_y;
             
 			// update direction of collision:
 			col1->c_x = c1x;
@@ -353,26 +378,18 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
             // forbid all velocity changes:
             obj1->vel_lock = true;	
 			obj2->vel_lock = true;
-            
 		}
 	}
 	
 	return(collision);
 }
 
-bool collisions_dimensions_overlapp(
-    int32_t* x1_min_new, int32_t* x1_max_new, 
-    int32_t* y1_min_new, int32_t* y1_max_new, 
+bool collisions_detect_pixel_collision(
     uint8_t* pxl1, uint8_t* pxl2,
     int32_t x1_min, int32_t x1_max, 
     int32_t y1_min, int32_t y1_max, int32_t w1_bmp, int32_t w1, int32_t h1, 
     int32_t x2_min, 
     int32_t y2_min, int32_t w2_bmp, int32_t w2, int32_t h2) {
-    
-    printf("\ncollisions_dimensions_overlapp()\n");
-    printf("\n");
-    
-    bool collision = false;
     
     int32_t x, x_min, x_max;
     int32_t y, y_min, y_max;
@@ -386,13 +403,7 @@ bool collisions_dimensions_overlapp(
     y_min = y1_min - 1;
     y_max = y1_max + 1;
     
-    printf("x_min: %d\n", x_min);
-    printf("x_max: %d\n", x_max);
-    printf("y_min: %d\n", y_min);
-    printf("y_max: %d\n", y_max);
-    
-    
-    // top pixel shared:
+    // find a pixel:
     y = y_min;
     y2 = y2_min + y - y1_min;
     pixel_not_found = true;
@@ -404,7 +415,7 @@ bool collisions_dimensions_overlapp(
                     pxl1, pxl2, x, y, x1_min, y1_min, w1_bmp, w1, h1,
                     x2, y2, x2_min, y2_min, w2_bmp, w2, h2)) {
                 pixel_not_found = false;
-                collision = true;
+                return(true);
             } 
             x++;
             x2++;
@@ -413,84 +424,12 @@ bool collisions_dimensions_overlapp(
         y2++;
     }
     
-    *y1_min_new = y - 1;
-    
-    if (!collision) {
-        printf("no collision detected!\n");
-        return(collision);
-    }
-    
-    // bottom pixel shared:
-    y = y_max - 1;
-    y2 = y2_min + y - y1_min;
-    pixel_not_found = true;
-    while (y >= y_min && pixel_not_found) {
-        x = x_max - 1;
-        x2 = x2_min + x - x1_min;
-        while (x >= x_min && pixel_not_found) {
-            if (collisions_pixels_shared_protected(
-                    pxl1, pxl2, x, y, x1_min, y1_min, w1_bmp, w1, h1,
-                    x2, y2, x2_min, y2_min, w2_bmp, w2, h2)) {
-                pixel_not_found = false;
-            } 
-            x--;
-            x2--;
-        }
-        y--;
-        y2--;
-    }
-    *y1_max_new = y + 1;
-    
-    // most left pixel shared:
-    x = x_min;
-    x2 = x2_min + x - x1_min;
-    pixel_not_found = true;
-    while (x < x_max && pixel_not_found) {
-        y = y_max - 1;
-        y2 = y2_min + y - y1_min;
-        while (y >= y_min && pixel_not_found) {
-            if (collisions_pixels_shared_protected(
-                    pxl1, pxl2, x, y, x1_min, y1_min, w1_bmp, w1, h1,
-                    x2, y2, x2_min, y2_min, w2_bmp, w2, h2)) {
-                pixel_not_found = false;
-            } 
-            y--;
-            y2--;
-        }
-        x++;
-        x2++;
-    }
-    *x1_min_new = x - 1;
-    
-    // most right pixel shared:
-    x = x_max - 1;
-    x2 = x2_min + x - x1_min;
-    pixel_not_found = true;
-    while (x >= x_min && pixel_not_found) {
-        y = y_min;
-        y2 = y2_min + y - y1_min;
-        while (y < y_max && pixel_not_found) {
-            if (collisions_pixels_shared_protected(
-                    pxl1, pxl2, x, y, x1_min, y1_min, w1_bmp, w1, h1,
-                    x2, y2, x2_min, y2_min, w2_bmp, w2, h2)) {
-                pixel_not_found = false;
-            }
-            y++;
-            y2++;
-        }
-        x--;
-        x2--;
-    }
-    *x1_max_new = x + 1;
-    
-    return(collision);
+    return(false);
 }
 
 void collisions_surface_vector(
     float* c1x, float* c1y, float* c2x, float* c2y,
     uint8_t* pxl1, uint8_t* pxl2,
-    int32_t x1_min_new, int32_t x1_max_new, 
-    int32_t y1_min_new, int32_t y1_max_new,
     int32_t x1_min, int32_t x1_max, 
     int32_t y1_min, int32_t y1_max, int32_t w1_bmp, int32_t w1, int32_t h1,
     int32_t x2_min, 
@@ -521,9 +460,18 @@ void collisions_surface_vector(
     y_min = y1_min - 1;
     y_max = y1_max + 1;
     
+    printf("\nx_min: %d\n", x_min);
+    printf("x_max: %d\n", x_max);
+    printf("y_min: %d\n", y_min);
+    printf("y_max: %d\n", y_max);
+    
     // print for debugging:
     bool spxl1, spxl2;
+    
     for (y = y_min; y < y_max; y++) {
+        
+        printf("%3d:", y);
+        
         for (x = x_min; x < x_max; x++) {
             
             spxl1 = collisions_pixel_protected(x, y, pxl1, w1_bmp, w1, h1);
@@ -559,8 +507,6 @@ void collisions_surface_vector(
             if (collisions_pixels_empty(
                 pxl1, pxl2, x, y, x1_min, y1_min, w1_bmp, w1, h1,
                 x2_min, y2_min, w2_bmp, w2, h2)) {
-                
-                printf("found 0\n");
                 
                 // search neighbours:
                 int32_t yy = y - 1;
@@ -702,8 +648,8 @@ void collisions_surface_vector(
         float dc1y = *c1y;
         float dc2x = *c2x;
         float dc2y = *c2y;
-        int32_t x_start = x1_min + abs((x2_found - x1_found) / 2);
-        int32_t y_start = y1_min + abs((y2_found - y1_found) / 2);
+        int32_t x_start = x1_found + (x2_found - x1_found) / 2;
+        int32_t y_start = y1_found + (y2_found - y1_found) / 2;
         
         printf("start correction at:\n");
         printf("x_start: %d\n", x_start);
@@ -738,6 +684,8 @@ void collisions_surface_vector(
             
             step++;
         }
+        
+        printf("score for c1: %d\n", score);
         
         step = 0;
         while (step < steps) {
@@ -784,23 +732,26 @@ void collisions_surface_vector(
         printf("c1y: %f\n", *c1y);
         printf("c2x: %f\n", *c2x);
         printf("c2y: %f\n", *c2y);
-    } /*else { // only num_pixels_found < 2 possible
-        // one object is burried deeper than 1 pixel inside the other.
-        // increase the rectangualar circle and repeat:
+
+    } else { // only num_pixels_found < 2 possible
+        // one object is buried deeper than 1 pixel inside the other.
         
-        x1_min_new--;
-        x1_max_new++;
-        y1_min_new--;
-        y1_max_new++;
-        
-        collisions_surface_vector(
-            c1x, c1y, c2x, c2y, 
-            pxl1, pxl2,
-            x1_min_new, x1_max_new, y1_min_new, y1_max_new,
-            x1_min, x1_max, y1_min, y1_max, w1_bmp, w1, h1,
-            x2_min, y2_min, w2_bmp, w2, h2);
-        
-    }*/
+        if (x_min == -1) {
+            // object 1 is buried
+            printf("\n obj1 is buried inside of obj2!\n");
+            *c1x = 666.0;
+            *c1y = 666.0;
+            *c2x = 0.0;
+            *c2y = 0.0;
+        } else {
+            // object 2 is buried
+            printf("\n obj2 is buried inside of obj1!\n");
+            *c1x = 0.0;
+            *c1y = 0.0;
+            *c2x = 666.0;
+            *c2y = 666.0;
+        }
+    }
 }
 bool collisions_pixels_shared(
     uint8_t* pxl1, uint8_t* pxl2, 
@@ -910,39 +861,42 @@ void collisions_impulse_chain(
             
             float vx = obj->vel_x;
             float vy = obj->vel_y;
-            float norm = sqrtf(vx * vx + vy * vy);
-            vx = vx / norm;
-            vy = vy / norm;
-            printf("vx: %f\n", vx);
-            printf("vy: %f\n", vy);
-            printf("obj->vel_x: %f\n", obj->vel_x);
-            printf("obj->vel_y: %f\n", obj->vel_y);
+            if (vx != 0.0 || vy != 0.0) {
+                float norm = sqrtf(vx * vx + vy * vy);
+                vx = vx / norm;
+                vy = vy / norm;
             
-            // collision vector of partner == - own collision vector
-            float cx = col_partner->c_x;
-            float cy = col_partner->c_y;
-            printf("col_partner->c_x: %f\n", col_partner->c_x);
-            printf("col_partner->c_y: %f\n", col_partner->c_y);
-            printf("col->partner->vel_x: %f\n", col->partner->vel_x);
-            printf("col->partner->vel_y: %f\n", col->partner->vel_y);
-            
-            
-            // if angle not smaller than 90°:
-            if (!((cx < -vy && cy < -vx) || (cx > -vy && cy > -vx))) {
-                // TODO: lock vel for at least 2 frames (not here :-))
-                // TODO: update pos hier direkt nach vel. schiebe das objekt 
-                // vielleicht sogar noch weiter, sodass es sicher ausserhalb der 
-                // kollisionszone ist
-                // TODO: force vel after collision into a miniumum angle.
-                // v soll immer ein paar grad von der senkrechten flaeche wegzeigen
-                collisions_impulse(obj, col->partner, col, col_partner);
-                printf("After collisions_impulse():\n");
+                printf("vx: %f\n", vx);
+                printf("vy: %f\n", vy);
                 printf("obj->vel_x: %f\n", obj->vel_x);
                 printf("obj->vel_y: %f\n", obj->vel_y);
+                
+                // collision vector of partner == - own collision vector
+                float cx = col_partner->c_x;
+                float cy = col_partner->c_y;
+                printf("col_partner->c_x: %f\n", col_partner->c_x);
+                printf("col_partner->c_y: %f\n", col_partner->c_y);
                 printf("col->partner->vel_x: %f\n", col->partner->vel_x);
                 printf("col->partner->vel_y: %f\n", col->partner->vel_y);
                 
-                collisions_impulse_chain(col->partner, obj->id, depth);
+                
+                // if angle not smaller than 90°:
+                if (!((cx < -vy && cy < -vx) || (cx > -vy && cy > -vx))) {
+                    // TODO: lock vel for at least 2 frames (not here :-))
+                    // TODO: update pos hier direkt nach vel. schiebe das objekt 
+                    // vielleicht sogar noch weiter, sodass es sicher ausserhalb der 
+                    // kollisionszone ist
+                    // TODO: force vel after collision into a miniumum angle.
+                    // v soll immer ein paar grad von der senkrechten flaeche wegzeigen
+                    collisions_impulse(obj, col->partner, col, col_partner);
+                    printf("After collisions_impulse():\n");
+                    printf("obj->vel_x: %f\n", obj->vel_x);
+                    printf("obj->vel_y: %f\n", obj->vel_y);
+                    printf("col->partner->vel_x: %f\n", col->partner->vel_x);
+                    printf("col->partner->vel_y: %f\n", col->partner->vel_y);
+                    
+                    collisions_impulse_chain(col->partner, obj->id, depth);
+                }
             }
         }
         lst = lst->next;
@@ -970,9 +924,9 @@ void collisions_impulse(
 	float v1y = 0.0;
 	float v2x = 0.0;
 	float v2y = 0.0;
-	float tmp = 0.0;
+	/*float tmp = 0.0;
 	float x12 = (float) (obj2->scr_pos_x - obj1->scr_pos_x);
-	float y12 = (float) (obj2->scr_pos_y - obj1->scr_pos_y);
+	float y12 = (float) (obj2->scr_pos_y - obj1->scr_pos_y);*/
 	
 	if (obj1->can_move) {
 		v1x = obj1->vel_x;
@@ -1042,14 +996,14 @@ void collisions_impulse(
         // velocity vertically to impulse direction:
         v1r = c1y * v1x - c1x * v1y;
         // final velocities:
-		obj1->vel_x = (c1x * v1n + c1y * v1r);
-		obj1->vel_y = (c1y * v1n - c1x * v1r);
+		obj1->vel_x = (c1x * v1n + c1y * v1r) * 0.95;
+		obj1->vel_y = (c1y * v1n - c1x * v1r) * 0.95;
 	}
 	
 	if (obj2->can_move) {
         v2r = c2y * v2x - c2x * v2y;
-		obj2->vel_x = (c1x * v2n + c2y * v2r);
-		obj2->vel_y = (c1y * v2n - c2x * v2r);
+		obj2->vel_x = (c1x * v2n + c2y * v2r) * 0.95;
+		obj2->vel_y = (c1y * v2n - c2x * v2r) * 0.95;
 	}
 }
 

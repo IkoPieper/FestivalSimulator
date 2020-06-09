@@ -48,14 +48,9 @@ struct walls {
 
 struct collision {
     object_t* partner;
-    uint32_t area;
-    uint32_t area_old;
+    bool is_in_blobb;
     float c_x;
     float c_y;
-    float c_x_old;
-    float c_y_old;
-    float vel_x;
-    float vel_y;
 };
 
 struct task {
@@ -102,6 +97,7 @@ struct object {
 	bool has_moved;
 	float mass;
 	float damping;
+    float elasticity;
 	float pos_x;        // position in relation to background
 	float pos_y;
 	float pos_x_old;    // position in previous frame

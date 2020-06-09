@@ -58,6 +58,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->has_moved = true;	// init with true to set up render list
 	obj_new->mass = 1.0;
 	obj_new->damping = 0.2;
+    obj_new->elasticity = 0.9;
 	obj_new->pos_x = 1.0;
 	obj_new->pos_x = 0.0;
 	obj_new->pos_y = 0.0;
@@ -598,12 +599,7 @@ collision_t* object_add_collision(object_t* obj, object_t* partner) {
     col = find_id(col, partner->id);
     if (col != NULL) {
         entry = (collision_t*) col->entry;
-        // update the old values:
-        entry->area_old = entry->area;
-        entry->c_x_old = entry->c_x;
-        entry->c_y_old = entry->c_y;
-        // init area:
-        entry->area = 0;
+        entry->is_in_blobb = false;
         
         return(entry);
     }
@@ -616,14 +612,9 @@ collision_t* object_add_collision(object_t* obj, object_t* partner) {
 	
 	// initialize:
     entry->partner = partner;	// add new partner (TODO: Check if stil required)
-    entry->area = 0;
-    entry->area_old = 0;
+    entry->is_in_blobb = false;
     entry->c_x = 0.0;
     entry->c_y = 0.0;
-    entry->c_x_old = 0.0;
-    entry->c_y_old = 0.0;
-    entry->vel_x = 0.0;
-    entry->vel_y = 0.0;
     
     return(entry);
 }

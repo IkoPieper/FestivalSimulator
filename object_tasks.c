@@ -43,8 +43,11 @@ void stop(object_t* obj) {
     } else {
         waypoints_t* ways = (waypoints_t*) obj->ways->entry;
         ways->active = false;
+        obj->can_move = false;
     }
     obj->anim_walk = false;
+    obj->vel_x = 0.0;
+    obj->vel_y = 0.0;
 }
 
 void move_on(object_t* obj) {
@@ -54,6 +57,7 @@ void move_on(object_t* obj) {
     } else {
         waypoints_t* ways = obj->ways->entry;
         ways->active = true;
+        obj->can_move = true;
     }
     obj->anim_walk = true;
 }
@@ -81,6 +85,7 @@ void start_waypoints(object_t* obj, uint32_t id) {
     ways->n = 0;
     ways->active = true;
     obj->can_move = true;
+    obj->anim_walk = true;
 }
 
 bool waypoints_finished(object_t* obj) {
@@ -216,7 +221,7 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-        if (hero->pos_x < 350.0 && hero->pos_y < 450.0) {
+        if (hero->pos_x < 600.0 && hero->pos_y < 750.0) {
         
             start_waypoints(obj, 1);
             
@@ -232,7 +237,7 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             
             say(obj, 1, 150);
             
-            obj->can_move = false;
+            stop(obj);
             
             tsk->step++;
             
@@ -244,9 +249,7 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
         
-        if (hero->pos_x > 350.0 || hero->pos_y > 450.0) {
-            
-            obj->can_move = true;
+        if (hero->pos_x > 600.0 || hero->pos_y > 750.0) {
             
             start_waypoints(obj, 2);
             
@@ -261,8 +264,6 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             if (obj_itm->itm_props->id == ITEM_RED_STONE) {
             
                 say(obj, 2, 250);
-                
-                obj->can_move = true;
                 
                 start_waypoints(obj, 3);
                 
