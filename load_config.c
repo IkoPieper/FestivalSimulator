@@ -127,6 +127,7 @@ configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
         
 		if        (strcmp(entry->key, "item") == 0) {
 			
+            printf("ITEM ADDED: %d\n", atoi(entry->value));
 			object_init_item_props(obj, NULL, atoi(entry->value));
 			entry = entry->next;
 			

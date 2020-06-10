@@ -261,14 +261,16 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             return(true);
         }
         
-        if (keys[KEY_SPACE] && hero->itm != NULL) {
+        if (keys[KEY_SPACE] && hero->itm->id == ITEM_WATER_PISTOL) {
                 
             object_t* obj_itm = (object_t*) hero->itm->entry;
-            if (obj_itm->itm_props->id == ITEM_RED_STONE) {
+            // if hit security:
+            if (obj_itm->pos_y < obj->pos_y + obj->surface->h &&
+                obj_itm->pos_x > obj->pos_x &&
+                obj_itm->pos_x + obj_itm->surface->w 
+                    < obj->pos_x + obj->surface->w) {
             
-                say(obj, 2, 250);
-                
-                start_waypoints(obj, 3);
+                say(obj, 2, 50);
                 
                 tsk->step = 3;
                 
@@ -279,7 +281,9 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
     
     if (tsk->step == 3) {
         
-        if (waypoints_finished(obj)) {
+        if (said(obj)) {
+            
+            start_waypoints(obj, 3);
             
             tsk->step = 4;
             
@@ -288,6 +292,16 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
     }
     
     if (tsk->step == 4) {
+        
+        if (waypoints_finished(obj)) {
+            
+            tsk->step = 5;
+            
+            return(true);
+        }
+    }
+    
+    if (tsk->step == 5) {
         
         static uint16_t frame = 0;
         static float vel_x;

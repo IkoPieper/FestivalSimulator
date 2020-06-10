@@ -2,6 +2,7 @@ object = 2              # hard coded hero id
 has_item = 2000         # stone id
 has_item = 2001         # red stone id
 has_item = 2002         # money id
+has_item = 2003         # water pistol id
 surface = hero_s_1.bmp  # main picture
 walls = hero_walls.bmp  # collision zones
 can_move = 1            # object can move
@@ -53,3 +54,21 @@ surface = hero_w_stand.bmp
 animation = 8           # animation for stopping east
 delay_frames = 1
 surface = hero_e_stand.bmp
+
+animation = 9           # animation for walking north without arms
+delay_frames = 7
+surface = hero_no_arms_n_1.bmp
+surface = hero_no_arms_n_2.bmp
+
+animation = 10          # animation for walking south without arms
+delay_frames = 7
+surface = hero_no_arms_s_1.bmp
+surface = hero_no_arms_s_2.bmp
+
+animation = 11          # animation for stopping north without arms
+delay_frames = 7
+surface = hero_no_arms_n_stand.bmp
+
+animation = 12          # animation for stoping south without arms
+delay_frames = 7
+surface = hero_no_arms_s_stand.bmp

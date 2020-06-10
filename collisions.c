@@ -376,8 +376,8 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 			col2->c_y = c2y;
 			
             // forbid all velocity changes:
-            obj1->vel_lock = true;	
-			obj2->vel_lock = true;
+            //obj1->vel_lock = true;	
+			//obj2->vel_lock = true;
 		}
 	}
 	
@@ -843,7 +843,7 @@ void collisions_impulse_chain(
             
             float vx = obj->vel_x;
             float vy = obj->vel_y;
-            if (vx != 0.0 || vy != 0.0) {
+            //if (vx != 0.0 || vy != 0.0) {
                 float norm = sqrtf(vx * vx + vy * vy);
                 vx = vx / norm;
                 vy = vy / norm;
@@ -872,9 +872,12 @@ void collisions_impulse_chain(
                     printf("col->partner->vel_x: %f\n", col->partner->vel_x);
                     printf("col->partner->vel_y: %f\n", col->partner->vel_y);
                     
+                    obj->vel_lock = true;
+                    col->partner->vel_lock = true;
+                    
                     collisions_impulse_chain(col->partner, obj->id, depth);
                 }
-            }
+            //}
         }
         lst = lst->next;
     }
@@ -1034,6 +1037,7 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         obj1_before_obj2 = !collisions_beam(obj1, x, y);
         
     } else {
+        
         // use fast method. calculate points on lines between most left 
         // and most right collision pixel:
         
@@ -1074,11 +1078,13 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
     
 	// update render lists:
 	if (obj1_before_obj2) {
+        
         obj1->render_before = create_before(
             obj1->render_before, (void*) obj2, 0);
         obj2->render_after = create_before(
             obj2->render_after, (void*) obj1, 0);
 	} else {
+        
         obj1->render_after = create_before(
             obj1->render_after, (void*) obj2, 0);
         obj2->render_before = create_before(

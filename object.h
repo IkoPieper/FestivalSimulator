@@ -27,20 +27,20 @@ struct walls {
 	// collision pixels:
 	uint8_t* pxl;
 	// x and y relative to main sprite position:
-	uint32_t x;
-	uint32_t y;
+	int32_t x;
+	int32_t y;
 	// width and height:
 	uint32_t w;
 	uint32_t w_bmp;	// width in memory. see object_init_walls()
 	uint32_t h;
 	// position of most left pixel:
-	uint32_t lx;
-	uint32_t ly;
-    uint32_t ly_beam; // use 1 below lowest left pixel for render beams
+	int32_t lx;
+	int32_t ly;
+    int32_t ly_beam; // use 1 below lowest left pixel for render beams
 	// position of most right pixel:
-	uint32_t rx;
-	uint32_t ry;
-    uint32_t ry_beam; // use 1 below lowest right pixel for render beams
+	int32_t rx;
+	int32_t ry;
+    int32_t ry_beam; // use 1 below lowest right pixel for render beams
 	// line between those pixels:
 	float slope;
 	float offset;
@@ -234,6 +234,7 @@ bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
 bool use_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 bool use_money(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
+bool use_water_pistol(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
 
 #define OBJECT_BACKGROUND_ID 1
 #define OBJECT_HERO_ID 2
@@ -249,5 +250,6 @@ bool use_money(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame)
 #define ITEM_STONE 0
 #define ITEM_RED_STONE 1
 #define ITEM_MONEY 2
+#define ITEM_WATER_PISTOL 3
 
 #endif

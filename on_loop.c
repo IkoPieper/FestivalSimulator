@@ -12,11 +12,11 @@ void on_loop(object_t* obj, sound_t* snd,
 	//movements(obj, keys, dt);
 	
     on_loop_tasks(obj, keys, frame, dt);
-    
+	
     on_loop_items(obj, keys, frame);
-	
+    
 	on_loop_animations(obj, keys, frame, dt);
-	
+    
 	on_loop_waypoints(obj, frame, dt);
 
     on_loop_sounds(obj, snd);
@@ -57,12 +57,11 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
     
     if (hero->itm != NULL) {
         
-        if (keys[KEY_SPACE]) {
-            // call item function of the item object. in other words:
-            // use the selected item:
-            object_t* obj = (object_t*) hero->itm->entry;
-            obj->itm_props->item_function(obj, NULL, keys, frame);
-        }
+        // call item function of the item object. in other words:
+        // use the selected item:
+        object_t* obj = (object_t*) hero->itm->entry;
+        obj->itm_props->item_function(obj, NULL, keys, frame);
+        
         if (!keys[KEY_SHIFT]) {
             released_key_shift = true;
         }
@@ -111,8 +110,7 @@ void on_loop_animations(object_t* obj, bool* keys,
             // select walk cycle animation:
             if (obj->id == OBJECT_HERO_ID) {
                 
-                anim_id = on_loop_get_animation_walk_hero(
-                    obj->anim->id, keys);
+                anim_id = on_loop_get_animation_walk_hero(obj, keys);
                 
             } else {
             
@@ -154,13 +152,23 @@ void on_loop_animations(object_t* obj, bool* keys,
 	
 }
 
-uint32_t on_loop_get_animation_walk_hero(uint32_t anim_id, bool* keys) {
+uint32_t on_loop_get_animation_walk_hero(object_t* obj, bool* keys) {
+    
+    uint32_t anim_id = obj->anim->id;
     
     if (keys[KEY_UP]) {
-        return(ANIMATION_WALK_NORTH);
+        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+            return(9);
+        } else {
+            return(ANIMATION_WALK_NORTH);
+        }
     }
     if (keys[KEY_DOWN]) {
-        return(ANIMATION_WALK_SOUTH);
+        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+            return(10);
+        } else {
+            return(ANIMATION_WALK_SOUTH);
+        }
     }
     if (keys[KEY_LEFT]) {
         return(ANIMATION_WALK_WEST);
@@ -169,11 +177,33 @@ uint32_t on_loop_get_animation_walk_hero(uint32_t anim_id, bool* keys) {
         return(ANIMATION_WALK_EAST);
     }
     
-    if (anim_id == ANIMATION_WALK_NORTH) {
-        return(ANIMATION_REST_NORTH);
+    if (anim_id == ANIMATION_WALK_NORTH || anim_id == 9) {
+        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+            return(11);
+        } else {
+            return(ANIMATION_REST_NORTH);
+        }
     }
-    if (anim_id == ANIMATION_WALK_SOUTH) {
-        return(ANIMATION_REST_SOUTH);
+    if (anim_id == ANIMATION_REST_NORTH) {
+        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+            return(11);
+        } else {
+            return(ANIMATION_REST_NORTH);
+        }
+    }
+    if (anim_id == ANIMATION_WALK_SOUTH || anim_id == 10) {
+        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+            return(12);
+        } else {
+            return(ANIMATION_REST_SOUTH);
+        }
+    }
+    if (anim_id == ANIMATION_REST_SOUTH) {
+        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+            return(12);
+        } else {
+            return(ANIMATION_REST_SOUTH);
+        }
     }
     if (anim_id == ANIMATION_WALK_WEST) {
         return(ANIMATION_REST_WEST);

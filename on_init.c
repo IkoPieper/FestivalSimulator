@@ -391,6 +391,7 @@ bool on_init_items(object_t* obj) {
             while (lst != NULL) {
                 object_t* obj_item = object_get(obj, lst->id);
                 lst->entry = (void*) obj_item;
+                lst->id = obj_item->itm_props->id;
                 obj_item->disable_collision = true;
                 obj_item->disable_render = true;
                 obj_item->can_move = false;
