@@ -153,7 +153,8 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		}
         // go to bottom until black pixel found:
         wall->ly_beam = wall->ly;
-        while (wall->pxl[(wall->ly_beam * wall->w_bmp) + wall->lx]) {
+        while (wall->ly_beam < surf_wall->h &&
+            wall->pxl[(wall->ly_beam * wall->w_bmp) + wall->lx]) {
             wall->ly_beam++;
         }
         
@@ -172,7 +173,8 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		}
         // go to bottom until black pixel found:
         wall->ry_beam = wall->ry;
-        while (wall->pxl[(wall->ry_beam * wall->w_bmp) + wall->rx]) {
+        while (wall->ry_beam < surf_wall->h &&
+            wall->pxl[(wall->ry_beam * wall->w_bmp) + wall->rx]) {
             wall->ry_beam++;
         }
         
