@@ -117,7 +117,6 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	// collisions:
 	obj_new->col = NULL;
     obj_new->disable_collision = false;
-    obj_new->impulse_calculated = false;
 	
 	return(obj_new);
 }
@@ -593,52 +592,18 @@ void object_free_waypoints(list_t* ways) {
 
 collision_t* object_add_collision(object_t* obj, object_t* partner) {
     
-    list_t* col = obj->col;
-	collision_t* entry;
-    
-	// only add if collision does not already exist:
-    col = find_id(col, partner->id);
-    if (col != NULL) {
-        entry = (collision_t*) col->entry;
-        entry->is_in_blobb = false;
-        
-        return(entry);
-    }
-	
 	// add new collision:
-	entry = (collision_t*) malloc(sizeof(collision_t));
+	collision_t* entry = (collision_t*) malloc(sizeof(collision_t));
 	
 	// add at first place in list:
     obj->col = create_before(obj->col, (void*) entry, partner->id);
 	
 	// initialize:
-    entry->partner = partner;	// add new partner (TODO: Check if stil required)
-    entry->is_in_blobb = false;
+    entry->partner = partner;	// add new partner
     entry->c_x = 0.0;
     entry->c_y = 0.0;
     
     return(entry);
-}
-
-void object_remove_collision(object_t* obj, object_t* partner) {
-	
-    list_t* col = obj->col;
-    
-    if (col == NULL) {
-        return;
-    }
-    
-    // find partner in list:
-    col = find_id(col, partner->id);
-    
-    if (col == NULL) {
-		return;
-    }
-    
-    // col is now the partner, so remove col:
-    free((collision_t*) col->entry);
-    obj->col = delete_single(col);
-    
 }
 
 void object_free_collisions(list_t* col) {

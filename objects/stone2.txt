@@ -4,7 +4,7 @@ pos_y = 760
 surface = stone_1.bmp
 walls = stone_walls.bmp
 can_move = 1            # object can move
-mass = 4.0              # mass of the object
+mass = 0.1              # mass of the object
 damping = 0.02          # damping slows a moving object down
 elasticity = 0.5        # how much the object bounces in collisions
                         # value of elasticity between 0.0 and 0.9

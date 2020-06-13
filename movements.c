@@ -17,6 +17,8 @@ void movements(object_t* obj, bool* keys, float dt) {
 	obj_bg->pos_y_old = obj_bg->pos_y;
 	
 	// hero movements first:
+    obj_hero->acc_x = 0.0;
+    obj_hero->acc_y = 0.0;
     if (!obj_hero->vel_lock) {
         movements_hero(obj_hero, keys);
     }

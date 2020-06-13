@@ -48,7 +48,6 @@ struct walls {
 
 struct collision {
     object_t* partner;
-    bool is_in_blobb;
     float c_x;
     float c_y;
 };
@@ -155,7 +154,6 @@ struct object {
 	// collisions:
 	list_t* col;
     bool disable_collision;
-    bool impulse_calculated;
 };
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf);
@@ -193,7 +191,6 @@ void object_aim_for_waypoint(object_t* obj);
 void object_free_waypoints(list_t* ways);
 
 collision_t* object_add_collision(object_t* obj, object_t* partner);
-void object_remove_collision(object_t* obj, object_t* partner);
 void object_free_collisions(list_t* col);
 
 void object_add_task(object_t* obj, uint32_t id);

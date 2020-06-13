@@ -11,7 +11,7 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt);
 
 list_t* collisions_blobb(list_t* blobb, list_t* current);
 
-bool collisions_check(object_t* obj1, object_t* obj2, float dt);
+void collisions_check(object_t* obj1, object_t* obj2, float dt);
 
 bool collisions_detect_pixel_collision(
     uint8_t* pxl1, uint8_t* pxl2,
@@ -25,6 +25,15 @@ void collisions_surface_vector(
     uint8_t* pxl1, uint8_t* pxl2,
     int32_t x1_min, int32_t x1_max, 
     int32_t y1_min, int32_t y1_max, int32_t w1_bmp, int32_t w1, int32_t h1, 
+    int32_t x2_min, 
+    int32_t y2_min, int32_t w2_bmp, int32_t w2, int32_t h2);
+
+int32_t collisions_surface_vector_check(
+    int32_t x_start, int32_t y_start, 
+    float* c1x, float* c1y, float* c2x, float* c2y, 
+    uint8_t* pxl1, uint8_t* pxl2,
+    int32_t x1_min, int32_t x1_max, 
+    int32_t y1_min, int32_t y1_max, int32_t w1_bmp, int32_t w1, int32_t h1,
     int32_t x2_min, 
     int32_t y2_min, int32_t w2_bmp, int32_t w2, int32_t h2);
 
@@ -52,13 +61,9 @@ bool collisions_pixel(
     
 bool collisions_pixel_protected(
     int32_t x, int32_t y, uint8_t* pxl, int32_t w_bmp, int32_t w, int32_t h);
-    
-void collisions_impulse_chain(
-    object_t* obj, uint32_t called_by_obj_id, uint32_t depth);
-    
+
 void collisions_impulse(
-	object_t* obj1, object_t* obj2, 
-    collision_t* col1, collision_t* col2);
+	object_t* obj1, object_t* obj2, float c1x, float c1y);
 
 void collisions_update_render(object_t* obj, object_t* obj_b);
 
