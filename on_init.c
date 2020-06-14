@@ -37,8 +37,6 @@ sound_t* on_init_sound_samples(sound_t* snd) {
     if(!chunk) {
         printf("Mix_LoadWAV: %s\n", Mix_GetError());
         chunk = NULL;
-    } else {
-        Mix_PlayChannel(-1, chunk, 0);
     }
     snd->samples[SOUND_COLLISION] = chunk;
     
@@ -46,10 +44,15 @@ sound_t* on_init_sound_samples(sound_t* snd) {
     if(!chunk) {
         printf("Mix_LoadWAV: %s\n", Mix_GetError());
         chunk = NULL;
-    } else {
-        Mix_PlayChannel(-1, chunk, 0);
     }
     snd->samples[SOUND_STEP] = chunk;
+    
+    chunk = Mix_LoadWAV("samples/water_pistol.wav");
+    if(!chunk) {
+        printf("Mix_LoadWAV: %s\n", Mix_GetError());
+        chunk = NULL;
+    }
+    snd->samples[SOUND_WATER_PISTOL] = chunk;
     
     return(snd);
 }

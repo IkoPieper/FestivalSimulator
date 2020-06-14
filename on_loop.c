@@ -19,7 +19,7 @@ void on_loop(object_t* obj, sound_t* snd,
     
 	on_loop_waypoints(obj, frame, dt);
 
-    on_loop_sounds(obj, snd, frame, dt);
+    on_loop_sounds(obj, keys, snd, frame, dt);
     
     collisions(obj, vbox, dt);
     
@@ -288,7 +288,7 @@ void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
 }
 
 void on_loop_sounds(
-    object_t* obj, sound_t* snd, uint64_t frame, float dt) {
+    object_t* obj, bool* keys, sound_t* snd, uint64_t frame, float dt) {
     
     object_t* obj_hero = object_get(obj, OBJECT_HERO_ID);
     
@@ -312,14 +312,17 @@ void on_loop_sounds(
                 
                 if (obj->id == OBJECT_HERO_ID) {
                     
-                    sound_play_sample(snd, SOUND_STEP, 0);
+                    sound_play_sample(
+                        snd, SOUND_STEP, 
+                        CHANNEL_HERO_STEP);
                 } else {
                     
                     float dist_x = obj->pos_x - obj_hero->pos_x;
                     float dist_y = obj->pos_y - obj_hero->pos_y;
                     
                     sound_play_sample_distance(
-                        snd, SOUND_STEP, dist_x, dist_y);
+                        snd, SOUND_STEP, 
+                        dist_x, dist_y);
                 }
             }
         }
@@ -349,7 +352,9 @@ void on_loop_sounds(
                     if (obj_tmp->id == OBJECT_HERO_ID ||
                         obj->id == OBJECT_HERO_ID) {
                             
-                        sound_play_sample(snd, SOUND_COLLISION, 1);
+                        sound_play_sample(
+                            snd, SOUND_COLLISION, 
+                            CHANNEL_HERO_COLLISION);
                     } else {
                     
                         float dist_x = obj_tmp->pos_x - obj_hero->pos_x;
@@ -358,7 +363,8 @@ void on_loop_sounds(
                         printf("SOUND played for obj_tmp->id: %d\n", obj_tmp->id);
                         
                         sound_play_sample_distance(
-                            snd, SOUND_COLLISION, dist_x, dist_y);
+                            snd, SOUND_COLLISION, 
+                            dist_x, dist_y);
                     }
                         
                     obj_tmp->col_sample_timer = (uint32_t) (20.0 / dt);
@@ -371,7 +377,19 @@ void on_loop_sounds(
         obj = obj->next_object;
     }
     
-    
+    // hero items:
+    if (obj_hero->itm != NULL) { 
+        if (keys[KEY_SPACE]) {
+            if (obj_hero->itm->id == ITEM_WATER_PISTOL) {
+                
+                sound_play_sample(
+                    snd, SOUND_WATER_PISTOL, 
+                    CHANNEL_HERO_ITEM);
+            }
+        } else {
+            Mix_FadeOutChannel(CHANNEL_HERO_ITEM, 200);
+        }
+    }
     
     // stage music:
     sound_music_loop(snd);

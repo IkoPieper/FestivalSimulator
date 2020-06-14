@@ -28,6 +28,12 @@ int32_t sound_volume_distance(float dist_x, float dist_y);
 
 #define SOUND_COLLISION 0
 #define SOUND_STEP 1
+#define SOUND_WATER_PISTOL 2
 
+#define CHANNEL_HERO_COLLISION 0
+#define CHANNEL_HERO_STEP 1
+#define CHANNEL_HERO_ITEM 2
+#define CHANNEL_HERO_OTHER 3
+#define CHANNEL_MIN_OTHER 4
 
 #endif
