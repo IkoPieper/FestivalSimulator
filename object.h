@@ -104,7 +104,6 @@ struct object {
 	float pos_y_old;
 	float vel_x;
 	float vel_y;
-	bool vel_lock;		// if true: velocity is not allowed to change
 	float acc_x;
 	float acc_y;
 	float acc_abs;
@@ -153,6 +152,7 @@ struct object {
 	
 	// collisions:
 	list_t* col;
+    uint32_t col_sample_timer;
     bool disable_collision;
 };
 

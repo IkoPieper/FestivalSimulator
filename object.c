@@ -67,7 +67,6 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->pos_y_old = 0.0;
 	obj_new->vel_x = 0.0;
 	obj_new->vel_y = 0.0;
-	obj_new->vel_lock = 0;
 	obj_new->acc_x = 0.0;
 	obj_new->acc_y = 0.0;
 	obj_new->acc_abs = 0.01;
@@ -116,6 +115,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	
 	// collisions:
 	obj_new->col = NULL;
+    obj_new->col_sample_timer = 0;
     obj_new->disable_collision = false;
 	
 	return(obj_new);

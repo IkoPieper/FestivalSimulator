@@ -348,8 +348,6 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
             obj->vel_x = vel_x;
             obj->vel_y = vel_y;
             
-            obj->vel_lock = true;
-            
             frame--;
             
         } else {

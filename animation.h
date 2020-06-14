@@ -1,6 +1,7 @@
 #ifndef _ANIMATION_H_
     #define _ANIMATION_H_
 
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 
 typedef struct surface_ring surface_ring_t;
@@ -16,6 +17,9 @@ struct animation {
 	surface_ring_t* cycle_first;
 	uint32_t delay_frames;          // frames to wait for next surf
     float time_active;              // time animation is active
+    bool surf_changed;               // true for one frame if surface 
+                                    // has changed
+    uint32_t n;                     // current surface number
 };
 
 animation_t* animation_init(float dt);

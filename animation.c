@@ -33,6 +33,8 @@ animation_t* animation_init(float dt) {
 	anim->cycle = NULL;
 	anim->delay_frames = (uint32_t) (10.0 / dt);
     anim->time_active = 0.0;
+    anim->surf_changed = false;
+    anim->n = 0;
 	
 	return(anim);
 }
@@ -81,11 +83,19 @@ void animation_add_surface(animation_t* anim, SDL_Surface* surf) {
 SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame) {
 	
 	if (frame % anim->delay_frames == 0) {
+        
 		if (anim->cycle->next == NULL) {
 			anim->cycle = anim->cycle_first;
+            anim->n = 0;
 		} else {
 			anim->cycle = anim->cycle->next;
+            anim->n++;
 		}
-	}
+        anim->surf_changed = true;
+        
+	} else {
+        
+        anim->surf_changed = false;
+    }
 	return(anim->cycle->surf);
 }

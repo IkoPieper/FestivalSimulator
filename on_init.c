@@ -9,13 +9,14 @@ sound_t* on_init_sound() {
         exit(-1);
     }
 
-    result = Mix_AllocateChannels(8);
+    sound_t* snd = (sound_t*) malloc(sizeof(sound_t));
+    snd->num_channels = 16;
+    
+    result = Mix_AllocateChannels(snd->num_channels);
     if (result < 0) {
         fprintf(stderr, "Unable to allocate mixing channels: %s\n", SDL_GetError());
         exit(-1);
     }
-    
-    sound_t* snd = (sound_t*) malloc(sizeof(sound_t));
     
     snd = on_init_sound_samples(snd);
     snd = on_init_sound_songs(snd);
@@ -26,6 +27,29 @@ sound_t* on_init_sound() {
 // load audio samples as defined in sound.h:
 sound_t* on_init_sound_samples(sound_t* snd) {
     
+    snd->num_samples = 2;
+    snd->samples = 
+        (Mix_Chunk**) malloc(snd->num_samples * sizeof(Mix_Chunk*));
+    
+    Mix_Chunk* chunk;
+    
+    chunk = Mix_LoadWAV("samples/collision.wav");
+    if(!chunk) {
+        printf("Mix_LoadWAV: %s\n", Mix_GetError());
+        chunk = NULL;
+    } else {
+        Mix_PlayChannel(-1, chunk, 0);
+    }
+    snd->samples[SOUND_COLLISION] = chunk;
+    
+    chunk = Mix_LoadWAV("samples/step.wav");
+    if(!chunk) {
+        printf("Mix_LoadWAV: %s\n", Mix_GetError());
+        chunk = NULL;
+    } else {
+        Mix_PlayChannel(-1, chunk, 0);
+    }
+    snd->samples[SOUND_STEP] = chunk;
     
     return(snd);
 }

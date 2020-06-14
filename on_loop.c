@@ -19,7 +19,7 @@ void on_loop(object_t* obj, sound_t* snd,
     
 	on_loop_waypoints(obj, frame, dt);
 
-    on_loop_sounds(obj, snd);
+    on_loop_sounds(obj, snd, frame, dt);
     
     collisions(obj, vbox, dt);
     
@@ -275,7 +275,7 @@ void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
             }*/
             
         
-            if (ways->active && !obj->vel_lock) {
+            if (ways->active) {
 
                 object_get_next_waypoint(obj, dt);
                 object_aim_for_waypoint(obj);
@@ -287,57 +287,93 @@ void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
 	
 }
 
-void on_loop_sounds(object_t* obj, sound_t* snd) {
+void on_loop_sounds(
+    object_t* obj, sound_t* snd, uint64_t frame, float dt) {
     
     object_t* obj_hero = object_get(obj, OBJECT_HERO_ID);
     
-    /* if (sound collision play finished) {
-    
-        obj = object_get_first(obj);
+    // samples:
+    object_t* obj_first = object_get_first(obj);
+    obj = obj_first;
+    while (obj != NULL) {
         
-        while (obj != NULL) {
-        
-            if (obj->col != NULL) {
+        // walk sounds:
+        if (obj->anim != NULL && obj->anim_walk && obj->anim->id < 5) {
             
-                // Play sound
+            animation_t* anim = (animation_t*) obj->anim->entry;
+            
+            bool east_west = 
+                obj->anim->id == ANIMATION_WALK_EAST ||
+                obj->anim->id == ANIMATION_WALK_WEST;
+            if (anim->surf_changed && 
+                (anim->n == 0 || (east_west && anim->n == 2))) {
                 
-                break;
+                printf("SOUND obj->id: %d\n", obj->id);
+                
+                if (obj->id == OBJECT_HERO_ID) {
+                    
+                    sound_play_sample(snd, SOUND_STEP, 0);
+                } else {
+                    
+                    float dist_x = obj->pos_x - obj_hero->pos_x;
+                    float dist_y = obj->pos_y - obj_hero->pos_y;
+                    
+                    sound_play_sample_distance(
+                        snd, SOUND_STEP, dist_x, dist_y);
+                }
             }
-        
-            obj = obj->next_object;
         }
-    }*/
+        
+        // collisions:
+        if (obj->col_sample_timer > 0) {
+            
+            obj->col_sample_timer--;
+        }
+        
+        if (obj->col != NULL) {
+            
+            list_t* lst = get_first(obj->col);
+            while (lst != NULL) {
+                
+                collision_t* col = (collision_t*) lst->entry;
+                
+                object_t* obj_tmp;
+                if (col->partner->can_move) {
+                    obj_tmp = col->partner;
+                } else {
+                    obj_tmp = obj;
+                }
+                
+                if (obj_tmp->col_sample_timer < 1) {
+                    
+                    if (obj_tmp->id == OBJECT_HERO_ID ||
+                        obj->id == OBJECT_HERO_ID) {
+                            
+                        sound_play_sample(snd, SOUND_COLLISION, 1);
+                    } else {
+                    
+                        float dist_x = obj_tmp->pos_x - obj_hero->pos_x;
+                        float dist_y = obj_tmp->pos_y - obj_hero->pos_y;
+                        
+                        printf("SOUND played for obj_tmp->id: %d\n", obj_tmp->id);
+                        
+                        sound_play_sample_distance(
+                            snd, SOUND_COLLISION, dist_x, dist_y);
+                    }
+                        
+                    obj_tmp->col_sample_timer = (uint32_t) (20.0 / dt);
+                }
+                lst = lst->next;
+            }
+        }
+        
+        
+        obj = obj->next_object;
+    }
+    
+    
     
     // stage music:
-    if (snd->num_songs > 0) {
-        
-        // set volume according to distance to sound source:
-        float dist_x = obj_hero->pos_x - snd->pos_x;
-        float dist_y = obj_hero->pos_y - snd->pos_y;
-        float dist = sqrtf(dist_x * dist_x + dist_y * dist_y);
-        if (dist < 100.0) {
-            dist = 100.0;
-        }
-        int32_t volume = 100.0 * (float) MIX_MAX_VOLUME / dist;
-        if (volume < 1) {
-            volume = 1;
-        }
-        
-        Mix_VolumeMusic(volume);
-        
-        // load next song in loop if finished playing:
-        if (!Mix_PlayingMusic()) {
-            
-            Mix_FreeMusic(snd->music);
-            
-            snd->n++;
-            if (snd->n == snd->num_songs) {
-                snd->n = 0;
-            }
-            if(!(snd->music = Mix_LoadMUS(snd->songs[snd->n]))) {
-                fprintf(stderr, "Error loading song %s!\n", snd->songs[snd->n]);
-            }
-            Mix_PlayMusic(snd->music, 1);
-        }
-    }
+    sound_music_loop(snd);
+    sound_music_volume_distance(snd, obj_hero->pos_x, obj_hero->pos_y);
 }
