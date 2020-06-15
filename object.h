@@ -50,19 +50,21 @@ struct collision {
     object_t* partner;
     float c_x;
     float c_y;
+    bool use_for_impulse;
 };
 
 struct task {
-    uint32_t step;
-    void* variables;
+    uint32_t step;          // step in task function
+    uint32_t counter;       // usefull counter
+    void* variables;        // any additional variables
     bool (*task_function)(task_t*, object_t*, bool*, uint64_t, float);
 };
 
 struct item {
     uint32_t id;
     SDL_Surface* surf;      // item picture
-    void* variables;        // any additional variables
     uint32_t step;          // step in item use function
+    void* variables;        // any additional variables
     bool (*item_function)(object_t*, object_t*, bool*, uint64_t);
 };
 
@@ -97,6 +99,7 @@ struct object {
 	bool has_moved;
 	float mass;
 	float damping;
+    bool disable_damping;
     float elasticity;
 	float pos_x;        // position in relation to background
 	float pos_y;
@@ -122,6 +125,8 @@ struct object {
 	walls_t* wall;	        // aka collision zones
 	
     // tasks:
+    bool is_security;
+    bool is_hunted_by_security;
     list_t* tsk;		    // current task from list of tasks
     
     // item properties:
@@ -214,6 +219,15 @@ bool task_bus_passenger(
     task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
 bool task_bus(
     task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+    
+typedef struct hunt hunt_t;
+struct hunt {
+    object_t* obj_hunted;
+    bool clockwise;
+};
+bool task_hunt(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
+
 void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
@@ -225,6 +239,12 @@ void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
 void start_waypoints(object_t* obj, uint32_t id);
 bool waypoints_finished(object_t* obj);
+void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
+    object_t* obj_hunted, float dt);
+bool squared_distance_smaller(
+    object_t* obj1, object_t* obj2, float dist_squared);
+bool squared_distance_greater(
+    object_t* obj1, object_t* obj2, float dist_squared);
 
 // functions in object_items.c:
 bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
@@ -243,6 +263,7 @@ bool use_water_pistol(object_t* obj, object_t* obj_partner, bool* keys, uint64_t
 #define TASK_SECURITY_FENCE 2
 #define TASK_BUS_PASSENGER 3
 #define TASK_BUS 4
+#define TASK_HUNT 5
 
 #define ITEM_STONE 0
 #define ITEM_RED_STONE 1

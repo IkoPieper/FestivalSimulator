@@ -103,8 +103,6 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
     obj = obj_first;
     while (obj != NULL) {
         
-        printf("obj->id: %d\n", obj->id);
-        
         if (obj->col != NULL) {
             
             list_t* lst = get_first(obj->col);
@@ -112,58 +110,61 @@ void collisions(object_t* obj, verletbox_t* vbox, float dt) {
                 
                 collision_t* col = (collision_t*) lst->entry;
                 
-                printf("col->partner->id: %d\n", col->partner->id);
+                //printf("obj->id: %d\n", obj->id);
+                //printf("col->partner->id: %d\n", col->partner->id);
                 
-                float c1x = col->c_x;
-                float c1y = col->c_y;
-                float c2x = -col->c_x;
-                float c2y = -col->c_y;
-                printf("c1x: %f\n", c1x);
-                printf("c1y: %f\n", c1y);
-                printf("c2x: %f\n", c2x);
-                printf("c2y: %f\n", c2y);
+                if (col->use_for_impulse) {
                 
-                bool is_moving1 = true;
-                float v1x = obj->vel_x;
-                float v1y = obj->vel_y;
-                if (v1x != 0.0 || v1y != 0.0) {
-                    float norm = sqrtf(v1x * v1x + v1y * v1y);
-                    v1x /= norm;
-                    v1y /= norm;
-                } else {
-                    is_moving1 = false;
-                }
-                printf("obj->vel_x: %f\n", obj->vel_x);
-                printf("obj->vel_y: %f\n", obj->vel_y);
-                printf("v1x: %f\n", v1x);
-                printf("v1y: %f\n", v1y);
-                bool is_moving2 = true;
-                float v2x = col->partner->vel_x;
-                float v2y = col->partner->vel_y;
-                if (v2x != 0.0 || v2y != 0.0) {
-                    float norm = sqrtf(v2x * v2x + v2y * v2y);
-                    v2x /= norm;
-                    v2y /= norm;
-                } else {
-                    is_moving2 = false;
-                }
-                printf("col->partner->vel_x: %f\n", col->partner->vel_x);
-                printf("col->partner->vel_y: %f\n", col->partner->vel_y);
-                printf("v2x: %f\n", v2x);
-                printf("v2y: %f\n", v2y);
-                
-                // if angle not smaller than 90°:
-                if ((is_moving1 && !((c2x < -v1y && c2y < -v1x) || (c2x > -v1y && c2y > -v1x))) ||
-                    (is_moving2 && !((c1x < -v2y && c1y < -v2x) || (c1x > -v2y && c1y > -v2x)))) {
+                    float c1x = col->c_x;
+                    float c1y = col->c_y;
+                    float c2x = -col->c_x;
+                    float c2y = -col->c_y;
+                    //printf("c1x: %f\n", c1x);
+                    //printf("c1y: %f\n", c1y);
+                    //printf("c2x: %f\n", c2x);
+                    //printf("c2y: %f\n", c2y);
                     
-                    collisions_impulse(obj, col->partner, c1x, c1y);
-                    printf("After collisions_impulse():\n");
-                    printf("col->partner->id: %d\n", col->partner->id);
-                    printf("obj->vel_x: %f\n", obj->vel_x);
-                    printf("obj->vel_y: %f\n", obj->vel_y);
-                    printf("col->partner->vel_x: %f\n", col->partner->vel_x);
-                    printf("col->partner->vel_y: %f\n", col->partner->vel_y);
+                    bool is_moving1 = true;
+                    float v1x = obj->vel_x;
+                    float v1y = obj->vel_y;
+                    if (v1x != 0.0 || v1y != 0.0) {
+                        float norm = sqrtf(v1x * v1x + v1y * v1y);
+                        v1x /= norm;
+                        v1y /= norm;
+                    } else {
+                        is_moving1 = false;
+                    }
+                    //printf("obj->vel_x: %f\n", obj->vel_x);
+                    //printf("obj->vel_y: %f\n", obj->vel_y);
+                    //printf("v1x: %f\n", v1x);
+                    //printf("v1y: %f\n", v1y);
+                    bool is_moving2 = true;
+                    float v2x = col->partner->vel_x;
+                    float v2y = col->partner->vel_y;
+                    if (v2x != 0.0 || v2y != 0.0) {
+                        float norm = sqrtf(v2x * v2x + v2y * v2y);
+                        v2x /= norm;
+                        v2y /= norm;
+                    } else {
+                        is_moving2 = false;
+                    }
+                    //printf("col->partner->vel_x: %f\n", col->partner->vel_x);
+                    //printf("col->partner->vel_y: %f\n", col->partner->vel_y);
+                    //printf("v2x: %f\n", v2x);
+                    //printf("v2y: %f\n", v2y);
                     
+                    // if angle not smaller than 90°:
+                    if ((is_moving1 && !((c2x < -v1y && c2y < -v1x) || (c2x > -v1y && c2y > -v1x))) ||
+                        (is_moving2 && !((c1x < -v2y && c1y < -v2x) || (c1x > -v2y && c1y > -v2x)))) {
+                        
+                        collisions_impulse(obj, col->partner, c1x, c1y);
+                        //printf("After collisions_impulse():\n");
+                        //printf("col->partner->id: %d\n", col->partner->id);
+                        //printf("obj->vel_x: %f\n", obj->vel_x);
+                        //printf("obj->vel_y: %f\n", obj->vel_y);
+                        //printf("col->partner->vel_x: %f\n", col->partner->vel_x);
+                        //printf("col->partner->vel_y: %f\n", col->partner->vel_y);
+                    }
                 }
             
                 lst = lst->next;
@@ -229,6 +230,7 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
 		collision = false;
 		
 		collision_t* col1 = NULL;
+        collision_t* col2 = NULL;
 		uint32_t w1_bmp = obj1->wall->w_bmp;
 		uint32_t w2_bmp = obj2->wall->w_bmp;
 		
@@ -293,12 +295,14 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
             
         if (collision) {
             col1 = object_add_collision(obj1, obj2);
+            col1->use_for_impulse = true;
+            col2 = object_add_collision(obj2, obj1);
         } else {
             return;
         }
         
-        printf("\n---------------------- collisions_check() pixel collision ----------------------\n");
-        printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id); 
+        //printf("\n---------------------- collisions_check() pixel collision ----------------------\n");
+        //printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id); 
         
         // find the two pixels that are zero for both objects. the line 
         // between them is the collision surface (90° to c).
@@ -338,6 +342,8 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
 			// update direction of collision:
 			col1->c_x = c1x;
 			col1->c_y = c1y;
+            col2->c_x = c2x;
+			col2->c_y = c2y;
 		}
 	}
 }
@@ -399,14 +405,12 @@ void collisions_surface_vector(
     
     int32_t x1_found, y1_found, x2_found, y2_found;
     
-    printf("\ncollisions_surface_vector()\n");
-    
     // find cutpoints.
     // first search for pixels which are empty for both objects but
     // have pixels of object 1 and object 2 as neighbours:
     int32_t num_pixel_found = 0;
     
-    int32_t x, y, x2, y2;
+    int32_t x, y;
     int32_t x_min, y_min, x_max, y_max;
     
     // increase search area by 1 pixel:
@@ -415,13 +419,15 @@ void collisions_surface_vector(
     y_min = y1_min - 1;
     y_max = y1_max + 1;
     
-    printf("\nx_min: %d\n", x_min);
-    printf("x_max: %d\n", x_max);
-    printf("y_min: %d\n", y_min);
-    printf("y_max: %d\n", y_max);
+    //printf("\ncollisions_surface_vector()\n");
+    //printf("\nx_min: %d\n", x_min);
+    //printf("x_max: %d\n", x_max);
+    //printf("y_min: %d\n", y_min);
+    //printf("y_max: %d\n", y_max);
     
     // print for debugging:
-    bool spxl1, spxl2;
+    /*bool spxl1, spxl2;
+    int32_t x2, y2;
     
     for (y = y_min; y < y_max; y++) {
         
@@ -450,7 +456,7 @@ void collisions_surface_vector(
         }
         printf("\n");
     }
-    printf("\n");
+    printf("\n");*/
     
     list_t* cutpoints = NULL;
     vector_t* vec;
@@ -493,9 +499,9 @@ void collisions_surface_vector(
                 
                 if (pxl1_found && pxl2_found) {
                     
-                    printf("adding vector:\n");
-                    printf("x: %d\n", x);
-                    printf("y: %d\n", y);
+                    //printf("adding vector:\n");
+                    //printf("x: %d\n", x);
+                    //printf("y: %d\n", y);
                     
                     vec = (vector_t*) malloc(sizeof(vector_t));
                     vec->x = x;
@@ -509,10 +515,10 @@ void collisions_surface_vector(
     }
     
     // find cutpoints with highest distance:
-    if (num_pixel_found > 2) {
-        printf("more than 2 pixels found!\n");
-        printf("trying to find the pixels with highest distance!\n");
-    }
+    //if (num_pixel_found > 2) {
+    //    printf("more than 2 pixels found!\n");
+    //    printf("trying to find the pixels with highest distance!\n");
+    //}
     
     list_t* lst = NULL;
     list_t* lstb = NULL;
@@ -541,8 +547,8 @@ void collisions_surface_vector(
                 dist_abs = dist_x * dist_x + dist_y * dist_y;
                 
                 if (dist_abs > dist_abs_max) {
-                    printf("higher distance found:\n");
-                    printf("dist_abs: %f\n", dist_abs);
+                    //printf("higher distance found:\n");
+                    //printf("dist_abs: %f\n", dist_abs);
                     
                     dist_abs_max = dist_abs;
                     
@@ -575,42 +581,43 @@ void collisions_surface_vector(
     
     
     if (num_pixel_found == 2) {
-        printf("Num pixels found == 2\n");
-        printf("x1_found: %d\n", x1_found);
-        printf("y1_found: %d\n", y1_found);
-        printf("x2_found: %d\n", x2_found);
-        printf("y2_found: %d\n", y2_found);
+        //printf("Num pixels found == 2\n");
+        //printf("x1_found: %d\n", x1_found);
+        //printf("y1_found: %d\n", y1_found);
+        //printf("x2_found: %d\n", x2_found);
+        //printf("y2_found: %d\n", y2_found);
+        
         // surface vector:
         *c1x = x2_found - x1_found;
         *c1y = y2_found - y1_found;
-        printf("c1x: %f\n", *c1x);
-        printf("c1y: %f\n", *c1y);
+        //printf("c1x: %f\n", *c1x);
+        //printf("c1y: %f\n", *c1y);
         
         // collision vector is surface vector turned by 90°:
         float tmp = *c1x;
         *c1x = -*c1y;
         *c1y = tmp;
         float norm = sqrtf(*c1x * *c1x + *c1y * *c1y);
-        printf("norm: %f\n", norm);
+        //printf("norm: %f\n", norm);
         *c1x /= norm;
         *c1y /= norm;
         *c2x = -*c1x;
         *c2y = -*c1y;
         
-        printf("Before correction:\n");
-        printf("c1x: %f\n", *c1x);
-        printf("c1y: %f\n", *c1y);
-        printf("c2x: %f\n", *c2x);
-        printf("c2y: %f\n", *c2y);
+        //printf("Before correction:\n");
+        //printf("c1x: %f\n", *c1x);
+        //printf("c1y: %f\n", *c1y);
+        //printf("c2x: %f\n", *c2x);
+        //printf("c2y: %f\n", *c2y);
         
         // correct for the right direction:
         
         int32_t x_start = x1_found + (x2_found - x1_found) / 2;
         int32_t y_start = y1_found + (y2_found - y1_found) / 2;
         
-        printf("start correction at:\n");
-        printf("x_start: %d\n", x_start);
-        printf("y_start: %d\n", y_start);
+        //printf("start correction at:\n");
+        //printf("x_start: %d\n", x_start);
+        //printf("y_start: %d\n", y_start);
         
         int32_t score = collisions_surface_vector_check(
             x_start, y_start, 
@@ -653,7 +660,7 @@ void collisions_surface_vector(
         
         if (score < 0) {
             // switch c1 and c2:
-            printf("switch c1 and c2!\n");
+            //printf("switch c1 and c2!\n");
             float tmp_x = *c1x;
             float tmp_y = *c1y;
             *c1x = *c2x;
@@ -662,17 +669,12 @@ void collisions_surface_vector(
             *c2y = tmp_y;
         }
         
-        printf("score: %d\n", score);
-        printf("After correction:\n");
-        printf("c1x: %f\n", *c1x);
-        printf("c1y: %f\n", *c1y);
-        printf("c2x: %f\n", *c2x);
-        printf("c2y: %f\n", *c2y);
-        
-        if (score < 0) {
-            // switch c1 and c2:
-            printf("switch c1 and c2!\n");
-        }
+        //printf("score: %d\n", score);
+        //printf("After correction:\n");
+        //printf("c1x: %f\n", *c1x);
+        //printf("c1y: %f\n", *c1y);
+        //printf("c2x: %f\n", *c2x);
+        //printf("c2y: %f\n", *c2y);
 
     } else { // only num_pixels_found < 2 possible
         // one object is buried deeper than 1 pixel inside the other.
@@ -740,7 +742,7 @@ int32_t collisions_surface_vector_check(
         step++;
     }
     
-    printf("score for c1: %d\n", score);
+    //printf("score for c1: %d\n", score);
     
     step = 0;
     dcx = *c2x;
@@ -772,7 +774,7 @@ int32_t collisions_surface_vector_check(
         step++;
     }
     
-    printf("score: %d\n", score);
+    //printf("score: %d\n", score);
     
     return(score);
 }
@@ -856,9 +858,6 @@ void collisions_impulse(
 	float v1y = 0.0;
 	float v2x = 0.0;
 	float v2y = 0.0;
-	/*float tmp = 0.0;
-	float x12 = (float) (obj2->scr_pos_x - obj1->scr_pos_x);
-	float y12 = (float) (obj2->scr_pos_y - obj1->scr_pos_y);*/
 	
 	if (obj1->can_move) {
 		v1x = obj1->vel_x;
@@ -885,7 +884,6 @@ void collisions_impulse(
     }
 	
 	if (obj1->can_move) {
-        printf("obj1 (id: %d) can move!\n", obj1->id);
         // velocity vertically to impulse direction:
         v1r = c1y * v1x - c1x * v1y;
         // final velocities:
@@ -897,7 +895,6 @@ void collisions_impulse(
 	}
 	
 	if (obj2->can_move) {
-        printf("obj2 (id: %d) can move!\n", obj2->id);
         v2r = c2y * v2x - c2x * v2y;
 		obj2->vel_x = c1x * v2n + c2y * v2r;
 		obj2->vel_y = c1y * v2n - c2x * v2r;

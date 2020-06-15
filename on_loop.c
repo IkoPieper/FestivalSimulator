@@ -10,9 +10,9 @@ void on_loop(object_t* obj, sound_t* snd,
 	//collisions(obj, vbox, dt);
 	
 	//movements(obj, keys, dt);
-	
+    
     on_loop_tasks(obj, keys, frame, dt);
-	
+    
     on_loop_items(obj, keys, frame);
     
 	on_loop_animations(obj, keys, frame, dt);
@@ -308,8 +308,6 @@ void on_loop_sounds(
             if (anim->surf_changed && 
                 (anim->n == 0 || (east_west && anim->n == 2))) {
                 
-                printf("SOUND obj->id: %d\n", obj->id);
-                
                 if (obj->id == OBJECT_HERO_ID) {
                     
                     sound_play_sample(
@@ -359,8 +357,6 @@ void on_loop_sounds(
                     
                         float dist_x = obj_tmp->pos_x - obj_hero->pos_x;
                         float dist_y = obj_tmp->pos_y - obj_hero->pos_y;
-                        
-                        printf("SOUND played for obj_tmp->id: %d\n", obj_tmp->id);
                         
                         sound_play_sample_distance(
                             snd, SOUND_COLLISION, 

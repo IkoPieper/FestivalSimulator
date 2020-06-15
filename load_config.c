@@ -102,6 +102,11 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			
 			obj->anim_walk = atoi(entry->value);
 			entry = entry->next;
+            
+        } else if (strcmp(entry->key, "is_security") == 0) {
+			
+			obj->is_security = atoi(entry->value);
+			entry = entry->next;
 			
 		} else {
 			break;

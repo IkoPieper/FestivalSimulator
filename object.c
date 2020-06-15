@@ -59,6 +59,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->has_moved = true;	// init with true to set up render list
 	obj_new->mass = 1.0;
 	obj_new->damping = 0.2;
+    obj_new->damping = false;
     obj_new->elasticity = 0.9;
 	obj_new->pos_x = 1.0;
 	obj_new->pos_x = 0.0;
@@ -85,6 +86,8 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	
     // tasks:
     obj_new->tsk = NULL;
+    obj_new->is_security = false;
+    obj_new->is_hunted_by_security = false;
     
     // items properties:
     obj_new->itm_props = NULL;
@@ -604,6 +607,7 @@ collision_t* object_add_collision(object_t* obj, object_t* partner) {
     entry->partner = partner;	// add new partner
     entry->c_x = 0.0;
     entry->c_y = 0.0;
+    entry->use_for_impulse = false;
     
     return(entry);
 }
@@ -625,6 +629,8 @@ void object_add_task(object_t* obj, uint32_t id) {
     
     task_t* tsk = (task_t*) malloc(sizeof(task_t));
     tsk->step = 0;
+    tsk->counter = 0;
+    tsk->variables = NULL;
     tsk->task_function = get_task_function(id);
     obj->tsk = create_before(obj->tsk, tsk, id);
 }

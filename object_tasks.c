@@ -41,11 +41,12 @@ void stop(object_t* obj) {
     if (obj->id == OBJECT_HERO_ID) {
         obj->can_move = false;
     } else {
-        waypoints_t* ways = (waypoints_t*) obj->ways->entry;
-        ways->active = false;
-        //obj->can_move = false;
+        if (obj->ways != NULL) {
+            waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+            ways->active = false;
+        }
     }
-    obj->anim_walk = false;
+    //obj->anim_walk = false;
     obj->vel_x = 0.0;
     obj->vel_y = 0.0;
 }
@@ -55,11 +56,12 @@ void move_on(object_t* obj) {
     if (obj->id == OBJECT_HERO_ID) {
         obj->can_move = true;
     } else {
-        waypoints_t* ways = obj->ways->entry;
-        ways->active = true;
-        obj->can_move = true;
+        if (obj->ways != NULL) {
+            waypoints_t* ways = obj->ways->entry;
+            ways->active = true;
+        }
     }
-    obj->anim_walk = true;
+    //obj->anim_walk = true;
 }
 
 void drink_beer(object_t* obj, int16_t value) {
@@ -97,6 +99,93 @@ bool waypoints_finished(object_t* obj) {
     return(!ways->active);
 }
 
+void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
+    object_t* obj_hunted, float dt) {
+    
+    if (obj->col != NULL && tsk->counter == 0) {
+        
+        float vel_x;
+        float vel_y;
+        collision_t* col = (collision_t*) obj->col->entry;
+        uint32_t rdm = rand();
+        
+        // start to go away from collision in 90° angle:
+        if (rdm > RAND_MAX / 4) {
+            if (clockwise) {
+                vel_x = col->c_y;
+                vel_y = -col->c_x;
+            } else {
+                vel_x = -col->c_y;
+                vel_y = col->c_x;
+            }
+        } else if (rdm > RAND_MAX / 8) {
+            if (clockwise) {
+                vel_x = -col->c_y;
+                vel_y = col->c_x;
+            } else {
+                vel_x = col->c_y;
+                vel_y = -col->c_x;
+            }
+        } else if (rdm > RAND_MAX / 16) {
+            vel_x = -col->c_x;
+            vel_y = -col->c_y;
+        } else {
+            vel_x = col->c_x;
+            vel_y = col->c_y;
+        }
+        
+        vel_x *= 2.0;
+        vel_y *= 2.0;
+        
+        obj->vel_x = vel_x;
+        obj->vel_y = vel_y;
+        obj->disable_damping = true;
+        
+        tsk->counter = (int32_t) (30.0 / dt);
+        
+    } else if (tsk->counter > 0) {
+        
+        // go away from collision:
+        tsk->counter--;
+        
+    } else {
+        
+        obj->disable_damping = false;
+        
+        // follow obj_hunted:
+        float vel_x = obj_hunted->pos_x - obj->pos_x;
+        float vel_y = obj_hunted->pos_y - obj->pos_y;
+        
+        float norm = sqrtf(vel_x * vel_x + vel_y * vel_y);
+        vel_x /= norm;
+        vel_y /= norm;
+        
+        vel_x *= 2.0;
+        vel_y *= 2.0;
+        
+        obj->vel_x = vel_x;
+        obj->vel_y = vel_y;
+    }
+}
+
+bool squared_distance_smaller(
+    object_t* obj1, object_t* obj2, float dist_squared) {
+    
+    float dist_x = obj1->pos_x - obj2->pos_x;
+    float dist_y = obj1->pos_y - obj2->pos_y;
+    
+    return(dist_x * dist_x + dist_y * dist_y < dist_squared);
+}
+
+bool squared_distance_greater(
+    object_t* obj1, object_t* obj2, float dist_squared) {
+    
+    float dist_x = obj1->pos_x - obj2->pos_x;
+    float dist_y = obj1->pos_y - obj2->pos_y;
+    
+    return(dist_x * dist_x + dist_y * dist_y > dist_squared);
+}
+
 bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*, 
     uint64_t, float) {
     
@@ -116,6 +205,9 @@ bool (*get_task_function(uint32_t id))(task_t*, object_t*, bool*,
         case TASK_BUS: 
             return(&task_bus); 
             break;
+        case TASK_HUNT: 
+            return(&task_hunt); 
+            break;
     }
     
     return(NULL);
@@ -128,8 +220,7 @@ bool task_find_bob(
         
         object_t* hero = object_get(obj, OBJECT_HERO_ID);
     
-        if (fabsf(hero->pos_x - obj->pos_x) < 100.0 &&
-            fabsf(hero->pos_y - obj->pos_y) < 100.0) {
+        if (squared_distance_smaller(obj, hero, 20000)) {
         
             stop(obj);
             face(obj, hero, dt);
@@ -303,71 +394,17 @@ bool task_security_fence(task_t* tsk, object_t* obj, bool* keys,
     
     if (tsk->step == 5) {
         
-        static uint16_t frame = 0;
-        static float vel_x;
-        static float vel_y;
+        object_t* hero = object_get(obj, OBJECT_HERO_ID);
         
-        if (obj->col != NULL && frame == 0) {
-            
-            // reduce heros mood on collision:
+        // hunt the hero:
+        hero->is_hunted_by_security = true;
+        hunt_object(obj, tsk, true, hero, dt);
+        
+        // reduce heros mood on collision:
+        if (obj->col != NULL) {
             if (find_id(obj->col, OBJECT_HERO_ID) != NULL) {
-                object_t* hero = object_get(obj, OBJECT_HERO_ID);
                 change_mood(hero, -10);
             }
-            
-            collision_t* col = (collision_t*) obj->col->entry;
-            
-            uint32_t rdm = rand();
-            
-            // start to go away from collision in 90° angle:
-            if (rdm > RAND_MAX / 4) {
-                vel_x = col->c_y;
-                vel_y = -col->c_x;
-            } else if (rdm > RAND_MAX / 8) {
-                vel_x = -col->c_y;
-                vel_y = col->c_x;
-            } else if (rdm > RAND_MAX / 16) {
-                vel_x = -col->c_x;
-                vel_y = -col->c_y;
-            } else {
-                vel_x = col->c_x;
-                vel_y = col->c_y;
-            }
-            
-            vel_x *= 2.0;
-            vel_y *= 2.0;
-            
-            obj->vel_x = vel_x;
-            obj->vel_y = vel_y;
-            
-            frame = (uint16_t) (30.0 / dt);
-            
-        } else if (frame > 0.0) {
-            
-            // go away from collision:
-            obj->vel_x = vel_x;
-            obj->vel_y = vel_y;
-            
-            frame--;
-            
-        } else {
-                
-            // follow hero:
-            object_t* hero = object_get(obj, OBJECT_HERO_ID);
-            
-            float vel_x_wanted = hero->pos_x - obj->pos_x;
-            float vel_y_wanted = hero->pos_y - obj->pos_y;
-            float norm = sqrtf(
-                vel_x_wanted * vel_x_wanted + 
-                vel_y_wanted * vel_y_wanted);
-            vel_x_wanted /= norm;
-            vel_y_wanted /= norm;
-            
-            vel_x_wanted *= 2.0;
-            vel_y_wanted *= 2.0;
-            
-            obj->vel_x = vel_x_wanted;
-            obj->vel_y = vel_y_wanted;
         }
         
         return(true);
@@ -544,6 +581,60 @@ bool task_bus(
         return(true);
     }
     
+    
+    return(false);
+}
+
+bool task_hunt(
+    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt) {
+    
+    if (tsk->step == 0) {
+        
+        // could be optimized by using verlet boxes
+        object_t* obj_b = object_get_first(obj);
+        while (obj_b != 0) {
+            
+            if (obj->is_security && obj_b->is_hunted_by_security) {
+                
+                if (squared_distance_smaller(obj, obj_b, 50000)) {
+                    
+                    hunt_t* var = (hunt_t*) malloc(sizeof(hunt_t));
+                    var->obj_hunted = obj_b;
+                    
+                    var->clockwise = rand() > RAND_MAX / 2;
+                    tsk->variables = (void*) var;
+                    
+                    stop(obj);
+                    
+                    tsk->step = 1;
+                    break;
+                }
+            }
+            
+            obj_b = obj_b->next_object;
+        }
+        
+        return(true);
+    }
+    
+    if (tsk->step == 1) {
+        
+        object_t* obj_hunted = (object_t*) tsk->variables;
+        
+        if (obj->is_security && obj_hunted->is_hunted_by_security) {
+            
+            hunt_t* var = (hunt_t*) tsk->variables;
+            hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
+            
+        } else {
+            
+            free(tsk->variables);
+            tsk->variables = NULL;
+            
+            tsk->step = 0;
+        }
+        return(true);
+    }
     
     return(false);
 }

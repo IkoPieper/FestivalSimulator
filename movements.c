@@ -103,10 +103,12 @@ void movements_accelerate(object_t* obj, float dt) {
 		// derive velocity from acceleration:
         obj->vel_x += obj->acc_x * dt;
         obj->vel_y += obj->acc_y * dt;
-    
-        // add linear damping:
-        obj->vel_x -= obj->damping * obj->vel_x * dt;
-        obj->vel_y -= obj->damping * obj->vel_y * dt;
+        
+        if (!obj->disable_damping) {
+            // add linear damping:
+            obj->vel_x -= obj->damping * obj->vel_x * dt;
+            obj->vel_y -= obj->damping * obj->vel_y * dt;
+        }
         // set small velocities to zero:
         if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
             obj->vel_x = 0.0;
