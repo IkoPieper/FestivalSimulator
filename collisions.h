@@ -67,7 +67,7 @@ void collisions_impulse(
 
 void collisions_update_render(object_t* obj, object_t* obj_b);
 
-bool collisions_beam(object_t* obj, int32_t x, int32_t y);
+bool collisions_beam(object_t* obj, int32_t x_start, int32_t y_start);
 
 typedef struct vector vector_t;
 struct vector {

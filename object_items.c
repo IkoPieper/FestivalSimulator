@@ -105,7 +105,7 @@ bool use_water_pistol(
                 case 5:
                 case 9:
                 case 11:
-                    // hero walking north:
+                    // hero facing north:
                     if (obj->anim->id != 1) {
                         object_select_animation(obj, 1);
                     }
@@ -118,7 +118,7 @@ bool use_water_pistol(
                 case 6:
                 case 10:
                 case 12:
-                    // hero walking south:
+                    // hero facing south:
                     if (obj->anim->id != 2) {
                         object_select_animation(obj, 2);
                     }
@@ -129,7 +129,7 @@ bool use_water_pistol(
                     break;
                 case 3:
                 case 7:
-                    // hero walking west:
+                    // hero facing west:
                     if (obj->anim->id != 3) {
                         object_select_animation(obj, 3);
                     }
@@ -140,7 +140,7 @@ bool use_water_pistol(
                     break;
                 case 4:
                 case 8:
-                    // hero walking east:
+                    // hero facing east:
                     if (obj->anim->id != 4) {
                         object_select_animation(obj, 4);
                     }

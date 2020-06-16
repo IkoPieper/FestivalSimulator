@@ -1,8 +1,9 @@
 #ifndef _LIST_H_
     #define _LIST_H_
 
-#include <stdint.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef struct list list_t;
 
@@ -40,5 +41,6 @@ list_t* create_before(list_t* current, void* entry, uint32_t id);
 list_t* create_after(list_t* current, void* entry, uint32_t id);
 
 uint32_t count(list_t* current);
+bool share_entry(list_t* lst1, list_t* lst2);
 
 #endif

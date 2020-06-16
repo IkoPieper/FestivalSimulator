@@ -145,6 +145,8 @@ void take_out(list_t* current) {
 void insert_before(list_t* current, list_t* added) {
     
     if (current == NULL) {
+        added->prev = NULL;
+        added->next = NULL;
         return;
     }
     
@@ -161,6 +163,8 @@ void insert_before(list_t* current, list_t* added) {
 void insert_after(list_t* current, list_t* added) {
     
     if (current == NULL) {
+        added->prev = NULL;
+        added->next = NULL;
         return;
     }
     
@@ -224,6 +228,30 @@ uint32_t count(list_t* current) {
     }
     
     return (n);
+}
+
+bool share_entry(list_t* lst1, list_t* lst2) {
+    
+    lst1 = get_first(lst1);
+    list_t* lst2_first = get_first(lst2);
+    
+    while (lst1 != NULL) {
+        
+        lst2 = lst2_first;
+        
+        while (lst2 != NULL) {
+            
+            if (lst1->entry == lst2->entry) {
+                return(true);
+            }
+            
+            lst2 = lst2->next;
+        }
+        
+        lst1 = lst1->next;
+    }
+    
+    return(false);
 }
 
 // TEST FUNCTION
