@@ -626,6 +626,13 @@ bool task_hunt(
             hunt_t* var = (hunt_t*) tsk->variables;
             hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
             
+            // reduce heros mood on collision:
+            if (obj->col != NULL) {
+                if (find_id(obj->col, OBJECT_HERO_ID) != NULL) {
+                    change_mood(object_get(obj, OBJECT_HERO_ID), -10);
+                }
+            }
+            
         } else {
             
             free(tsk->variables);

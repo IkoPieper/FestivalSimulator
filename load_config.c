@@ -93,6 +93,11 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			obj->disable_collision = atoi(entry->value);
 			entry = entry->next;
             
+        } else if (strcmp(entry->key, "disable_render") == 0) {
+			
+			obj->disable_render = atoi(entry->value);
+			entry = entry->next;
+            
         } else if (strcmp(entry->key, "render_early") == 0) {
 			
 			obj->render_early = atoi(entry->value);

@@ -921,12 +921,16 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	float xl2 = x02 + obj2->wall->lx;
 	float xr2 = x02 + obj2->wall->rx;
 	
-    bool obj1_before_obj2 = false;
+    int8_t obj1_before_obj2 = false;
+    
+    printf("\ncollision_update_render()\n");
+    printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
     
     if (obj1->can_move && !obj2->can_move &&
         obj2->wall->pxl != NULL) {      
         
-        if (obj1->id == OBJECT_HERO_ID && obj2->id == 1104) {
+        if (obj1->id == OBJECT_HERO_ID && 
+            (obj1->id == 1104 || obj1->id == 1103)) {
             printf("HERO BEAM 1\n");
         }
         
@@ -944,14 +948,17 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         }
         
         obj1_before_obj2 = collisions_beam(obj2, x, y);
+        if (obj1_before_obj2 < 0) {
+            return; // collision beam hit nothing
+        }
         
     } else if (!obj1->can_move && obj2->can_move && 
         obj1->wall->pxl != NULL) {
         
-        bool yes = false;
-        if (obj2->id == OBJECT_HERO_ID && obj1->id == 1104) {
+        
+        if (obj2->id == OBJECT_HERO_ID && 
+            (obj1->id == 1104 || obj1->id == 1103)) {
             printf("HERO BEAM 2\n");
-            yes = true;
         }
         
         int32_t x;
@@ -966,7 +973,7 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
             x = xl2 - x01;
             y = y02 + obj2->wall->ly_beam - y01;
         }
-        if (yes) {
+        /*if (yes) {
             printf("x: %d\n", x);
             printf("y: %d\n", y);
             printf("collisions_beam returns: %d\n\n", collisions_beam(obj1, x, y));
@@ -981,9 +988,13 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
                 printf("\n");
             }
             printf("\n");
-        }
+        }*/
         
-        obj1_before_obj2 = !collisions_beam(obj1, x, y);
+        obj1_before_obj2 = collisions_beam(obj1, x, y);
+        if (obj1_before_obj2 < 0) {
+            return; // collision beam hit nothing
+        }
+        obj1_before_obj2 = !obj1_before_obj2;
         
     } else {
         
@@ -1025,16 +1036,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         }
     }
     
-    if (obj1->id == 2003 || obj2->id == 2003) {
-        printf("\ncollisions_update_render()\n");
-        if (obj1_before_obj2) {
-            printf("obj2->id: %d rendered after obj1->id: %d\n", obj2->id, obj1->id);
-        } else {
-            printf("obj1->id: %d rendered after obj2->id: %d\n", obj1->id, obj2->id);
-        }
-        printf("\n");
-    }
-    
 	// update render lists:
 	if (obj1_before_obj2) {
         
@@ -1051,13 +1052,19 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	}
 }
 
-bool collisions_beam(object_t* obj, int32_t x_start, int32_t y_start) {
+int8_t collisions_beam(object_t* obj, int32_t x_start, int32_t y_start) {
     
     if (x_start < 0) {
         x_start = 0;
     }
+    if (x_start > obj->wall->w - 1) {
+        x_start = obj->wall->w - 1;
+    }
     if (y_start < 0) {
         y_start = 0;
+    }
+    if (y_start > obj->wall->h - 1) {
+        y_start = obj->wall->h - 1;
     }
     
     int32_t y;
@@ -1072,27 +1079,49 @@ bool collisions_beam(object_t* obj, int32_t x_start, int32_t y_start) {
         int32_t score = 0;
         
         // beam down:
+        printf("beam down:\n");
         y = y_start;
         while (y < obj->wall->h && 
             obj->wall->pxl[(y * obj->wall->w_bmp) + x_start]) {
             
+            if (obj->wall->pxl[(y * obj->wall->w_bmp) + x_start]) {
+                printf("*");
+            } else {
+                printf("O");
+            }
+            
             score++;
             y++;
         }
+        printf("\n");
         
         // beam up:
+        printf("beam up:\n");
         y = y_start;
         while (y >= 0 &&
             obj->wall->pxl[(y * obj->wall->w_bmp) + x_start]) {
             
+            if (obj->wall->pxl[(y * obj->wall->w_bmp) + x_start]) {
+                printf("*");
+            } else {
+                printf("O");
+            }
+            
             score--;
             y--;
         }
+        printf("\n");
         
         if (score > 0) {
-            return(true); // render before
+            printf("found more pixels below (score: %d).\n", score);
+            printf("x: %d\n", x_start);
+            printf("y: %d\n", y);
+            return(1); // render before
         } else {
-            return(false);
+            printf("found more pixels above (score: %d).\n", score);
+            printf("x: %d\n", x_start);
+            printf("y: %d\n", y);
+            return(0);
         }
         
     } else {
@@ -1105,34 +1134,34 @@ bool collisions_beam(object_t* obj, int32_t x_start, int32_t y_start) {
             if (obj->wall->pxl[(y * obj->wall->w_bmp) + x_start]) {
                 
                 printf("beam down hit!\n");
-                return(true);
+                printf("x: %d\n", x_start);
+                printf("y: %d\n", y);
+                return(1);
             }
         }
         
         // send one beam up. if it doesn't hit, render before anyway:
         for (y = y_start; y >= 0; y--) {
             
-            for (int32_t x = x_start; x < 20; x++) {
+            /*for (int32_t x = x_start; x < 20; x++) {
                 if (obj->wall->pxl[(y * obj->wall->w_bmp) + x]) {
-                    printf("X");
+                    printf("*");
                 } else {
                     printf("O");
                 }
             }
-            printf("\n");
+            printf("\n");*/
             
             if (obj->wall->pxl[(y * obj->wall->w_bmp) + x_start]) {
                 // hit something, render after:
                 printf("beam up hit!\n");
                 printf("x: %d\n", x_start);
                 printf("y: %d\n", y);
-                return(false);
+                return(0);
             }
         }
         printf("beam hit nothing!\n");
         // beam hit nothing at all, render before:
-        return(true);
+        return(-1);
     }
-    
-    return(false);
 }

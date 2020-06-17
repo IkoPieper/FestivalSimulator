@@ -86,7 +86,6 @@ bool use_water_pistol(
     
     if (keys[KEY_SPACE] && obj->itm_props->step == 0) {
         
-        obj->disable_render = false;
         obj->can_move = true;
         
         obj->itm_props->step = 1;
@@ -100,6 +99,9 @@ bool use_water_pistol(
         
         if (keys[KEY_SPACE]) {
             
+            // render item after hero:
+            obj->itm_props->render_after_host = true;
+            
             switch (hero->anim->id) {
                 case 1: 
                 case 5:
@@ -111,7 +113,7 @@ bool use_water_pistol(
                     }
                     obj->pos_x = hero->pos_x + 15;
                     obj->pos_y = hero->pos_y - 20;
-                    obj->wall->x = -5;
+                    obj->wall->x = -17;
                     obj->wall->y = 50;
                     break;
                 case 2:
@@ -124,7 +126,7 @@ bool use_water_pistol(
                     }
                     obj->pos_x = hero->pos_x + 7;
                     obj->pos_y = hero->pos_y + 38;
-                    obj->wall->x = -5;
+                    obj->wall->x = -17;
                     obj->wall->y = 10;
                     break;
                 case 3:
@@ -135,7 +137,7 @@ bool use_water_pistol(
                     }
                     obj->pos_x = hero->pos_x - 30;
                     obj->pos_y = hero->pos_y + 33;
-                    obj->wall->x = 0;
+                    obj->wall->x = 20;
                     obj->wall->y = 10;
                     break;
                 case 4:
@@ -162,7 +164,8 @@ bool use_water_pistol(
                     break;
             }
             
-            obj->disable_render = true;
+            obj->itm_props->render_after_host = false;
+            
             obj->can_move = false;
             
             obj->itm_props->step = 0;

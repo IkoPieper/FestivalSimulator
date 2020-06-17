@@ -652,6 +652,7 @@ void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id) {
     
     obj->itm_props = (item_t*) malloc(sizeof(item_t));
     obj->itm_props->id = id;
+    obj->itm_props->render_after_host = false;
     obj->itm_props->surf = surf;
     obj->itm_props->variables = NULL;
     obj->itm_props->step = 0;

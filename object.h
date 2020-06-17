@@ -64,6 +64,7 @@ struct item {
     uint32_t id;
     SDL_Surface* surf;      // item picture
     uint32_t step;          // step in item use function
+    bool render_after_host; // render directly after the host object
     void* variables;        // any additional variables
     bool (*item_function)(object_t*, object_t*, bool*, uint64_t);
 };

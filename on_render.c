@@ -42,78 +42,30 @@ void on_render(object_t* obj, video_t* vid, float dt) {
     
 	while (obj != NULL) {
 		
-        if (!obj->disable_render) {
+        // check for render_is_in_blobb as well. this allows objects
+        // to be rendered that have render_after entry.
+        if (!obj->disable_render || obj->render_is_in_blobb) {
         
             if (obj->id != OBJECT_BACKGROUND_ID && 
                 !obj->render_early) {
                 
                 if (!obj->render_is_in_blobb) {
                     
-                    // render the object:
-                    surface_on_draw(
-                        vid->surface, 
-                        obj->surface, 
-                        (int32_t) obj->scr_pos_x, 
-                        (int32_t) obj->scr_pos_y);
-                        
-                    on_render_object_id(vid, obj);
+                    on_render_object(obj, vid);
                         
                 } else if (obj->render_blobb != NULL) {
                     
                     // render all objects in the sorted render blobb:
                     list_t* blobb = obj->render_blobb;
                     
-                    bool has_2003 = false;// debugg
-                    
                     while (blobb != NULL) {
                         
                         object_t* obj_tmp = (object_t*) blobb->entry;
                         
-                        surface_on_draw(
-                            vid->surface, 
-                            obj_tmp->surface, 
-                            (int32_t) obj_tmp->scr_pos_x, 
-                            (int32_t) obj_tmp->scr_pos_y);
-                        
-                        on_render_object_id(vid, obj_tmp);
-                        
-                        if (obj_tmp->id == 2003) {
-                            has_2003 = true;
-                        }
+                        on_render_object(obj_tmp, vid);
                         
                         blobb = blobb->next;
                     }
-                    
-                    if (has_2003) {
-                        printf("\nsorted blobb with 2003:\n");
-                        blobb = obj->render_blobb;
-                        while (blobb != NULL) {
-                            
-                            object_t* obj_tmp = (object_t*) blobb->entry;
-                            
-                            printf("obj_tmp->id: %d", obj_tmp->id);
-                            
-                            list_t* lst = obj_tmp->render_before;
-                            lst = get_first(lst);
-                            if (lst != NULL) {
-                                printf(", render before: ");
-                            }
-                            while (lst != NULL) {
-                                
-                                object_t* obj_rb = (object_t*) lst->entry;
-                                
-                                printf("%d, ", obj_rb->id);
-                                
-                                lst = lst->next;
-                            }
-                            
-                            printf("\n");
-                            
-                            blobb = blobb->next;
-                        }
-                        printf("\n");
-                    }
-                    
                 }
             }
         }
@@ -121,8 +73,8 @@ void on_render(object_t* obj, video_t* vid, float dt) {
         // reset render blobbs:
         delete_all(obj->render_before);
         obj->render_before = NULL;
-        delete_all(obj->render_after);
-        obj->render_after = NULL;
+        //delete_all(obj->render_after);
+        //obj->render_after = NULL;
         delete_all(obj->render_blobb);
         obj->render_blobb = NULL;
         obj->render_is_in_blobb = false;
@@ -655,6 +607,37 @@ bool render_blobb_sort_iter(list_t* blobb) {
     
 	return(0);
 }*/
+
+void on_render_object(object_t* obj, video_t* vid) {
+    
+    // render the object:
+    surface_on_draw(
+        vid->surface, 
+        obj->surface, 
+        (int32_t) obj->scr_pos_x, 
+        (int32_t) obj->scr_pos_y);
+        
+    on_render_object_id(vid, obj);
+    
+    // render item after host. for example: render
+    // active water pistol right after hero:
+    if (obj->itm != NULL) {
+        
+        object_t* obj_itm = (object_t*) obj->itm->entry;
+        
+        if (obj_itm->itm_props != NULL &&
+            obj_itm->itm_props->render_after_host) {
+        
+            surface_on_draw(
+                vid->surface, 
+                obj_itm->surface, 
+                (int32_t) obj_itm->scr_pos_x, 
+                (int32_t) obj_itm->scr_pos_y);
+                
+            on_render_object_id(vid, obj);
+        }
+    }
+}
 
 void on_render_meters(object_t* obj, video_t* vid) {
 	
