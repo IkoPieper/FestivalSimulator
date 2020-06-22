@@ -1,0 +1,22 @@
+MSYS2
+
+# Pakete installieren:
+pacman -S
+
+# Pakete suchen:
+pacman -Ss # libs ohne lib suchen
+
+# Entwicklungspakete (vielleicht unvollständig):
+pacman -S git mingw-w64-x86_64-toolchain mingw64/mingw-w64-x86_64-SDL2 mingw64/mingw-w64-x86_64-SDL2_mixer mingw64/mingw-w64-x86_64-SDL2_image mingw64/mingw-w64-x86_64-SDL2_ttf mingw64/mingw-w64-x86_64-SDL2_net mingw64/mingw-w64-x86_64-cmake make
+
+# Kompilieren:
+cd c:
+cd FestivalSimulator
+mv Makefile Makefile_linux
+mv Makefile_win Makefile
+PATH=/c/msys64/mingw64/bin:$PATH
+make
+
+
+# Kopiere fehlende libraries aus:
+C:\msys64\mingw64\bin
