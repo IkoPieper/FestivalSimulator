@@ -59,7 +59,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->has_moved = true;	// init with true to set up render list
 	obj_new->mass = 1.0;
 	obj_new->damping = 0.2;
-    obj_new->damping = false;
+    obj_new->disable_damping = false;
     obj_new->elasticity = 0.9;
 	obj_new->pos_x = 1.0;
 	obj_new->pos_x = 0.0;
@@ -75,10 +75,6 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	// screen positions:
 	obj_new->scr_pos_x = 0.0;
 	obj_new->scr_pos_y = 0.0;
-	obj_new->min_scr_pos_x = -99999.0;
-	obj_new->max_scr_pos_x = 99999.0;
-	obj_new->min_scr_pos_y = -99999.0;
-	obj_new->max_scr_pos_y = 99999.0;
 	
 	// bitmaps:
 	obj_new->surface = NULL;
@@ -270,20 +266,8 @@ object_t* object_remove(object_t* obj, uint32_t id) {
     if (obj->render_blobb != NULL) {
         delete_all(obj->render_blobb);
     }
-    if (obj->tsk != NULL) {
-        object_free_tasks(obj->tsk);
-    }
-    if (obj->itm_props != NULL) {
-        object_free_item_props(obj->itm_props);
-    }
-    if (obj->itm != NULL) {
-        object_free_items(obj);
-    }
     if (obj->ways != NULL) {
         object_free_waypoints(obj->ways);
-    }
-	if (obj->col != NULL) {
-        object_free_collisions(obj->col);
     }
     
 	free(obj);
@@ -595,88 +579,120 @@ void object_free_waypoints(list_t* ways) {
     delete_all(ways_tmp);
 }
 
-collision_t* object_add_collision(object_t* obj, object_t* partner) {
+
+void say(object_t* obj, uint32_t id, uint32_t duration) {
     
-	// add new collision:
-	collision_t* entry = (collision_t*) malloc(sizeof(collision_t));
-	
-	// add at first place in list:
-    obj->col = create_before(obj->col, (void*) entry, partner->id);
-	
-	// initialize:
-    entry->partner = partner;	// add new partner
-    entry->c_x = 0.0;
-    entry->c_y = 0.0;
-    entry->use_for_impulse = false;
-    
-    return(entry);
+    object_select_text(obj, id);
+    text_t* txt = (text_t*) obj->txt->entry;
+    txt->duration = duration;
+    obj->txt_print = 1;
 }
 
-void object_free_collisions(list_t* col) {
+bool said(object_t* obj) {
     
-    col = get_first(col);
-    list_t* col_tmp = col;
+    return(obj->txt_print == 0);
+}
+
+// if calling say_new, you have to call say_free at a later step:
+void say_new(object_t* obj, char* str, uint32_t duration) {
     
-    while (col != NULL) {
-        free((collision_t*) col->entry);
-        col = col->next;
+    object_add_text(obj, 0);
+    text_t* txt = (text_t*) obj->txt->entry;
+    text_add_string(txt, str);
+    txt->duration = duration;
+    obj->txt_print = 1;
+}
+
+void say_free(object_t* obj) {
+    
+    object_remove_text(obj, 0);
+}
+
+void face(object_t* obj, object_t* obj_target, float dt) {
+    
+    float x = obj_target->pos_x;
+    float y = obj_target->pos_y;
+    object_select_animation_target(obj, x, y);
+    object_animate(obj, 0, dt);
+}
+
+void stop(object_t* obj) {
+    
+    if (obj->id == OBJECT_HERO_ID) {
+        obj->can_move = false;
+    } else {
+        if (obj->ways != NULL) {
+            waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+            ways->active = false;
+        }
     }
-    
-    delete_all(col_tmp);
+    //obj->anim_walk = false;
+    obj->vel_x = 0.0;
+    obj->vel_y = 0.0;
 }
 
-void object_add_task(object_t* obj, uint32_t id) {
+void move_on(object_t* obj) {
     
-    task_t* tsk = (task_t*) malloc(sizeof(task_t));
-    tsk->step = 0;
-    tsk->counter = 0;
-    tsk->variables = NULL;
-    tsk->task_function = get_task_function(id);
-    obj->tsk = create_before(obj->tsk, tsk, id);
-}
-
-void object_free_tasks(list_t* lst) {
-    
-    lst = get_first(lst);
-    list_t* tmp = lst;
-    
-    while (lst != NULL) {
-        free((task_t*) lst->entry);
-        lst = lst->next;
+    if (obj->id == OBJECT_HERO_ID) {
+        obj->can_move = true;
+    } else {
+        if (obj->ways != NULL) {
+            waypoints_t* ways = obj->ways->entry;
+            ways->active = true;
+        }
     }
-    
-    delete_all(tmp);
+    //obj->anim_walk = true;
 }
 
-void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id) {
+void drink_beer(object_t* obj, int16_t value) {
     
-    obj->itm_props = (item_t*) malloc(sizeof(item_t));
-    obj->itm_props->id = id;
-    obj->itm_props->render_after_host = false;
-    obj->itm_props->surf = surf;
-    obj->itm_props->variables = NULL;
-    obj->itm_props->step = 0;
-    obj->itm_props->item_function = get_item_function(id);
+    list_t* lst = (list_t*) obj->mtr;
+    lst = find_id(lst, METER_BEER);
+    meter_t* mtr = (meter_t*) lst->entry;
+    meter_update(mtr, mtr->value + value);
 }
 
-void object_free_item_props(item_t* itm_props) {
+void change_mood(object_t* obj, int16_t value) {
     
-    if (itm_props->surf != NULL) {
-        SDL_FreeSurface(itm_props->surf);
+    list_t* lst = (list_t*) obj->mtr;
+    lst = find_id(lst, METER_MOOD);
+    meter_t* mtr = (meter_t*) lst->entry;
+    meter_update(mtr, mtr->value + value);
+}
+
+void start_waypoints(object_t* obj, uint32_t id) {
+    
+    object_select_waypoints(obj, id);
+    waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+    ways->n = 0;
+    ways->active = true;
+    obj->can_move = true;
+    if (count(obj->anim) >= 8) {
+        obj->anim_walk = true;
     }
-    free(itm_props);
 }
 
-void object_add_item(object_t* obj, object_t* obj_item, uint32_t id) {
+bool waypoints_finished(object_t* obj) {
     
-    obj_item->disable_collision = true;
-    obj_item->disable_render = true;
-    obj->itm = create_before(obj->itm, obj_item, id);
-}
-
-void object_free_items(object_t* obj) {
+    waypoints_t* ways = (waypoints_t*) obj->ways->entry;
     
-    delete_all(obj->itm);
-    obj->itm = NULL;
+    return(!ways->active);
 }
 
+bool squared_distance_smaller(
+    object_t* obj1, object_t* obj2, float dist_squared) {
+    
+    float dist_x = obj1->pos_x - obj2->pos_x;
+    float dist_y = obj1->pos_y - obj2->pos_y;
+    
+    return(dist_x * dist_x + dist_y * dist_y < dist_squared);
+}
+
+bool squared_distance_greater(
+    object_t* obj1, object_t* obj2, float dist_squared) {
+    
+    float dist_x = obj1->pos_x - obj2->pos_x;
+    float dist_y = obj1->pos_y - obj2->pos_y;
+    
+    return(dist_x * dist_x + dist_y * dist_y > dist_squared);
+}

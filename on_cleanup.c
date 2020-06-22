@@ -1,11 +1,25 @@
 #include "on_cleanup.h"
  
-void on_cleanup(object_t* obj, video_t* vid, sound_t* snd, 
+void on_cleanup(groups_t* grp, video_t* vid, sound_t* snd, 
     verletbox_t* vbox, bool* keys) {
 	
     // objects:
-	object_clean_up(obj);
-	
+    object_t* obj = grp->obj_first;
+    while (obj != NULL) {
+        
+        collisions_free(obj);
+        items_free(obj);
+        items_free_object_item_props(obj);
+        
+        obj = obj->next_object;
+    }
+    tasks_free(grp);
+    
+	object_clean_up(grp->obj_first);
+    
+    // groups:
+    groups_free(grp);
+    
     // video:
     SDL_GL_DeleteContext(vid->glcontext);
     SDL_DestroyRenderer(vid->renderer);

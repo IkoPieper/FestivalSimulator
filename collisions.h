@@ -3,11 +3,24 @@
 
 //#include "datatypes.h"
 #include "object.h"
+#include "groups.h"
 #include "verletbox.h"
 #include <math.h>
 #include <stdbool.h>
 
-void collisions(object_t* obj, verletbox_t* vbox, float dt);
+typedef struct collision collision_t;
+
+struct collision {
+    object_t* partner;
+    float c_x;
+    float c_y;
+    bool use_for_impulse;
+};
+
+collision_t* collisions_add_to_object(object_t* obj, object_t* partner);
+void collisions_free(object_t* obj);
+
+void collisions(groups_t* grp, verletbox_t* vbox, float dt);
 
 list_t* collisions_blobb(list_t* blobb, list_t* current);
 

@@ -4,53 +4,53 @@
 #include "animation.h"
 #include "waypoints.h"
 
-void on_loop(object_t* obj, sound_t* snd, 
+void on_loop(groups_t* grp, sound_t* snd, 
     verletbox_t* vbox, bool* keys, uint64_t frame, float dt) {
 	
 	//collisions(obj, vbox, dt);
 	
 	//movements(obj, keys, dt);
     
-    on_loop_tasks(obj, keys, frame, dt);
+    on_loop_tasks(grp, keys, frame, dt);
     
-    on_loop_items(obj, keys, frame);
+    on_loop_items(grp->obj_hero, keys, frame);
     
-	on_loop_animations(obj, keys, frame, dt);
+	on_loop_animations(grp, keys, frame, dt);
     
-	on_loop_waypoints(obj, frame, dt);
+	on_loop_waypoints(grp, frame, dt);
 
-    on_loop_sounds(obj, keys, snd, frame, dt);
+    on_loop_sounds(grp, keys, snd, frame, dt);
     
-    collisions(obj, vbox, dt);
+    collisions(grp, vbox, dt);
     
-	movements(obj, keys, dt);
+	movements(grp, keys, dt);
 }
 
 // call all the task functions of the objects:
-void on_loop_tasks(object_t* obj, bool* keys, uint64_t frame, float dt) {
+void on_loop_tasks(groups_t* grp, bool* keys, uint64_t frame, float dt) {
     
-    obj = object_get_first(obj);
-	while (obj != NULL) {
+    object_t* obj;
+    
+    list_t* lst = grp->lst_have_tsk;
+    
+	while (lst != NULL) {
         
-        if (obj->tsk != NULL) {
+        obj = (object_t*) lst->entry;
+        
+        list_t* lst_tsk = get_first(obj->tsk);
+        while (lst_tsk != NULL) {
             
-            list_t* lst = get_first(obj->tsk);
-            while (lst != NULL) {
-                
-                task_t* tsk = (task_t*) lst->entry;
-                tsk->task_function(tsk, obj, keys, frame, dt);
-                
-                lst = lst->next;
-            }
+            task_t* tsk = (task_t*) lst_tsk->entry;
+            tsk->task_function(tsk, obj, grp, keys, frame, dt);
+            
+            lst_tsk = lst_tsk->next;
         }
         
-        obj = obj->next_object;
+        lst = lst->next;
 	}
 }
 
-void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
-    
-    object_t* hero = object_get(obj, OBJECT_HERO_ID);
+void on_loop_items(object_t* hero, bool* keys, uint64_t frame) {
     
     static bool released_key_shift = true;
     static bool released_key_ctrl = true;
@@ -92,13 +92,17 @@ void on_loop_items(object_t* obj, bool* keys, uint64_t frame) {
     
 }
 
-void on_loop_animations(object_t* obj, bool* keys, 
-    uint64_t frame, float dt) {
+void on_loop_animations(
+    groups_t* grp, bool* keys, uint64_t frame, float dt) {
 	
-	obj = object_get_first(obj);
+	object_t* obj;
 	
-	while (obj != NULL) {
+    list_t* lst = grp->lst_have_anim;
+    
+	while (lst != NULL) {
 		
+        obj = (object_t*) lst->entry;
+        
         if (obj->anim_walk && obj->can_move) {
         
             // calculate actual velocity:
@@ -143,11 +147,9 @@ void on_loop_animations(object_t* obj, bool* keys,
         }
         
 		// animate:
-		if (obj->anim != NULL) {
-			object_animate(obj, frame, dt);
-		}
+        object_animate(obj, frame, dt);
         
-		obj = obj->next_object;
+		lst = lst->next;
 	}
 	
 }
@@ -255,46 +257,37 @@ uint32_t on_loop_get_animation_walk(
     return(anim_id);
 }
 
-void on_loop_waypoints(object_t* obj, uint64_t frame, float dt) {
+void on_loop_waypoints(groups_t* grp, uint64_t frame, float dt) {
 	
-	obj = object_get_first(obj);
+	object_t* obj;
 	
-	while (obj != NULL) {
-        	
-		if (obj->ways != NULL) {
-            
-            waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+    list_t* lst = grp->lst_have_ways;
+    
+	while (lst != NULL) {
         
-            /*if (obj->id == 901 || obj->id == 902 || obj->id == OBJECT_BUS) {
-                printf("%d: waypoint: %d\n", obj->id, obj->ways->id);
-                printf("%d: active: %d\n", obj->id, ways->active);
-                printf("%d: n: %d\n", obj->id, ways->n);
-                printf("%d: frame: %d\n", obj->id, ways->frame);
-                printf("%d: frames_wait: %d\n", obj->id, ways->frames_wait[ways->n]);
-                printf("%d: frames_max: %d\n\n", obj->id, ways->frames_max[ways->n]);
-            }*/
-            
+        obj = (object_t*) lst->entry;
         
-            if (ways->active) {
+        waypoints_t* ways = (waypoints_t*) obj->ways->entry;
+    
+        if (ways->active) {
 
-                object_get_next_waypoint(obj, dt);
-                object_aim_for_waypoint(obj);
-            }
-		}
+            object_get_next_waypoint(obj, dt);
+            object_aim_for_waypoint(obj);
+        }
 	
-		obj = obj->next_object;
+		lst = lst->next;
 	}
 	
 }
 
 void on_loop_sounds(
-    object_t* obj, bool* keys, sound_t* snd, uint64_t frame, float dt) {
+    groups_t* grp, bool* keys, sound_t* snd, uint64_t frame, float dt) {
     
-    object_t* obj_hero = object_get(obj, OBJECT_HERO_ID);
+    object_t* obj_hero = grp->obj_hero;
     
     // samples:
-    object_t* obj_first = object_get_first(obj);
-    obj = obj_first;
+    object_t* obj = grp->obj_first;
+    
     while (obj != NULL) {
         
         // walk sounds:

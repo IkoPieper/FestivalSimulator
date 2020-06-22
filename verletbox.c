@@ -79,7 +79,6 @@ void verletbox_free(verletbox_t* vbox) {
 
 void verletbox_update(verletbox_t* vbox, object_t* obj) {
 	
-	obj = object_get_first(obj);
 	uint32_t x, y, x_old, y_old;
 	
 	while (obj != NULL) {

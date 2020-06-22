@@ -3,6 +3,8 @@
 
 #include "own_config.h"
 #include "object.h"
+#include "tasks.h"
+#include "items.h"
 #include "surface.h"
 #include "text.h"
 #include <stdlib.h>

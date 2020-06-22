@@ -1,15 +1,11 @@
 #include "movements.h"
 
-void movements(object_t* obj, bool* keys, float dt) {
+void movements(groups_t* grp, bool* keys, float dt) {
 	
-	object_t* obj_first = NULL;
-	object_t* obj_hero = NULL;
-	object_t* obj_bg = NULL;
+	object_t* obj_first = grp->obj_first;
+	object_t* obj_hero = grp->obj_hero;
+	object_t* obj_bg = grp->obj_bg;
 	
-	obj_first = object_get_first(obj);
-	obj_hero = object_get(obj, OBJECT_HERO_ID);
-	obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
-    
 	obj_hero->pos_x_old = obj_hero->pos_x;
 	obj_hero->pos_y_old = obj_hero->pos_y;
 	
@@ -33,11 +29,10 @@ void movements(object_t* obj, bool* keys, float dt) {
 	}
 	
 	// all objects:
-	obj = obj_first;
+	object_t* obj = obj_first;
 	while (obj != NULL) {
 		
-		if (obj->id != OBJECT_BACKGROUND_ID &&
-			obj->id != OBJECT_HERO_ID) {
+		if (obj != obj_bg && obj != obj_hero) {
 				
             if (obj->can_move) {
 				if (obj->pos_x != obj->pos_x_old ||

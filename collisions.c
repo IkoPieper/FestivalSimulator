@@ -1,25 +1,59 @@
 #include "collisions.h"
 
-void collisions(object_t* obj, verletbox_t* vbox, float dt) {
+collision_t* collisions_add_to_object(object_t* obj, object_t* partner) {
+    
+	// add new collision:
+	collision_t* entry = (collision_t*) malloc(sizeof(collision_t));
 	
-    object_t* obj_first = object_get_first(obj);
+	// add at first place in list:
+    obj->col = create_before(obj->col, (void*) entry, partner->id);
+	
+	// initialize:
+    entry->partner = partner;	// add new partner
+    entry->c_x = 0.0;
+    entry->c_y = 0.0;
+    entry->use_for_impulse = false;
+    
+    return(entry);
+}
+
+void collisions_free(object_t* obj) {
+    
+    list_t* lst = obj->col;
+    
+    if (lst != NULL) {
+            
+        lst = get_first(lst);
+        list_t* lst_tmp = lst;
+        
+        while (lst != NULL) {
+            free((collision_t*) lst->entry);
+            lst = lst->next;
+        }
+        
+        delete_all(lst_tmp);
+        
+        obj->col = NULL;
+    }
+}
+
+void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
+	
+    object_t* obj_first = grp->obj_first;
     
 	uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
 	
-	verletbox_update(vbox, obj);
+	verletbox_update(vbox, obj_first);
 	
 	// check collisions with background first, 
 	// because background is too big for verlet boxes:
-	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
+	object_t* obj_bg = grp->obj_bg;
 	
-	obj = obj_first;
+	object_t* obj = obj_first;
 			
 	while (obj != NULL) {
         
-		if (obj->col != NULL) {
-			object_free_collisions(obj->col);
-            obj->col = NULL;
-		}
+        collisions_free(obj);
         
 		if (obj->has_moved && 
             (!obj->disable_collision || !obj->disable_render)) {
@@ -294,9 +328,9 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
             x2_min, y2_min, w2_bmp, w2, h2);
             
         if (collision) {
-            col1 = object_add_collision(obj1, obj2);
+            col1 = collisions_add_to_object(obj1, obj2);
             col1->use_for_impulse = true;
-            col2 = object_add_collision(obj2, obj1);
+            col2 = collisions_add_to_object(obj2, obj1);
         } else {
             return;
         }

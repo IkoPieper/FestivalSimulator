@@ -16,9 +16,7 @@
 
 
 typedef struct object object_t;
-typedef struct task task_t;
 typedef struct item item_t;
-typedef struct collision collision_t;
 typedef struct walls walls_t;
 
 struct walls {
@@ -44,20 +42,6 @@ struct walls {
 	// line between those pixels:
 	float slope;
 	float offset;
-};
-
-struct collision {
-    object_t* partner;
-    float c_x;
-    float c_y;
-    bool use_for_impulse;
-};
-
-struct task {
-    uint32_t step;          // step in task function
-    uint32_t counter;       // usefull counter
-    void* variables;        // any additional variables
-    bool (*task_function)(task_t*, object_t*, bool*, uint64_t, float);
 };
 
 struct item {
@@ -115,15 +99,12 @@ struct object {
 	// screen positions:
 	float scr_pos_x;    // pos in relation to top left corner of screen
 	float scr_pos_y;
-	float max_scr_pos_x;
-	float max_scr_pos_y;
-	float min_scr_pos_x;
-	float min_scr_pos_y;
 	
 	// bitmaps:
 	SDL_Surface* surface;	// current picture
-	//unsigned int* walls;	// aka collision zones
-	walls_t* wall;	        // aka collision zones
+	
+    // walls (aka collision zones):
+	walls_t* wall;
 	
     // tasks:
     bool is_security;
@@ -196,39 +177,7 @@ void object_get_next_waypoint(object_t* obj, float dt);
 void object_aim_for_waypoint(object_t* obj);
 void object_free_waypoints(list_t* ways);
 
-collision_t* object_add_collision(object_t* obj, object_t* partner);
-void object_free_collisions(list_t* col);
-
-void object_add_task(object_t* obj, uint32_t id);
-void object_free_tasks(list_t* lst);
-
-void object_init_item_props(object_t* obj, SDL_Surface* surf, uint32_t id);
-void object_free_item_props(item_t* itm_props);
-void object_add_item(object_t* obj, object_t* obj_item, uint32_t id);
-void object_free_items(object_t* obj);
-
-// functions in object_tasks.c:
-bool (*get_task_function(uint32_t id))(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-bool task_find_bob(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-bool task_find_eva(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-bool task_security_fence(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-bool task_bus_passenger(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-bool task_bus(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-    
-typedef struct hunt hunt_t;
-struct hunt {
-    object_t* obj_hunted;
-    bool clockwise;
-};
-bool task_hunt(
-    task_t* tsk, object_t* obj, bool* keys, uint64_t frame, float dt);
-
+// functions shared by tasks and items:
 void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
@@ -240,35 +189,14 @@ void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
 void start_waypoints(object_t* obj, uint32_t id);
 bool waypoints_finished(object_t* obj);
-void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
-    object_t* obj_hunted, float dt);
 bool squared_distance_smaller(
     object_t* obj1, object_t* obj2, float dist_squared);
 bool squared_distance_greater(
     object_t* obj1, object_t* obj2, float dist_squared);
 
-// functions in object_items.c:
-bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t);
-bool use_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
-bool use_red_stone(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
-bool use_money(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
-bool use_water_pistol(object_t* obj, object_t* obj_partner, bool* keys, uint64_t frame);
-
 #define OBJECT_BACKGROUND_ID 1
 #define OBJECT_HERO_ID 2
 #define OBJECT_SCORE_ID 3
 #define OBJECT_BUS 3001
-
-#define TASK_FIND_BOB 0
-#define TASK_FIND_EVA 1
-#define TASK_SECURITY_FENCE 2
-#define TASK_BUS_PASSENGER 3
-#define TASK_BUS 4
-#define TASK_HUNT 5
-
-#define ITEM_STONE 0
-#define ITEM_RED_STONE 1
-#define ITEM_MONEY 2
-#define ITEM_WATER_PISTOL 3
 
 #endif

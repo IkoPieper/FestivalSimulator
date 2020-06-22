@@ -16,7 +16,7 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			entry = entry->next;
         } else if (strcmp(entry->key, "task") == 0) {
 			
-			object_add_task(obj, atoi(entry->value));
+			tasks_add_to_object(obj, atoi(entry->value));
 			entry = entry->next;
             
         } else if (strcmp(entry->key, "has_item") == 0) {
@@ -138,7 +138,7 @@ configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
 		if        (strcmp(entry->key, "item") == 0) {
 			
             printf("ITEM ADDED: %d\n", atoi(entry->value));
-			object_init_item_props(obj, NULL, atoi(entry->value));
+			items_init_object_item_props(obj, NULL, atoi(entry->value));
 			entry = entry->next;
 			
 		} else if (strcmp(entry->key, "item_surface") == 0) {

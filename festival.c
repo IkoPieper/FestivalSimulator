@@ -65,6 +65,8 @@ bool on_execute() {
 		return(true);
 	}
 	
+    groups_t* grp = on_init_groups(obj);
+    
  	on_start(obj);  // does nothing
  	
  	verletbox_t* vbox = verletbox_init(obj);
@@ -106,10 +108,10 @@ bool on_execute() {
         printf("FRAME: %lu\n", frame);
         printf("-------------------\n\n");
         
-		on_loop(obj, snd, vbox, keys, frame, dt);
+		on_loop(grp, snd, vbox, keys, frame, dt);
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
 		//time = SDL_GetTicks();
-		on_render(obj, vid, dt);
+		on_render(grp, vid, dt);
 		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
 		// ensure constant frame rate:
@@ -127,7 +129,7 @@ bool on_execute() {
 
 	
 	// ALWAYS TODO: keep this up to date
-	on_cleanup(obj, vid, snd, vbox, keys);
+	on_cleanup(grp, vid, snd, vbox, keys);
  
 	return(false);
 }

@@ -27,12 +27,13 @@ sound_t* on_init_sound() {
 // load audio samples as defined in sound.h:
 sound_t* on_init_sound_samples(sound_t* snd) {
     
-    snd->num_samples = 2;
+    snd->num_samples = 3; // keep this up to date!
     snd->samples = 
         (Mix_Chunk**) malloc(snd->num_samples * sizeof(Mix_Chunk*));
     
     Mix_Chunk* chunk;
     
+    // sample 1:
     chunk = Mix_LoadWAV("samples/collision.wav");
     if(!chunk) {
         printf("Mix_LoadWAV: %s\n", Mix_GetError());
@@ -40,6 +41,7 @@ sound_t* on_init_sound_samples(sound_t* snd) {
     }
     snd->samples[SOUND_COLLISION] = chunk;
     
+    // sample 2:
     chunk = Mix_LoadWAV("samples/step.wav");
     if(!chunk) {
         printf("Mix_LoadWAV: %s\n", Mix_GetError());
@@ -47,6 +49,7 @@ sound_t* on_init_sound_samples(sound_t* snd) {
     }
     snd->samples[SOUND_STEP] = chunk;
     
+    // sample 3:
     chunk = Mix_LoadWAV("samples/water_pistol.wav");
     if(!chunk) {
         printf("Mix_LoadWAV: %s\n", Mix_GetError());
@@ -116,7 +119,7 @@ sound_t* on_init_sound_songs(sound_t* snd) {
     
     
     // load first song:
-    if(!(snd->music = Mix_LoadMUS(snd->songs[0]))) {
+    if (!(snd->music = Mix_LoadMUS(snd->songs[0]))) {
 		fprintf(stderr, "Error loading song %s!\n", snd->songs[0]);
     }
     
@@ -147,11 +150,11 @@ bool on_init_sound_supported(char* filename) {
 video_t* on_init_video(bool VSYNC) {
     
     // init SDL:
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		return(NULL);
 	}
 	// init SDL fonts TTF:
-	if(TTF_Init() == -1) {
+	if (TTF_Init() == -1) {
 		return(NULL);
 	}
 	
@@ -286,6 +289,62 @@ object_t* on_init_objects(video_t* vid, float dt) {
 	return(object_get_first(obj));
 }
 
+groups_t* on_init_groups(object_t* obj) {
+    
+    groups_t* grp = (groups_t*) malloc(sizeof(groups_t));
+    
+    grp->lst_securities = NULL;
+    grp->lst_dixis = NULL;
+    grp->lst_have_anim = NULL;
+    grp->lst_have_ways = NULL;
+    grp->lst_have_tsk = NULL;
+    grp->obj_bg = NULL;
+    grp->obj_hero = NULL;
+    grp->obj_first = NULL;
+    
+    obj = object_get_first(obj);
+    
+    grp->obj_first = obj;
+    
+    while (obj != NULL) {
+        
+        if (obj->id == OBJECT_HERO_ID) {
+            grp->obj_hero = obj;
+        } else if (obj->id == OBJECT_BACKGROUND_ID) {
+            grp->obj_bg = obj;
+        }
+        
+        if (obj->is_security) {
+            grp->lst_securities = create_before(
+                grp->lst_securities, obj, obj->id);
+        }
+        
+        /*if (obj->is_dixi) {
+            grp->lst_dixis = create_before(
+                grp->lst_dixis, obj, obj->id);
+        }*/
+        
+        if (obj->anim != NULL) {
+            grp->lst_have_anim = create_before(
+                grp->lst_have_anim, obj, obj->id);
+        }
+        
+        if (obj->ways != NULL) {
+            grp->lst_have_ways = create_before(
+                grp->lst_have_ways, obj, obj->id);
+        }
+        
+        if (obj->tsk != NULL) {
+            grp->lst_have_tsk = create_before(
+                grp->lst_have_tsk, obj, obj->id);
+        }
+        
+        obj = obj->next_object;
+    }
+    
+    return(grp);
+}
+
 bool on_init_background(object_t* obj, video_t* vid) {
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
@@ -308,12 +367,6 @@ bool on_init_background(object_t* obj, video_t* vid) {
 	obj->scr_pos_x = -obj->surface->w / 2 + vid->surface->w / 2;
 	obj->scr_pos_y = -obj->surface->h / 2 + vid->surface->h / 2;
 	
-	obj->min_scr_pos_x = -99999.0;
-	obj->max_scr_pos_x = 99999.0;
-	obj->min_scr_pos_y = -99999.0;
-	obj->max_scr_pos_y = 99999.0;
-
-	
 	return(false);
 }
 
@@ -327,19 +380,12 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	// start position is middle of screen:
 	obj->scr_pos_x = vid->surface->w / 2 - obj->surface->w / 2;
 	obj->scr_pos_y = vid->surface->h / 2 - obj->surface->h / 2;
+    
+    // ... in the middle of the background:
 	obj->pos_x = obj_bg->surface->w / 2;
 	obj->pos_y = obj_bg->surface->h / 2;
-    //obj->pos_x = 1020;
-	//obj->pos_y = 1220;
-		
-	// min/max screen positions:
-	obj->min_scr_pos_x = (float) (0 + vid->surface->w / 3);
-	obj->max_scr_pos_x = (float) (vid->surface->w 
-		- vid->surface->w / 3 - obj->surface->w);
-	obj->min_scr_pos_y = (float) (0 + vid->surface->h / 3);
-	obj->max_scr_pos_y = (float) (vid->surface->h 
-		- vid->surface->h / 3 - obj->surface->h);
     
+    // object meters:
     object_add_meter(obj, METER_BEER, METER_BEER,   10, 10);
     object_add_meter(obj, METER_MOOD, METER_MOOD,   10, 40);
     object_add_meter(obj, METER_URIN, METER_URIN,   10, 70);
@@ -381,14 +427,23 @@ bool on_init_objects_config(object_t* obj, float dt) {
 			while (entry != NULL) {
 			
 				if        (strcmp(entry->key, "object") == 0) {
+                    
 					entry = load_config_defaults(entry, path, obj);
+                    
                 } else if (strcmp(entry->key, "item") == 0) {
+                    
 					entry = load_config_item(entry, path, obj);
+                    
 				} else if (strcmp(entry->key, "animation") == 0) {
+                    
 					entry = load_config_animation(entry, path, obj, dt);
+                    
                 } else if (strcmp(entry->key, "waypoints") == 0) {
+                    
 					entry = load_config_waypoints(entry, path, obj, dt);
+                    
 				} else if (strcmp(entry->key, "text") == 0) {
+                    
 					entry = load_config_text(entry, obj);
 				} 
 
