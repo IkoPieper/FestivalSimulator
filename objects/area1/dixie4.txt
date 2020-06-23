@@ -1,0 +1,5 @@
+object = 504
+pos_x = 1490
+pos_y = 570
+surface = dixie.bmp
+walls = dixie_walls.bmp

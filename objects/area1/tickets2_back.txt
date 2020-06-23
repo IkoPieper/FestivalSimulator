@@ -1,0 +1,5 @@
+object = 1103
+pos_x = 420
+pos_y = 700
+surface = tickets_02_back.bmp
+walls = tickets_02_walls_back.bmp

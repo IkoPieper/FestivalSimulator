@@ -1,0 +1,5 @@
+object = 1102
+pos_x = 1120
+pos_y = 769 # +69
+surface = tickets_01_front.bmp
+walls = tickets_01_walls_front.bmp

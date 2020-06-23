@@ -1,0 +1,29 @@
+object = 3002
+pos_x = 400
+pos_y = 1500
+mass = 1000.0
+can_move = 1
+damping = 0.4
+surface = bus.bmp
+walls = bus_walls.bmp
+#disable_collision = 1
+
+waypoints = 2
+num_waypoints = 1
+active = 0
+is_cycle = 0
+pos_are_relative = 0
+vel_abs = 4.0
+pos_x = 500.0
+pos_y = 1250.0
+frames_wait = 10
+
+waypoints = 3
+num_waypoints = 1
+active = 0
+is_cycle = 0
+pos_are_relative = 0
+vel_abs = 4.0
+pos_x = 0.0
+pos_y = 1250.0
+frames_wait = 1

@@ -1,0 +1,74 @@
+object = 2              # hard coded hero id
+has_item = 2000         # stone id
+has_item = 2001         # red stone id
+has_item = 2002         # money id
+has_item = 2003         # water pistol id
+surface = hero_s_1.bmp  # main picture
+walls = hero_walls.bmp  # collision zones
+can_move = 1            # object can move
+mass = 1.0              # mass of the object
+damping = 0.2           # damping slows a moving object down
+acc_abs = 0.6           # acceleration on key press (only used for hero)
+
+anim_walk = 1           # use animations 1 to 8 for walk cycles
+
+# for the hero 8 animations have to be present!
+# the number of surfaces doesn't matter:
+
+animation = 1           # animation for walking north
+delay_frames = 7        # animation speed: lower value is faster
+surface = hero_n_1.bmp  # first picture ...
+surface = hero_n_2.bmp  # second picture ...
+
+animation = 2           # animation for walking south
+delay_frames = 7
+surface = hero_s_1.bmp
+surface = hero_s_2.bmp
+
+animation = 3           # animation for walking west
+delay_frames = 7
+surface = hero_w_1.bmp
+surface = hero_w_stand.bmp
+surface = hero_w_2.bmp
+surface = hero_w_stand.bmp
+
+animation = 4           # animation for walking east
+delay_frames = 7
+surface = hero_e_1.bmp
+surface = hero_e_stand.bmp
+surface = hero_e_2.bmp
+surface = hero_e_stand.bmp
+
+animation = 5           # animation for stopping north
+delay_frames = 1
+surface = hero_n_stand.bmp
+
+animation = 6           # animation for stopping south
+delay_frames = 1
+surface = hero_s_stand.bmp
+
+animation = 7           # animation for stopping west
+delay_frames = 1
+surface = hero_w_stand.bmp
+
+animation = 8           # animation for stopping east
+delay_frames = 1
+surface = hero_e_stand.bmp
+
+animation = 9           # animation for walking north without arms
+delay_frames = 7
+surface = hero_no_arms_n_1.bmp
+surface = hero_no_arms_n_2.bmp
+
+animation = 10          # animation for walking south without arms
+delay_frames = 7
+surface = hero_no_arms_s_1.bmp
+surface = hero_no_arms_s_2.bmp
+
+animation = 11          # animation for stopping north without arms
+delay_frames = 7
+surface = hero_no_arms_n_stand.bmp
+
+animation = 12          # animation for stoping south without arms
+delay_frames = 7
+surface = hero_no_arms_s_stand.bmp

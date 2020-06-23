@@ -1,0 +1,5 @@
+object = 802
+pos_x = 1130
+pos_y = 1496 # +66
+surface = beer_booth_front.bmp
+walls = beer_booth_walls_front.bmp

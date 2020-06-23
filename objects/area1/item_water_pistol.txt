@@ -1,0 +1,30 @@
+object = 2003
+pos_x = 810
+pos_y = 800
+surface = water_pistol_s_1.bmp
+walls = water_pistol_walls.bmp
+can_move = 1
+disable_render = 1
+
+item = 3                # this object is an item using item function 3
+item_surface = item_water_pistol.bmp
+
+animation = 1
+delay_frames = 7
+surface = water_pistol_n_1.bmp
+surface = water_pistol_n_2.bmp
+
+animation = 2
+delay_frames = 7
+surface = water_pistol_s_1.bmp
+surface = water_pistol_s_2.bmp
+
+animation = 3
+delay_frames = 7
+surface = water_pistol_w_1.bmp
+surface = water_pistol_w_2.bmp
+
+animation = 4
+delay_frames = 7
+surface = water_pistol_e_1.bmp
+surface = water_pistol_e_2.bmp
