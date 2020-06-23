@@ -244,25 +244,25 @@ video_t* on_init_video(bool VSYNC) {
     // include a nice font:
     if((vid->font = TTF_OpenFont("FreeSansBold.ttf", 13)) == NULL) {
 		fprintf(stderr, "Error: Font FreeSansBold.ttf is missing!");
-		return(NULL);
+		exit(0);
 	}
     
 	return(vid);
     
 }
 
-object_t* on_init_objects(video_t* vid, float dt) {
+object_t* on_init_objects(video_t* vid, float dt, uint8_t area) {
 	
 	// init objects:
 	object_t* obj = NULL;
 	
 	obj = object_add(obj, OBJECT_BACKGROUND_ID);	// background
 	
-	if (on_init_background(obj, vid)) {
+	if (on_init_background(obj, vid, area)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
-	if (on_init_objects_config(obj, dt)) {
+	if (on_init_objects_config(obj, dt, area)) {
 		object_clean_up(obj);
 		return(NULL);
 	}
@@ -345,7 +345,7 @@ groups_t* on_init_groups(object_t* obj) {
     return(grp);
 }
 
-bool on_init_background(object_t* obj, video_t* vid) {
+bool on_init_background(object_t* obj, video_t* vid, uint8_t area) {
 	
 	obj = object_get(obj, OBJECT_BACKGROUND_ID);
 	
@@ -353,12 +353,20 @@ bool on_init_background(object_t* obj, video_t* vid) {
 	obj->mass = 99999999999.0;
 	obj->damping = 1.0;
 	
+    char path[64];
+    snprintf(path, 64, "objects/area%d/background_walls.bmp", area);
+    
 	SDL_Surface* surf_wall;
-	if((surf_wall = surface_on_load("background_walls.bmp")) == NULL) {
-		return(true);
+	if((surf_wall = surface_on_load(path)) == NULL) {
+        printf("Error loading file %s\n", path);
+		exit(0);
 	}
-	if((obj->surface = surface_on_load("background.bmp")) == NULL) {
-		return(true);
+    
+    snprintf(path, 64, "objects/area%d/background.bmp", area);
+    
+	if((obj->surface = surface_on_load(path)) == NULL) {
+        printf("Error loading file %s\n", path);
+		exit(0);
 	}
 	obj->wall = object_init_walls(surf_wall, obj->surface);
 	
@@ -395,13 +403,15 @@ bool on_init_hero(object_t* obj, video_t* vid) {
 	return(false);
 }
 	
-bool on_init_objects_config(object_t* obj, float dt) {
+bool on_init_objects_config(object_t* obj, float dt, uint8_t area) {
 	
 	DIR* hdl_dir;
 	struct dirent* dir;
 	char path[100];
-	
-	hdl_dir = opendir("objects");
+	char path_area[14];
+    snprintf(path_area, 14, "objects/area%d", area);
+    
+	hdl_dir = opendir(path_area);
 	
 	while ((dir = readdir(hdl_dir)) != NULL) {
       
@@ -410,7 +420,7 @@ bool on_init_objects_config(object_t* obj, float dt) {
 
 	
 			// build path to file:
-			strncpy(path, "objects", 100);
+			strncpy(path, path_area, 100);
 			strncat(path, "/", 100);
 			strncat(path, dir->d_name, 100);
 	

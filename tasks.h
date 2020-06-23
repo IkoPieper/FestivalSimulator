@@ -33,18 +33,23 @@ void tasks_free(groups_t* grp);
 bool (*get_task_function(uint32_t id))(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+    
 bool task_find_bob(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+    
 bool task_find_eva(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+    
 bool task_security_fence(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+    
 bool task_bus_passenger(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+    
 bool task_bus(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);

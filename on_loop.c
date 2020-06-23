@@ -4,8 +4,9 @@
 #include "animation.h"
 #include "waypoints.h"
 
-void on_loop(groups_t* grp, sound_t* snd, 
-    verletbox_t* vbox, bool* keys, uint64_t frame, float dt) {
+void on_loop(
+    groups_t* grp, sound_t* snd, verletbox_t* vbox, 
+    bool* keys, uint64_t frame, float dt) {
 	
 	//collisions(obj, vbox, dt);
 	
@@ -27,7 +28,8 @@ void on_loop(groups_t* grp, sound_t* snd,
 }
 
 // call all the task functions of the objects:
-void on_loop_tasks(groups_t* grp, bool* keys, uint64_t frame, float dt) {
+void on_loop_tasks(
+    groups_t* grp, bool* keys, uint64_t frame, float dt) {
     
     object_t* obj;
     
@@ -158,15 +160,20 @@ uint32_t on_loop_get_animation_walk_hero(object_t* obj, bool* keys) {
     
     uint32_t anim_id = obj->anim->id;
     
+    bool using_water_pistol = 
+        obj->itm != NULL && 
+        obj->itm->id == ITEM_WATER_PISTOL && 
+        keys[KEY_SPACE];
+    
     if (keys[KEY_UP]) {
-        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+        if (using_water_pistol) {
             return(9);
         } else {
             return(ANIMATION_WALK_NORTH);
         }
     }
     if (keys[KEY_DOWN]) {
-        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+        if (using_water_pistol) {
             return(10);
         } else {
             return(ANIMATION_WALK_SOUTH);
@@ -180,28 +187,28 @@ uint32_t on_loop_get_animation_walk_hero(object_t* obj, bool* keys) {
     }
     
     if (anim_id == ANIMATION_WALK_NORTH || anim_id == 9) {
-        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+        if (using_water_pistol) {
             return(11);
         } else {
             return(ANIMATION_REST_NORTH);
         }
     }
     if (anim_id == ANIMATION_REST_NORTH) {
-        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+        if (using_water_pistol) {
             return(11);
         } else {
             return(ANIMATION_REST_NORTH);
         }
     }
     if (anim_id == ANIMATION_WALK_SOUTH || anim_id == 10) {
-        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+        if (using_water_pistol) {
             return(12);
         } else {
             return(ANIMATION_REST_SOUTH);
         }
     }
     if (anim_id == ANIMATION_REST_SOUTH) {
-        if (obj->itm->id == ITEM_WATER_PISTOL && keys[KEY_SPACE]) {
+        if (using_water_pistol) {
             return(12);
         } else {
             return(ANIMATION_REST_SOUTH);

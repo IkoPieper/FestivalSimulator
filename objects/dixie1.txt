@@ -1,5 +1,0 @@
-object = 501
-pos_x = 1340
-pos_y = 570
-surface = dixie.bmp
-walls = dixie_walls.bmp

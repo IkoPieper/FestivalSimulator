@@ -188,8 +188,10 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                     //printf("v2y: %f\n", v2y);
                     
                     // if angle not smaller than 90°:
-                    if ((is_moving1 && !((c2x < -v1y && c2y < -v1x) || (c2x > -v1y && c2y > -v1x))) ||
-                        (is_moving2 && !((c1x < -v2y && c1y < -v2x) || (c1x > -v2y && c1y > -v2x)))) {
+                    if ((is_moving1 && !((c2x < -v1y && c2y < -v1x) || 
+                            (c2x > -v1y && c2y > -v1x))) ||
+                        (is_moving2 && !((c1x < -v2y && c1y < -v2x) || 
+                            (c1x > -v2y && c1y > -v2x)))) {
                         
                         collisions_impulse(obj, col->partner, c1x, c1y);
                         //printf("After collisions_impulse():\n");

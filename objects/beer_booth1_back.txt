@@ -1,5 +1,0 @@
-object = 801
-pos_x = 1130
-pos_y = 1430
-surface = beer_booth_back.bmp
-walls = beer_booth_walls_back.bmp

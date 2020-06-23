@@ -23,9 +23,14 @@ struct animation {
 };
 
 animation_t* animation_init(float dt);
+
 void animation_free(animation_t* anim);
+
 void animation_add_surface(animation_t* anim, SDL_Surface* surf);
-SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame);
+
+SDL_Surface* animation_get_next_surface(
+    animation_t* anim, uint64_t frame);
+
 
 #define ANIMATION_WALK_NORTH 1
 #define ANIMATION_WALK_SOUTH 2

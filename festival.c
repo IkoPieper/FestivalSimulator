@@ -1,5 +1,27 @@
 #include "festival.h"
 
+bool change_area(groups_t* grp, uint8_t* area) {
+    
+    object_t* hero = grp->obj_hero;
+    
+    switch (*area) {
+        
+        case 1:
+            if (hero->pos_x < 700.0 && hero->pos_y < 500.0) {
+                *area = 2;
+                return(true);
+            }
+            break;
+        case 2:
+            if (hero->pos_x < 700.0 && hero->pos_y < 500.0) {
+                *area = 1;
+                return(true);
+            }
+            break;
+    }
+    return(false);
+}
+
 bool toggle_fullscreen(bool fullscreen, video_t* vid) {
     
     uint32_t w = vid->surface->w;
@@ -43,6 +65,7 @@ bool on_execute() {
     uint64_t frame = 0;					// current frame
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
+    uint8_t area = 1;
 	
     sound_t* snd = on_init_sound();
     
@@ -59,16 +82,8 @@ bool on_execute() {
         dt = 60.0 / (float) FPS;
     }
     
-	object_t* obj = on_init_objects(vid, dt);
-	if (obj == NULL) {
-		fprintf(stderr, "Initialization of objects failed!\n");
-		return(true);
-	}
-	
+	object_t* obj = on_init_objects(vid, dt, area);
     groups_t* grp = on_init_groups(obj);
-    
- 	on_start(obj);  // does nothing
- 	
  	verletbox_t* vbox = verletbox_init(obj);
  	
  	bool* keys = (bool*) malloc(9 * sizeof(bool));
@@ -81,10 +96,12 @@ bool on_execute() {
 	while (running) {
 		
         if (!VSYNC) {
+            
             time_start = SDL_GetTicks();
         }
 		
         if (lock_fullscreen_key) {
+            
             lock_fullscreen_key--;
         }
         
@@ -93,11 +110,13 @@ bool on_execute() {
 			on_event(&event, keys);
             
             if (!lock_fullscreen_key && keys[KEY_FULLSCREEN]) {
+                
                 lock_fullscreen_key = 30;
                 fullscreen = toggle_fullscreen(fullscreen, vid);
             }
             
 			if (keys[KEY_ESCAPE] || event.type == SDL_QUIT) {
+                
 				running = 0;
 			}
 		}
@@ -114,10 +133,21 @@ bool on_execute() {
 		on_render(grp, vid, dt);
 		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
 		
+        if (change_area(grp, &area)) {
+            
+            on_cleanup_area(grp, snd, vbox);
+            obj = on_init_objects(vid, dt, area);
+            grp = on_init_groups(obj);
+            vbox = verletbox_init(obj);
+        }
+        
 		// ensure constant frame rate:
         if (!VSYNC) {
+            
             time_end = SDL_GetTicks();
+            
             if(1000 / FPS > time_end - time_start) {
+                
                 SDL_Delay(1000 / FPS - (time_end - time_start));
             }
         }
@@ -128,7 +158,6 @@ bool on_execute() {
     SDL_SaveBMP(vid->surface, "last_frame.bmp");
 
 	
-	// ALWAYS TODO: keep this up to date
 	on_cleanup(grp, vid, snd, vbox, keys);
  
 	return(false);
