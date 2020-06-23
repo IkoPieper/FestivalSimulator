@@ -323,7 +323,6 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
             return;
         }
         
-        
         collision = collisions_detect_pixel_collision(
             obj1->wall->pxl, obj2->wall->pxl, 
             x1_min, x1_max, y1_min, y1_max, w1_bmp, w1, h1,
@@ -864,7 +863,7 @@ bool collisions_pixel(
 bool collisions_pixel_protected(
     int32_t x, int32_t y, uint8_t* pxl, 
     int32_t w_bmp, int32_t w, int32_t h) {
-    
+	    
     if (x < 0 || x >= w || y < 0 || y >= h) {
         return(0);
     } else {
@@ -946,6 +945,8 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         return;
     }
     
+    printf("HIER0\n");
+    
 	float x01 = obj1->pos_x + (float) obj1->wall->x;
 	float y01 = obj1->pos_y + (float) obj1->wall->y;
 	float x02 = obj2->pos_x + (float) obj2->wall->x;
@@ -961,6 +962,8 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
     
     printf("\ncollision_update_render()\n");
     printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
+    
+    printf("HIER1\n");
     
     if (obj1->can_move && !obj2->can_move &&
         obj2->wall->pxl != NULL) {      
@@ -1072,6 +1075,8 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         }
     }
     
+    printf("HIER2\n");
+    
 	// update render lists:
 	if (obj1_before_obj2) {
         
@@ -1086,6 +1091,8 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         obj2->render_before = create_before(
             obj2->render_before, (void*) obj1, 0);
 	}
+	
+	printf("HIER3\n");
 }
 
 int8_t collisions_beam(object_t* obj, int32_t x_start, int32_t y_start) {

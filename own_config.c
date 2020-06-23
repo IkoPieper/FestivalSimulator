@@ -113,10 +113,10 @@ char *conf_get_string(configentry *data, char *key) {
 int32_t conf_get_int(configentry *data, char *key) {
 	char *str = conf_get_string(data, key);
 	if (str != NULL) {
-		int32_t ret;
+		/*int32_t ret;
 		sscanf(str, "%SCNd32", &ret);
-		return(ret);
-		//return(atoi(str));
+		return(ret);*/
+		return(atoi(str));
 	} else {
 		return(-666);
 	}

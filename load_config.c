@@ -34,8 +34,8 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			strncat(path, file_name, 100);
 			surf = surface_on_load(path);
 			if(surf == NULL) {
-				printf("Warning: Problem loading config file.\n");
-				printf("File %s not found.\n", file_name);
+				printf("Error: File %s not found.\n", file_name);
+				exit(0);
 			}
 			obj->surface = surf;
 			entry = entry->next;
@@ -48,8 +48,8 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			strncat(path, file_name, 100);
 			surf_wall = surface_on_load(path);
 			if(surf_wall == NULL) {
-				printf("Warning: Problem loading config file.\n");
-				printf("File %s not found.\n", file_name);
+				printf("Error: File %s not found.\n", file_name);
+				exit(0);
 			}
 			entry = entry->next;
 		

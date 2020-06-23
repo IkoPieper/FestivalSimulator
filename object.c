@@ -186,6 +186,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 			(float) wall->lx * wall->slope;
         
 	} else {
+		wall->pxl = NULL;
 		wall->x = 0;
 		wall->y = 0;
 		wall->w = surf->w;

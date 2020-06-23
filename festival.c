@@ -65,7 +65,7 @@ bool on_execute() {
     uint64_t frame = 0;					// current frame
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
-    uint8_t area = 2;
+    uint8_t area = 1;
 	
     sound_t* snd = on_init_sound();
     
@@ -91,6 +91,14 @@ bool on_execute() {
 		keys[i] = false;
 	}
     
+	object_t* tmp = grp->obj_first;
+	while (tmp != NULL) {
+		
+		printf("obj->id: %d\n", tmp->id);
+		
+		tmp = tmp->next_object;
+	}
+	
 	SDL_Event event;
 	
 	while (running) {
@@ -124,7 +132,7 @@ bool on_execute() {
 		//time = SDL_GetTicks();
         
         printf("\n-------------------\n");
-        printf("FRAME: %lu\n", frame);
+        printf("FRAME: %" PRId64 "\n", frame);
         printf("-------------------\n\n");
         
 		on_loop(grp, snd, vbox, keys, frame, dt);

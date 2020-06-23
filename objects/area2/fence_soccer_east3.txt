@@ -1,4 +1,4 @@
-object = 9807
+object = 9811
 pos_x = 945
 pos_y = 1300
 surface = fence_vertical.bmp
