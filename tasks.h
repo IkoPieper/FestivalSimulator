@@ -54,6 +54,14 @@ bool task_bus(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
+bool task_soccer(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
+    
+bool task_soccer_ball(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
+    
 typedef struct hunt hunt_t;
 struct hunt {
     object_t* obj_hunted;
@@ -73,5 +81,7 @@ void hunt_object(object_t* obj, task_t* tsk, bool clockwise,
 #define TASK_BUS_PASSENGER 3
 #define TASK_BUS 4
 #define TASK_HUNT 5
+#define TASK_SOCCER 6
+#define TASK_SOCCER_BALL 7
 
 #endif

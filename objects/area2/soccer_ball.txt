@@ -1,8 +1,9 @@
 object = 999
-pos_x = 760
-pos_y = 760
+task = 7
+pos_x = 800
+pos_y = 1300
 surface = stone_1.bmp
-walls = stone_walls.bmp
+walls = ball_walls.bmp
 can_move = 1            # object can move
 mass = 0.1              # mass of the object
 damping = 0.02          # damping slows a moving object down

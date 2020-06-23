@@ -72,8 +72,8 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
         // reset render blobbs:
         delete_all(obj->render_before);
         obj->render_before = NULL;
-        //delete_all(obj->render_after);
-        //obj->render_after = NULL;
+        delete_all(obj->render_after);
+        obj->render_after = NULL;
         delete_all(obj->render_blobb);
         obj->render_blobb = NULL;
         obj->render_is_in_blobb = false;

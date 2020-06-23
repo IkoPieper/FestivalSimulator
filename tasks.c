@@ -57,6 +57,12 @@ bool (*get_task_function(uint32_t id))(
         case TASK_HUNT: 
             return(&task_hunt); 
             break;
+        case TASK_SOCCER: 
+            return(&task_soccer); 
+            break;
+        case TASK_SOCCER_BALL: 
+            return(&task_soccer_ball); 
+            break;
     }
     
     return(NULL);
@@ -501,7 +507,8 @@ bool task_hunt(
     return(false);
 }
 
-void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
+void hunt_object(
+    object_t* obj, task_t* tsk, bool clockwise, 
     object_t* obj_hunted, float dt) {
     
     if (obj->col != NULL && tsk->counter == 0) {
@@ -555,8 +562,10 @@ void hunt_object(object_t* obj, task_t* tsk, bool clockwise,
         obj->disable_damping = false;
         
         // follow obj_hunted:
-        float vel_x = obj_hunted->pos_x - obj->pos_x;
-        float vel_y = obj_hunted->pos_y - obj->pos_y;
+        float vel_x = (obj_hunted->pos_x + obj_hunted->wall->x) - 
+            (obj->pos_x + obj->wall->x);
+        float vel_y = (obj_hunted->pos_y + obj_hunted->wall->y) - 
+            (obj->pos_y + obj->wall->y);
         
         float norm = sqrtf(vel_x * vel_x + vel_y * vel_y);
         vel_x /= norm;
@@ -568,4 +577,57 @@ void hunt_object(object_t* obj, task_t* tsk, bool clockwise,
         obj->vel_x = vel_x;
         obj->vel_y = vel_y;
     }
+}
+
+bool task_soccer(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+    if (tsk->step == 0) {
+        
+        object_t* ball = object_get(grp->obj_first, 999);
+        
+        hunt_t* var = (hunt_t*) malloc(sizeof(hunt_t));
+        var->obj_hunted = ball;
+        var->clockwise = rand() > RAND_MAX / 2;
+        tsk->variables = (void*) var;
+        
+        tsk->step = 1;
+        
+        hunt_object(obj, tsk, true, ball, dt);
+        
+        return(true);
+    }
+    
+    if (tsk->step == 1) {
+        
+        hunt_t* var = (hunt_t*) tsk->variables;
+        hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
+        
+        if (obj->pos_x > 940.0 && obj->vel_x > 0) {
+            
+            obj->vel_x = -obj->vel_x;
+        }
+        
+        return(true);
+    }
+    
+    return(false);
+}
+
+bool task_soccer_ball(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+    if (tsk->step == 0) {
+        
+        if (obj->pos_x > 940.0 && obj->vel_x > 0) {
+            
+            obj->vel_x = -obj->vel_x;
+        }
+        
+        return(true);
+    }
+    
+    return(false);
 }

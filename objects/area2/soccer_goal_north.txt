@@ -1,0 +1,6 @@
+object = 998
+pos_x = 650
+pos_y = 840
+surface = soccer_goal_n.bmp
+walls = soccer_goal_n_walls.bmp
+can_move = 0

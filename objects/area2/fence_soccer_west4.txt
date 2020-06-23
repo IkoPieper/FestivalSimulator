@@ -1,5 +1,5 @@
-object = 9102
-pos_x = 760
+object = 9808
+pos_x = 1160
 pos_y = 1600
 surface = fence_horizontal.bmp
 walls = fence_horizontal_walls.bmp

@@ -65,7 +65,7 @@ bool on_execute() {
     uint64_t frame = 0;					// current frame
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
-    uint8_t area = 1;
+    uint8_t area = 2;
 	
     sound_t* snd = on_init_sound();
     

@@ -1,6 +1,6 @@
-object = 9901
-pos_x = 446
-pos_y = 510
+object = 9806
+pos_x = 440
+pos_y = 1100
 surface = fence_vertical.bmp
 walls = fence_vertical_walls.bmp
 can_move = 0

@@ -112,6 +112,19 @@ void movements_accelerate(object_t* obj, float dt) {
             obj->vel_y = 0.0;
         }
 		
+        // limit high velocities:
+        float vx = obj->vel_x;
+        float vy = obj->vel_y;
+        float norm = vx * vx + vy * vy;
+        
+        if (norm > 16.0) {
+            norm = sqrtf(norm);
+            obj->vel_x /= norm;
+            obj->vel_y /= norm;
+            obj->vel_x *= 4.0;
+            obj->vel_y *= 4.0;
+        }
+        
 		// derive position from velovity:
 		obj->pos_x += obj->vel_x * dt;
 		obj->pos_y += obj->vel_y * dt;
