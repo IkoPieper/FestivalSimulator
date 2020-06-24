@@ -32,6 +32,7 @@ animation_t* animation_init(float dt) {
 	anim->cycle_first = NULL;
 	anim->cycle = NULL;
 	anim->delay_frames = (uint32_t) (10.0 / dt);
+    anim->delay_frames_wanted = anim->delay_frames;
     anim->time_active = 0.0;
     anim->surf_changed = false;
     anim->n = 0;

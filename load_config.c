@@ -190,6 +190,7 @@ configentry* load_config_animation(configentry* entry, char* path,
             if (anim->delay_frames < 1) {
                 anim->delay_frames = 1;
             }
+            anim->delay_frames_wanted = anim->delay_frames;
             
 			entry = entry->next;
 			

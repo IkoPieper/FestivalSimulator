@@ -80,7 +80,8 @@ void collisions_impulse(
 
 void collisions_update_render(object_t* obj, object_t* obj_b);
 
-int8_t collisions_beam(object_t* obj, int32_t x_start, int32_t y_start);
+int8_t collisions_beam(
+    object_t* obj, int32_t x_start, int32_t y_start, bool left_point);
 
 typedef struct vector vector_t;
 struct vector {
