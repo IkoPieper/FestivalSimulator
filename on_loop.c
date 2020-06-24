@@ -135,7 +135,7 @@ void on_loop_animations(
                 }
             
                 // set speed of animation depending on object velocity:
-                float abs_vel = fabsf(vel_x * vel_x + vel_y * vel_y);
+                float abs_vel = vel_x * vel_x + vel_y * vel_y;
                 
                 animation_t* anim = (animation_t*) obj->anim->entry;
                 
@@ -146,9 +146,6 @@ void on_loop_animations(
                 }
                 
                 anim->delay_frames = (uint32_t) delay_frames;
-                
-                // correct delay for monitor refresh rate:
-                anim->delay_frames /= dt;
             }
         }
         

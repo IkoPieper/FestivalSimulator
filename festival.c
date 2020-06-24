@@ -91,14 +91,6 @@ bool on_execute() {
 		keys[i] = false;
 	}
     
-	object_t* tmp = grp->obj_first;
-	while (tmp != NULL) {
-		
-		printf("obj->id: %d\n", tmp->id);
-		
-		tmp = tmp->next_object;
-	}
-	
 	SDL_Event event;
 	
 	while (running) {
@@ -131,9 +123,9 @@ bool on_execute() {
 
 		//time = SDL_GetTicks();
         
-        printf("\n-------------------\n");
+        /*printf("\n-------------------\n");
         printf("FRAME: %" PRId64 "\n", frame);
-        printf("-------------------\n\n");
+        printf("-------------------\n\n");*/
         
 		on_loop(grp, snd, vbox, keys, frame, dt);
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);

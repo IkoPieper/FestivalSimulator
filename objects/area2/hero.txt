@@ -1,4 +1,6 @@
 object = 2              # hard coded hero id
+pos_x = 900             # start position
+pos_y = 1600
 surface = hero_s_1.bmp  # main picture
 walls = hero_walls.bmp  # collision zones
 can_move = 1            # object can move

@@ -24,7 +24,16 @@ void tasks_free(groups_t* grp) {
         list_t* tmp = lst_tsk;
         
         while (lst_tsk != NULL) {
-            free((task_t*) lst_tsk->entry);
+            
+            task_t* tsk = (task_t*) lst_tsk->entry;
+            
+            if (tsk->task_function == get_task_function(TASK_HUNT) || 
+                tsk->task_function == get_task_function(TASK_SOCCER)) {
+                
+                free((hunt_t*) tsk->variables);
+            }
+            
+            free(tsk);
             lst_tsk = lst_tsk->next;
         }
         

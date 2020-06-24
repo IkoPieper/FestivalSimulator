@@ -777,8 +777,6 @@ int32_t collisions_surface_vector_check(
         step++;
     }
     
-    //printf("score for c1: %d\n", score);
-    
     step = 0;
     dcx = *c2x;
     dcy = *c2y;
@@ -808,8 +806,6 @@ int32_t collisions_surface_vector_check(
         
         step++;
     }
-    
-    //printf("score: %d\n", score);
     
     return(score);
 }
@@ -945,8 +941,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         return;
     }
     
-    printf("HIER0\n");
-    
 	float x01 = obj1->pos_x + (float) obj1->wall->x;
 	float y01 = obj1->pos_y + (float) obj1->wall->y;
 	float x02 = obj2->pos_x + (float) obj2->wall->x;
@@ -960,18 +954,8 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
 	
     int8_t obj1_before_obj2 = false;
     
-    printf("\ncollision_update_render()\n");
-    printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id);
-    
-    printf("HIER1\n");
-    
     if (obj1->can_move && !obj2->can_move &&
         obj2->wall->pxl != NULL) {      
-        
-        if (obj1->id == OBJECT_HERO_ID && 
-            (obj1->id == 1104 || obj1->id == 1103)) {
-            printf("HERO BEAM 1\n");
-        }
         
         int32_t x;
         int32_t y;
@@ -997,12 +981,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
     } else if (!obj1->can_move && obj2->can_move && 
         obj1->wall->pxl != NULL) {
         
-        
-        if (obj2->id == OBJECT_HERO_ID && 
-            (obj1->id == 1104 || obj1->id == 1103)) {
-            printf("HERO BEAM 2\n");
-        }
-        
         int32_t x;
         int32_t y;
         bool left_point;
@@ -1018,22 +996,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
             y = y02 + obj2->wall->ly_beam - y01;
             left_point = true;
         }
-        /*if (yes) {
-            printf("x: %d\n", x);
-            printf("y: %d\n", y);
-            printf("collisions_beam returns: %d\n\n", collisions_beam(obj1, x, y));
-            for (int32_t yy = 0; yy < obj1->wall->h; yy++) {
-                for (int32_t xx = 0; xx < 100; xx++) {
-                    if (obj1->wall->pxl[(yy * obj1->wall->w_bmp) + xx]) {
-                        printf("X");
-                    } else {
-                        printf("O");
-                    }
-                }
-                printf("\n");
-            }
-            printf("\n");
-        }*/
         
         obj1_before_obj2 = collisions_beam(obj1, x, y, left_point);
         if (obj1_before_obj2 < 0) {
@@ -1081,8 +1043,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         }
     }
     
-    printf("HIER2\n");
-    
 	// update render lists:
 	if (obj1_before_obj2) {
         
@@ -1097,8 +1057,6 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         obj2->render_before = create_before(
             obj2->render_before, (void*) obj1, 0);
 	}
-	
-	printf("HIER3\n");
 }
 
 int8_t collisions_beam(
@@ -1122,17 +1080,8 @@ int8_t collisions_beam(
         y_start = h - 1;
     }
     
-    
     int32_t x_start_save = x_start;
     
-    int32_t y;
-    
-    
-    // debugg:
-    if (pxl[(y_start * w_bmp) + x_start]) {
-        printf("start beam inside collision zone!\n");
-    }
-        
     // beam starts inside of collision zone. go out of collision zone in
     // the x direction:
     if (left_point) {
@@ -1148,7 +1097,9 @@ int8_t collisions_beam(
             x_start--;
         }
     }
-        
+    
+    int32_t y;
+    
     // if still in collision zone, search for the fastest way out:
     if (pxl[(y_start * w_bmp) + x_start]) {
         
@@ -1157,87 +1108,49 @@ int8_t collisions_beam(
         int32_t score = 0;
         
         // beam down:
-        printf("beam down:\n");
         y = y_start;
         while (y < h && pxl[(y * w_bmp) + x_start]) {
-            
-            if (pxl[(y * w_bmp) + x_start]) {
-                printf("*");
-            } else {
-                printf("O");
-            }
             
             score++;
             y++;
         }
-        printf("\n");
         
         // beam up:
-        printf("beam up:\n");
         y = y_start;
         while (y >= 0 && pxl[(y * w_bmp) + x_start]) {
-            
-            if (pxl[(y * w_bmp) + x_start]) {
-                printf("*");
-            } else {
-                printf("O");
-            }
             
             score--;
             y--;
         }
-        printf("\n");
         
         if (score > 0) {
-            printf("found more pixels below (score: %d).\n", score);
-            printf("x: %d\n", x_start);
-            printf("y: %d\n", y);
+            
             return(1); // render before
+            
         } else {
-            printf("found more pixels above (score: %d).\n", score);
-            printf("x: %d\n", x_start);
-            printf("y: %d\n", y);
+            
             return(0);
         }
+    }
+    
+    // send one beam down. if it hits anything, render before:
+    for (y = y_start; y < h; y++) {
         
-    } //else {
-        
-        printf("start beam outside of collision zone!\n");
-        
-        // send one beam down. if it hits anything, render before:
-        for (y = y_start; y < h; y++) {
+        if (pxl[(y * w_bmp) + x_start]) {
             
-            if (pxl[(y * w_bmp) + x_start]) {
-                
-                printf("beam down hit!\n");
-                printf("x: %d\n", x_start);
-                printf("y: %d\n", y);
-                return(1);
-            }
+            return(1);
         }
+    }
+    
+    // send one beam up. if it doesn't hit, render before anyway:
+    for (y = y_start; y >= 0; y--) {
         
-        // send one beam up. if it doesn't hit, render before anyway:
-        for (y = y_start; y >= 0; y--) {
-            
-            /*for (int32_t x = x_start; x < 20; x++) {
-                if (obj->wall->pxl[(y * obj->wall->w_bmp) + x]) {
-                    printf("*");
-                } else {
-                    printf("O");
-                }
-            }
-            printf("\n");*/
-            
-            if (pxl[(y * w_bmp) + x_start]) {
-                // hit something, render after:
-                printf("beam up hit!\n");
-                printf("x: %d\n", x_start);
-                printf("y: %d\n", y);
-                return(0);
-            }
+        if (pxl[(y * w_bmp) + x_start]) {
+            // hit something, render after:
+            return(0);
         }
-        printf("beam hit nothing!\n");
-        // beam hit nothing at all, render before:
-        return(-1);
-    //}
+    }
+    
+    // beam hit nothing at all, render before:
+    return(-1);
 }

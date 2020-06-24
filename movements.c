@@ -48,7 +48,6 @@ void movements(groups_t* grp, bool* keys, float dt) {
 			
 			movements_accelerate(obj, dt);
 			movements_screen_position(obj, obj_bg);
-				
 		}
 		
 		obj = obj->next_object;
@@ -95,21 +94,28 @@ void movements_accelerate(object_t* obj, float dt) {
 	
 		const float vel_min = 0.1;
 		
-		// derive velocity from acceleration:
-        obj->vel_x += obj->acc_x * dt;
-        obj->vel_y += obj->acc_y * dt;
+		
+        if (obj->acc_x != 0.0 || obj->acc_y != 0.0) {
+            
+            // derive velocity from acceleration:
+            obj->vel_x += obj->acc_x * dt;
+            obj->vel_y += obj->acc_y * dt;
+            
+        } else {
+            
+            // set small velocities to zero:
+            if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
+                obj->vel_x = 0.0;
+            }
+            if (-vel_min < obj->vel_y && obj->vel_y < vel_min) {
+                obj->vel_y = 0.0;
+            }
+        }
         
         if (!obj->disable_damping) {
             // add linear damping:
             obj->vel_x -= obj->damping * obj->vel_x * dt;
             obj->vel_y -= obj->damping * obj->vel_y * dt;
-        }
-        // set small velocities to zero:
-        if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
-            obj->vel_x = 0.0;
-        }
-        if (-vel_min < obj->vel_y && obj->vel_y < vel_min) {
-            obj->vel_y = 0.0;
         }
 		
         // limit high velocities:

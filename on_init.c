@@ -86,6 +86,7 @@ sound_t* on_init_sound_songs(sound_t* snd) {
         printf("No supported sound files found in songs folder!\n");
         snd->num_songs = n;
         snd->songs = NULL;
+        closedir(hdl_dir);
         return(snd);
     }
     
@@ -380,18 +381,13 @@ bool on_init_background(object_t* obj, video_t* vid, uint8_t area) {
 
 bool on_init_hero(object_t* obj, video_t* vid) {
 	
-	// see objects/hero.txt for most of the initialization
+	// see objects/area?/hero.txt for most of the initialization
 	
 	obj = object_get(obj, OBJECT_HERO_ID);
-	object_t* obj_bg = object_get(obj, OBJECT_BACKGROUND_ID);
 	
 	// start position is middle of screen:
 	obj->scr_pos_x = vid->surface->w / 2 - obj->surface->w / 2;
 	obj->scr_pos_y = vid->surface->h / 2 - obj->surface->h / 2;
-    
-    // ... in the middle of the background:
-	obj->pos_x = obj_bg->surface->w / 2;
-	obj->pos_y = obj_bg->surface->h / 2;
     
     // object meters:
     object_add_meter(obj, METER_BEER, METER_BEER,   10, 10);

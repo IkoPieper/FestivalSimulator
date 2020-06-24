@@ -1,4 +1,6 @@
 object = 2              # hard coded hero id
+pos_x = 700             # start position
+pos_y = 1600
 has_item = 2000         # stone id
 has_item = 2001         # red stone id
 has_item = 2002         # money id

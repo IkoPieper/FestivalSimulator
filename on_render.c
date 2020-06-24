@@ -167,14 +167,8 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
 	glEnd();
  
 	glDisable(GL_TEXTURE_2D);
- 
-	//time = SDL_GetTicks();
 	
     SDL_GL_SwapWindow(vid->window);
-	
-	//glDeleteTextures(1, &vid->render_id);
-	//printf("time for openGL: %d\n", SDL_GetTicks() - time);
-
 }
 
 // sort the objects in the render list:
@@ -237,7 +231,6 @@ list_t* render_blobb(list_t* blobb, list_t* current) {
 
 // sort objects inside of a render blobb (Kahn's algorithm):
 list_t* render_blobb_sort(list_t* blobb) {
-    printf("render_blobb_sort()\n");
     
     list_t* blobb_sorted = NULL;
     
@@ -246,41 +239,13 @@ list_t* render_blobb_sort(list_t* blobb) {
     list_t* S_first = NULL;
     
     list_t* blobb_first = get_first(blobb); // just to be shure,
-                                            // should already be first.
+                                            // should already be first
     list_t* blobb_next = NULL;
     
     list_t* ra = NULL;
     
     object_t* obj = NULL;
-    
-    
-    // debug:
-    blobb = blobb_first;
-    while (blobb != NULL) {
-        
-        obj = (object_t*) blobb->entry;
-        printf("obj->id: %d", obj->id);
-        
-        list_t* lst = obj->render_after;
-        lst = get_first(lst);
-        if (lst != NULL) {
-            printf(", render after: ");
-        }
-        while (lst != NULL) {
-            
-            object_t* obj_rb = (object_t*) lst->entry;
-            
-            printf("%d, ", obj_rb->id);
-            
-            lst = lst->next;
-        }
-        
-        printf("\n");
-        
-        blobb = blobb->next;
-    }
-    printf("\n");
-    
+
     
     // fill S:
     blobb = blobb_first;
@@ -304,33 +269,8 @@ list_t* render_blobb_sort(list_t* blobb) {
         blobb = blobb_next;
     }
     
-    S_first = get_first(S);
-    
-    // debug:
-    printf("objects in S:\n");
-    S = S_first;
-    while (S != NULL) {
-        
-        obj = (object_t*) S->entry;
-        printf("obj->id: %d\n", obj->id);
-        
-        S = S->next;
-    }
-    printf("\n");
-    
-    printf("remaining objects in blobb:\n");
-    blobb = blobb_first;
-    while (blobb != NULL) {
-        
-        obj = (object_t*) blobb->entry;
-        printf("obj->id: %d\n", obj->id);
-        
-        blobb = blobb->next;
-    }
-    printf("\n");
-    
-    printf("sorting:\n");
     // sort:
+    S_first = get_first(S);
     S = S_first;
     
     while (S_first != NULL) {
@@ -339,10 +279,6 @@ list_t* render_blobb_sort(list_t* blobb) {
         S = S_first;
         S_first = S_first->next;
         take_out(S);
-        
-        //debug:
-        object_t* obj_tmp = (object_t*) S->entry;
-        printf("obj_tmp->id in S: %d\n", obj_tmp->id);
         
         // add to tail of sorted list:
         insert_after(blobb_sorted, S);
@@ -357,8 +293,6 @@ list_t* render_blobb_sort(list_t* blobb) {
             
             // check if S is in the render_after list:
             if ((ra = find(obj->render_after, S->entry)) != NULL) {
-                
-                printf("found in render_after of obj->id: %d\n", obj->id);
                 
                 // remove the respective render_after entry. This works 
                 // because S is already in blobb_sorted:
@@ -388,20 +322,7 @@ list_t* render_blobb_sort(list_t* blobb) {
         }
     }
     
-    // debug:
-    printf("\nobjects after sorting:\n");
-    blobb = get_first(blobb_sorted);
-    while (blobb != NULL) {
-        
-        obj = (object_t*) blobb->entry;
-        printf("obj->id: %d\n", obj->id);
-        
-        blobb = blobb->next;
-    }
-    printf("\n");
-    
     return(get_first(blobb_sorted));
-
 }
 
 void on_render_object(object_t* obj, video_t* vid) {
