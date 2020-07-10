@@ -72,6 +72,9 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->acc_y = 0.0;
 	obj_new->acc_abs = 0.01;
 	
+    // carried by other object:
+    obj_new->obj_carried_by = NULL;
+    
 	// screen positions:
 	obj_new->scr_pos_x = 0.0;
 	obj_new->scr_pos_y = 0.0;
@@ -122,11 +125,17 @@ object_t* object_add(object_t* obj, uint32_t id) {
 
 walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 	walls_t* wall = (walls_t*) malloc(sizeof(walls_t));
+    
 	if (surf_wall != NULL) {
+        
 		wall->pxl = (uint8_t*) surf_wall->pixels;
+        
 		wall->x = 0;
 		wall->y = surf->h - surf_wall->h;
 		
+        wall->x_shift = 0;
+		wall->y_shift = 0;
+        
 		wall->w = surf_wall->w;
 		// bitmaps are stored as 32 bit blocks in memory. as we use
 		// 8 bit per pixel, we have to account for additional junk
@@ -189,6 +198,8 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->pxl = NULL;
 		wall->x = 0;
 		wall->y = 0;
+        wall->x_shift = 0;
+		wall->y_shift = 0;
 		wall->w = surf->w;
 		if (surf->w % 4 == 0) {
 			wall->w_bmp = surf->w;

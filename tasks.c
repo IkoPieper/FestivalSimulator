@@ -6,7 +6,7 @@ void tasks_add_to_object(object_t* obj, uint32_t id) {
     tsk->step = 0;
     tsk->counter = 0;
     tsk->variables = NULL;
-    tsk->task_function = get_task_function(id);
+    tasks_get_functions(tsk, id);
     obj->tsk = create_before(obj->tsk, tsk, id);
 }
 
@@ -27,10 +27,13 @@ void tasks_free(groups_t* grp) {
             
             task_t* tsk = (task_t*) lst_tsk->entry;
             
-            if (tsk->task_function == get_task_function(TASK_HUNT) || 
-                tsk->task_function == get_task_function(TASK_SOCCER)) {
+            /*if (tsk->task_function == &task_hunt || 
+                tsk->task_function == &task_soccer) {
                 
                 free((hunt_t*) tsk->variables);
+            }*/
+            if (tsk->task_function_free != NULL) {
+                tsk->task_function_free(tsk, obj, grp, NULL, 0, 0.0);
             }
             
             free(tsk);
@@ -43,41 +46,57 @@ void tasks_free(groups_t* grp) {
     }
 }
 
-bool (*get_task_function(uint32_t id))(
-    task_t* tsk, object_t* obj, groups_t* grp, 
-    bool* keys, uint64_t frame, float dt) {
+void tasks_get_functions(task_t* tsk, uint32_t id) {
     
     switch (id) {
-        case TASK_FIND_BOB: 
-            return(&task_find_bob); 
+        case TASK_FIND_BOB:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_find_bob;
+            tsk->task_function_free = NULL;
             break;
-        case TASK_FIND_EVA: 
-            return(&task_find_eva); 
+        case TASK_FIND_EVA:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_find_eva;
+            tsk->task_function_free = NULL;
             break;
-        case TASK_SECURITY_FENCE: 
-            return(&task_security_fence); 
+        case TASK_SECURITY_FENCE:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_security_fence;
+            tsk->task_function_free = NULL;
             break;
-        case TASK_BUS_PASSENGER: 
-            return(&task_bus_passenger); 
+        case TASK_BUS_PASSENGER:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_bus_passenger;
+            tsk->task_function_free = NULL;
             break;
-        case TASK_BUS: 
-            return(&task_bus); 
+        case TASK_BUS:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_bus;
+            tsk->task_function_free = NULL;
             break;
-        case TASK_HUNT: 
-            return(&task_hunt); 
+        case TASK_HUNT:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_hunt;
+            tsk->task_function_free = &task_hunt_free;
             break;
-        case TASK_SOCCER: 
-            return(&task_soccer); 
+        case TASK_SOCCER:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_soccer;
+            tsk->task_function_free = &task_soccer_free;
             break;
-        case TASK_SOCCER_BALL: 
-            return(&task_soccer_ball); 
+        case TASK_SOCCER_BALL:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_soccer_ball;
+            tsk->task_function_free = NULL;
             break;
+        default:
+            tsk->task_function_init = NULL;
+            tsk->task_function = NULL;
+            tsk->task_function_free = NULL;
     }
-    
-    return(NULL);
 }
 
-bool task_find_bob(
+void task_find_bob(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -93,7 +112,7 @@ bool task_find_bob(
             
             tsk->step = 1;
             
-            return(true);
+            return; // TODO: return outside of if
         }
     }
     
@@ -112,7 +131,7 @@ bool task_find_bob(
                 
                 tsk->step = 2;
                 
-                return(true);
+                return;
             }
         }
         
@@ -122,7 +141,7 @@ bool task_find_bob(
             
             tsk->step = 0;
             
-            return(true);
+            return;
         }
     }
     
@@ -144,7 +163,7 @@ bool task_find_bob(
             
             tsk->step = 3;
             
-            return(true);
+            return;
         }
     }
     
@@ -156,24 +175,19 @@ bool task_find_bob(
         if (tsk->step == 300) {
             tsk->step = 0;
             
-            return(true);
+            return;
         }
         
     }
-    
-    return(false);
-    
 }
 
-bool task_find_eva(
+void task_find_eva(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
-    return(false);
-    
 }
 
-bool task_security_fence(
+void task_security_fence(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -187,7 +201,7 @@ bool task_security_fence(
             
             tsk->step++;
             
-            return(true);
+            return;
         }
     }
     
@@ -202,7 +216,7 @@ bool task_security_fence(
             
             tsk->step++;
             
-            return(true);
+            return;
         }
     }
     
@@ -216,7 +230,7 @@ bool task_security_fence(
             
             tsk->step = 0;
             
-            return(true);
+            return;
         }
         
         if (keys[KEY_SPACE] && hero->itm->id == ITEM_WATER_PISTOL) {
@@ -232,7 +246,7 @@ bool task_security_fence(
                 
                 tsk->step = 3;
                 
-                return(true);
+                return;
             }
         }
     }
@@ -245,7 +259,7 @@ bool task_security_fence(
             
             tsk->step = 4;
             
-            return(true);
+            return;
         }
     }
     
@@ -255,7 +269,7 @@ bool task_security_fence(
             
             tsk->step = 5;
             
-            return(true);
+            return;
         }
     }
     
@@ -274,13 +288,11 @@ bool task_security_fence(
             }
         }
         
-        return(true);
+        return;
     }
-    
-    return(false);
 }
 
-bool task_bus_passenger(
+void task_bus_passenger(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -295,7 +307,7 @@ bool task_bus_passenger(
             tsk->step = 1;
         }
         
-        return(true);
+        return;
     }
         
     if (tsk->step == 1) {
@@ -308,7 +320,7 @@ bool task_bus_passenger(
             tsk->step = 2;
         }
         
-        return(true);
+        return;
     }
     
     if (tsk->step == 2) {
@@ -323,13 +335,11 @@ bool task_bus_passenger(
             tsk->step = 3;
         }
         
-        return(true);
+        return;
     }
-    
-    return(false);
 }
 
-bool task_bus(
+void task_bus(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -360,7 +370,7 @@ bool task_bus(
             tsk->step = 1;
         }
         
-        return (true);
+        return;
     }
     
     if (tsk->step == 1) {
@@ -396,7 +406,7 @@ bool task_bus(
             tsk->step = 2;
         }
         
-        return(true);
+        return;
     }
     
     if (tsk->step == 2) {
@@ -429,7 +439,7 @@ bool task_bus(
             tsk->step = 3;
         }
         
-        return(true);
+        return;
     }
     
     if (tsk->step == 3) {
@@ -447,14 +457,11 @@ bool task_bus(
             tsk->step = 0;
         }
         
-        return(true);
+        return;
     }
-    
-    
-    return(false);
 }
 
-bool task_hunt(
+void task_hunt(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -484,7 +491,7 @@ bool task_hunt(
             obj_b = obj_b->next_object;
         }
         
-        return(true);
+        return;
     }
     
     if (tsk->step == 1) {
@@ -510,10 +517,32 @@ bool task_hunt(
             
             tsk->step = 0;
         }
-        return(true);
+        
+        return;
     }
+}
+
+void task_hunt_save( //unfinished
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
     
-    return(false);
+    hunt_t* var = (hunt_t*) tsk->variables;
+    
+    fprintf(fid, "obj_hunted = %d\n", var->obj_hunted->id);
+    fprintf(fid, "clockwise = %d\n", var->clockwise);
+}
+
+void task_hunt_load( //unfinished
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+}
+
+void task_hunt_free(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+    free((hunt_t*) tsk->variables);
 }
 
 void hunt_object(
@@ -588,7 +617,7 @@ void hunt_object(
     }
 }
 
-bool task_soccer(
+void task_soccer(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -605,7 +634,7 @@ bool task_soccer(
         
         hunt_object(obj, tsk, true, ball, dt);
         
-        return(true);
+        return;
     }
     
     if (tsk->step == 1) {
@@ -613,30 +642,33 @@ bool task_soccer(
         hunt_t* var = (hunt_t*) tsk->variables;
         hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
         
-        if (obj->pos_x > 940.0 && obj->vel_x > 0) {
+        if (obj->pos_x > 925.0 && obj->vel_x > 0) {
             
             obj->vel_x = -obj->vel_x;
         }
         
-        return(true);
+        return;
     }
-    
-    return(false);
 }
 
-bool task_soccer_ball(
+void task_soccer_free(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+    free((hunt_t*) tsk->variables);
+}
+
+void task_soccer_ball(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
     if (tsk->step == 0) {
         
-        if (obj->pos_x > 940.0 && obj->vel_x > 0) {
+        if (obj->pos_x > 925.0 && obj->vel_x > 0) {
             
             obj->vel_x = -obj->vel_x;
         }
         
-        return(true);
+        return;
     }
-    
-    return(false);
 }

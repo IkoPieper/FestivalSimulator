@@ -27,6 +27,9 @@ struct walls {
 	// x and y relative to main sprite position:
 	int32_t x;
 	int32_t y;
+    // x and y shifts relative to original x and y position:
+	int32_t x_shift;
+	int32_t y_shift;
 	// width and height:
 	uint32_t w;
 	uint32_t w_bmp;	// width in memory. see object_init_walls()
@@ -95,6 +98,9 @@ struct object {
 	float acc_x;
 	float acc_y;
 	float acc_abs;
+    
+    // carried by other object:
+    object_t* obj_carried_by;
 	
 	// screen positions:
 	float scr_pos_x;    // pos in relation to top left corner of screen

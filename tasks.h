@@ -15,50 +15,54 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
 typedef struct task task_t;
+
+typedef void (*task_function_t) (
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
 
 struct task {
     uint32_t step;          // step in task function
     uint32_t counter;       // usefull counter
     void* variables;        // any additional variables
-    bool (*task_function)(
-        task_t* tsk, object_t* obj, groups_t* grp, 
-        bool* keys, uint64_t frame, float dt);
+    task_function_t task_function_init;
+    task_function_t task_function;
+    task_function_t task_function_free;
 };
 
 void tasks_add_to_object(object_t* obj, uint32_t id);
 void tasks_free(groups_t* grp);
 
-bool (*get_task_function(uint32_t id))(
+void tasks_get_functions(task_t* tsk, uint32_t id);
+    
+void task_find_bob(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
-bool task_find_bob(
+void task_find_eva(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
-bool task_find_eva(
+void task_security_fence(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
-bool task_security_fence(
+void task_bus_passenger(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
-bool task_bus_passenger(
+void task_bus(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
+
+void task_soccer(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
+void task_soccer_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
-bool task_bus(
-    task_t* tsk, object_t* obj, groups_t* grp, 
-    bool* keys, uint64_t frame, float dt);
-    
-bool task_soccer(
-    task_t* tsk, object_t* obj, groups_t* grp, 
-    bool* keys, uint64_t frame, float dt);
-    
-bool task_soccer_ball(
+void task_soccer_ball(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
     
@@ -68,7 +72,10 @@ struct hunt {
     bool clockwise;
 };
 
-bool task_hunt(
+void task_hunt(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
+void task_hunt_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 

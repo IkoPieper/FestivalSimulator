@@ -33,7 +33,8 @@ void movements(groups_t* grp, bool* keys, float dt) {
 	while (obj != NULL) {
 		
 		if (obj != obj_bg && obj != obj_hero) {
-				
+            
+            // detect object movement:
             if (obj->can_move) {
 				if (obj->pos_x != obj->pos_x_old ||
 					obj->pos_y != obj->pos_y_old) {
@@ -42,11 +43,20 @@ void movements(groups_t* grp, bool* keys, float dt) {
 					obj->has_moved = false;
 				}
 			}
-                
+            
+            // update old positions:
 			obj->pos_x_old = obj->pos_x;
 			obj->pos_y_old = obj->pos_y;
-			
-			movements_accelerate(obj, dt);
+            
+            if (obj->obj_carried_by != NULL) {
+                
+                movements_carried(obj, obj->obj_carried_by);
+                
+            } else if (obj->can_move) {
+                
+                movements_accelerate(obj, dt);
+            }
+            
 			movements_screen_position(obj, obj_bg);
 		}
 		
@@ -88,53 +98,70 @@ void movements_background(object_t* obj, object_t* obj_hero) {
     obj->scr_pos_y = -obj_hero->pos_y + obj_hero->scr_pos_y;
 }
 
+void movements_carried(object_t* obj, object_t* obj_host) {
+    
+    if (obj_host->anim_walk) {
+        
+        // position object according to direction the host object faces:
+        obj->pos_x = obj_host->pos_x + obj_host->surface->w / 2 - 
+            obj->surface->w / 2;
+        obj->pos_y = obj_host->pos_y + obj_host->surface->h / 2 - 
+            obj->surface->h / 2;
+        // TODO: put in object_carried_start() or something called only once:
+        obj->wall->x_shift = 0;
+        // TODO: use lowest pixel of host and highest pixel of obj:
+        obj->wall->y_shift = obj_host->wall->y + 
+            obj_host->wall->y_shift + obj_host->wall->h;
+    } else {
+        
+        // position object south of the host object:
+        
+    }
+}
+
 void movements_accelerate(object_t* obj, float dt) {
 	
-	if (obj->can_move) {
-	
-		const float vel_min = 0.1;
-		
-		
-        if (obj->acc_x != 0.0 || obj->acc_y != 0.0) {
-            
-            // derive velocity from acceleration:
-            obj->vel_x += obj->acc_x * dt;
-            obj->vel_y += obj->acc_y * dt;
-            
-        } else {
-            
-            // set small velocities to zero:
-            if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
-                obj->vel_x = 0.0;
-            }
-            if (-vel_min < obj->vel_y && obj->vel_y < vel_min) {
-                obj->vel_y = 0.0;
-            }
-        }
+    const float vel_min = 0.1;
+    
+    if (obj->acc_x != 0.0 || obj->acc_y != 0.0) {
         
-        if (!obj->disable_damping) {
-            // add linear damping:
-            obj->vel_x -= obj->damping * obj->vel_x * dt;
-            obj->vel_y -= obj->damping * obj->vel_y * dt;
-        }
-		
-        // limit high velocities:
-        float vx = obj->vel_x;
-        float vy = obj->vel_y;
-        float norm = vx * vx + vy * vy;
+        // derive velocity from acceleration:
+        obj->vel_x += obj->acc_x * dt;
+        obj->vel_y += obj->acc_y * dt;
         
-        if (norm > 16.0) {
-            norm = sqrtf(norm);
-            obj->vel_x /= norm;
-            obj->vel_y /= norm;
-            obj->vel_x *= 4.0;
-            obj->vel_y *= 4.0;
-        }
+    } else {
         
-		// derive position from velovity:
-		obj->pos_x += obj->vel_x * dt;
-		obj->pos_y += obj->vel_y * dt;
-	}
+        // set small velocities to zero:
+        if (-vel_min < obj->vel_x && obj->vel_x < vel_min) {
+            obj->vel_x = 0.0;
+        }
+        if (-vel_min < obj->vel_y && obj->vel_y < vel_min) {
+            obj->vel_y = 0.0;
+        }
+    }
+    
+    if (!obj->disable_damping) {
+        // add linear damping:
+        obj->vel_x -= obj->damping * obj->vel_x * dt;
+        obj->vel_y -= obj->damping * obj->vel_y * dt;
+    }
+    
+    // limit high velocities:
+    float vx = obj->vel_x;
+    float vy = obj->vel_y;
+    float norm = vx * vx + vy * vy;
+    
+    if (norm > 16.0) {
+        norm = sqrtf(norm);
+        obj->vel_x /= norm;
+        obj->vel_y /= norm;
+        obj->vel_x *= 4.0;
+        obj->vel_y *= 4.0;
+    }
+    
+    // derive position from velovity:
+    obj->pos_x += obj->vel_x * dt;
+    obj->pos_y += obj->vel_y * dt;
 }
 
 void movements_screen_position(object_t* obj, object_t* obj_bg) {

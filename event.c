@@ -31,7 +31,7 @@ void on_key_down(bool* keys, SDL_Event* event) {
         case SDLK_SPACE:    keys[KEY_SPACE] = true; break;
         case SDLK_LCTRL:    keys[KEY_CTRL] = true; break;
         case SDLK_LSHIFT:   keys[KEY_SHIFT] = true; break;
-        case SDLK_f:        keys[KEY_FULLSCREEN] = true; break;
+        case SDLK_F4:       keys[KEY_FULLSCREEN] = true; break;
 		default: break;
 	}
 	
@@ -52,7 +52,7 @@ void on_key_up(bool* keys, SDL_Event* event) {
         case SDLK_SPACE:    keys[KEY_SPACE] = false; break;
         case SDLK_LCTRL:    keys[KEY_CTRL] = false; break;
         case SDLK_LSHIFT:   keys[KEY_SHIFT] = false; break;
-        case SDLK_f:        keys[KEY_FULLSCREEN] = false; break;
+        case SDLK_F4:       keys[KEY_FULLSCREEN] = false; break;
 		default: break;
 	}
 	

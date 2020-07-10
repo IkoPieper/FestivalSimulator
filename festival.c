@@ -24,6 +24,8 @@ bool change_area(groups_t* grp, uint8_t* area) {
 
 bool toggle_fullscreen(bool fullscreen, video_t* vid) {
     
+    printf("toggeling fullscreen!\n");
+    
     uint32_t w = vid->surface->w;
     uint32_t h = vid->surface->h;
     
@@ -93,6 +95,10 @@ bool on_execute() {
     
 	SDL_Event event;
 	
+    // test:
+    object_t* obj_test = object_get(obj, 4001); // ball area 1
+    obj_test->obj_carried_by = grp->obj_hero;
+    
 	while (running) {
 		
         if (!VSYNC) {
@@ -100,27 +106,28 @@ bool on_execute() {
             time_start = SDL_GetTicks();
         }
 		
-        if (lock_fullscreen_key) {
-            
-            lock_fullscreen_key--;
-        }
+        
         
 		while (SDL_PollEvent(&event)) {
 			
 			on_event(&event, keys);
-            
-            if (!lock_fullscreen_key && keys[KEY_FULLSCREEN]) {
-                
-                lock_fullscreen_key = 30;
-                fullscreen = toggle_fullscreen(fullscreen, vid);
-            }
-            
-			if (keys[KEY_ESCAPE] || event.type == SDL_QUIT) {
-                
-				running = 0;
-			}
 		}
-
+        
+        if (lock_fullscreen_key) {
+            
+            lock_fullscreen_key--;
+            
+        } else if (keys[KEY_FULLSCREEN]) {
+            
+            lock_fullscreen_key = 30;
+            fullscreen = toggle_fullscreen(fullscreen, vid);
+        }
+        
+        if (keys[KEY_ESCAPE] || event.type == SDL_QUIT) {
+            
+            running = 0;
+        }
+        
 		//time = SDL_GetTicks();
         
         /*printf("\n-------------------\n");
@@ -146,7 +153,7 @@ bool on_execute() {
             
             time_end = SDL_GetTicks();
             
-            if(1000 / FPS > time_end - time_start) {
+            if (1000 / FPS > time_end - time_start) {
                 
                 SDL_Delay(1000 / FPS - (time_end - time_start));
             }

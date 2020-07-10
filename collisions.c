@@ -270,10 +270,10 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
 		uint32_t w1_bmp = obj1->wall->w_bmp;
 		uint32_t w2_bmp = obj2->wall->w_bmp;
 		
-		x01 = (int32_t) obj1->pos_x + obj1->wall->x;
-		y01 = (int32_t) obj1->pos_y + obj1->wall->y;
-		x02 = (int32_t) obj2->pos_x + obj2->wall->x;
-		y02 = (int32_t) obj2->pos_y + obj2->wall->y;
+		x01 = (int32_t) obj1->pos_x + obj1->wall->x + obj1->wall->x_shift;
+		y01 = (int32_t) obj1->pos_y + obj1->wall->y + obj1->wall->y_shift;
+		x02 = (int32_t) obj2->pos_x + obj2->wall->x + obj2->wall->x_shift;
+		y02 = (int32_t) obj2->pos_y + obj2->wall->y + obj2->wall->y_shift;
 
 		int32_t w1 = obj1->wall->w;
 		int32_t h1 = obj1->wall->h;
@@ -941,10 +941,10 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         return;
     }
     
-	float x01 = obj1->pos_x + (float) obj1->wall->x;
-	float y01 = obj1->pos_y + (float) obj1->wall->y;
-	float x02 = obj2->pos_x + (float) obj2->wall->x;
-	float y02 = obj2->pos_y + (float) obj2->wall->y;
+	float x01 = obj1->pos_x + (float) (obj1->wall->x + obj1->wall->x_shift);
+	float y01 = obj1->pos_y + (float) (obj1->wall->y + obj1->wall->y_shift);
+	float x02 = obj2->pos_x + (float) (obj2->wall->x + obj2->wall->x_shift);
+	float y02 = obj2->pos_y + (float) (obj2->wall->y + obj2->wall->y_shift);
 	
 	// absolute x values of most left/right collision pixel:
 	float xl1 = x01 + obj1->wall->lx;
