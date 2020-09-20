@@ -62,8 +62,9 @@ void on_loop_items(object_t* hero, bool* keys, uint64_t frame) {
         // call item function of the item object. in other words:
         // use the selected item:
         object_t* obj = (object_t*) hero->itm->entry;
-        obj->itm_props->item_function(obj, NULL, keys, frame);
+        obj->itm_props->item_function(obj, hero, keys, frame);
         
+        // item selection:
         if (!keys[KEY_SHIFT]) {
             released_key_shift = true;
         }
@@ -106,25 +107,35 @@ void on_loop_animations(
         obj = (object_t*) lst->entry;
         
         if (obj->anim_walk && obj->can_move) {
-        
-            // calculate actual velocity:
-            float vel_x = (obj->pos_x - obj->pos_x_old) / dt;
-            float vel_y = (obj->pos_y - obj->pos_y_old) / dt;
             
             uint32_t anim_id = 0;
             
-            // select walk cycle animation:
-            if (obj->id == OBJECT_HERO_ID) {
+            // calculate actual velocity:
+            //float vel_x = (obj->pos_x - obj->pos_x_old) / dt;
+            //float vel_y = (obj->pos_y - obj->pos_y_old) / dt;
+            
+            float vel_x = obj->vel_x;
+            float vel_y = obj->vel_y;
+            
+            if (obj->obj_carried_by != NULL) {
                 
-                anim_id = on_loop_get_animation_walk_hero(obj, keys);
+                anim_id = ANIMATION_REST_SOUTH;
                 
             } else {
-            
-                animation_t* anim = (animation_t*) obj->anim->entry;
-                if (anim->time_active > 20.0) { // avoid fast changes
+                
+                // select walk cycle animation:
+                if (obj->id == OBJECT_HERO_ID) {
                     
-                    anim_id = on_loop_get_animation_walk(
-                        obj->anim->id, vel_x, vel_y);
+                    anim_id = on_loop_get_animation_walk_hero(obj, keys);
+                    
+                } else {
+                
+                    animation_t* anim = (animation_t*) obj->anim->entry;
+                    if (anim->time_active > 20.0) { // avoid fast changes
+                        
+                        anim_id = on_loop_get_animation_walk(
+                            obj->anim->id, vel_x, vel_y);
+                    }
                 }
             }
         

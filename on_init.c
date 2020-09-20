@@ -483,6 +483,7 @@ bool on_init_items(object_t* obj) {
                 obj_item->disable_collision = true;
                 obj_item->disable_render = true;
                 obj_item->can_move = false;
+                printf("on_init_items() id: %d\n", obj_item->id);
                 lst = lst->prev;
             }
         }

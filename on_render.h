@@ -18,5 +18,6 @@ void on_render_text(object_t* obj, video_t* vid);
 void on_render_meters(object_t* obj, video_t* vid);
 void on_render_item(object_t* hero, video_t* vid);
 void on_render_object_id(video_t* vid, object_t* obj);
+void on_render_object_walls(video_t* vid, object_t* obj);
 
 #endif

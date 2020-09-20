@@ -17,6 +17,7 @@ void movements(groups_t* grp, bool* keys, float dt) {
     obj_hero->acc_y = 0.0;
     movements_hero(obj_hero, keys);
     movements_accelerate(obj_hero, dt);
+    movements_facing(obj_hero);
     
 	// display / background movements:
 	movements_background(obj_bg, obj_hero);
@@ -55,6 +56,7 @@ void movements(groups_t* grp, bool* keys, float dt) {
             } else if (obj->can_move) {
                 
                 movements_accelerate(obj, dt);
+                movements_facing(obj_hero);
             }
             
 			movements_screen_position(obj, obj_bg);
@@ -103,15 +105,63 @@ void movements_carried(object_t* obj, object_t* obj_host) {
     if (obj_host->anim_walk) {
         
         // position object according to direction the host object faces:
-        obj->pos_x = obj_host->pos_x + obj_host->surface->w / 2 - 
-            obj->surface->w / 2;
-        obj->pos_y = obj_host->pos_y + obj_host->surface->h / 2 - 
-            obj->surface->h / 2;
-        // TODO: put in object_carried_start() or something called only once:
+        switch (obj_host->anim->id) {
+            case ANIMATION_WALK_NORTH:
+            case ANIMATION_REST_NORTH:
+                // center of host object:
+                obj->pos_x = obj_host->pos_x + obj_host->surface->w / 2 - 
+                    obj->surface->w / 2;
+                // upper side of host object:
+                obj->pos_y = obj_host->pos_y - 
+                    obj->surface->h / 2;
+                // shift collision area of object right above collision area of
+                // host object:
+                break;
+            case ANIMATION_WALK_SOUTH:
+            case ANIMATION_REST_SOUTH:
+                // center of host object:
+                obj->pos_x = obj_host->pos_x + obj_host->surface->w / 2 - 
+                    obj->surface->w / 2;
+                // lower side of host object:
+                obj->pos_y = obj_host->pos_y + obj_host->surface->h - 
+                    obj->surface->h / 2;
+                break;
+            case ANIMATION_WALK_WEST:
+            case ANIMATION_REST_WEST:
+                // left side of host object:
+                obj->pos_x = obj_host->pos_x - 
+                    obj->surface->w / 2;
+                // lower third of host object:
+                obj->pos_y = obj_host->pos_y + 2 * obj_host->surface->h / 3 - 
+                    obj->surface->h / 2;
+                break;
+            case ANIMATION_WALK_EAST:
+            case ANIMATION_REST_EAST:
+                // right side of host object:
+                obj->pos_x = obj_host->pos_x + obj_host->surface->w - 
+                    obj->surface->w / 2;
+                // lower third of host object:
+                obj->pos_y = obj_host->pos_y + 2 * obj_host->surface->h / 3 - 
+                    obj->surface->h / 2;
+                break;
+        }
+        
+        // position of the object's collision zone:
+        /*switch (obj_host->anim->id) {
+            case ANIMATION_WALK_NORTH:
+            case ANIMATION_REST_NORTH:
+                
+                break;
+            default:
+                obj->wall->y_shift = obj_host->wall->y + 
+                    obj_host->wall->y_shift + obj_host->wall->h;
+        }*/
+            
+        /*// TODO: put in object_carried_start() or something called only once:
         obj->wall->x_shift = 0;
         // TODO: use lowest pixel of host and highest pixel of obj:
         obj->wall->y_shift = obj_host->wall->y + 
-            obj_host->wall->y_shift + obj_host->wall->h;
+            obj_host->wall->y_shift + obj_host->wall->h;*/
     } else {
         
         // position object south of the host object:
@@ -169,4 +219,29 @@ void movements_screen_position(object_t* obj, object_t* obj_bg) {
 	// derive screen position:
 	obj->scr_pos_x = (int32_t) obj->pos_x + (int32_t) obj_bg->scr_pos_x;
 	obj->scr_pos_y = (int32_t) obj->pos_y + (int32_t) obj_bg->scr_pos_y;
+}
+
+void movements_facing(object_t* obj) {
+    
+    float vel_x = obj->vel_x;
+    float vel_y = obj->vel_y;
+    float vel_x_abs = fabsf(vel_x);
+    float vel_y_abs = fabsf(vel_y);
+    
+    if (vel_x_abs > 0.0 || vel_y_abs > 0.0) {
+        
+        if (vel_y_abs > vel_x_abs) {
+            if (vel_y < 0.0) {
+                obj->facing = OBJECT_FACING_NORTH;
+            } else {
+                obj->facing = OBJECT_FACING_SOUTH;
+            }
+        } else {
+            if (vel_x < 0.0) {
+                obj->facing = OBJECT_FACING_WEST;
+            } else {
+                obj->facing = OBJECT_FACING_EAST;
+            }
+        }
+    }
 }

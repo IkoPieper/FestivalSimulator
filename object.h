@@ -16,6 +16,7 @@
 
 
 typedef struct object object_t;
+typedef struct collision collision_t;
 typedef struct item item_t;
 typedef struct walls walls_t;
 
@@ -54,6 +55,13 @@ struct item {
     bool render_after_host; // render directly after the host object
     void* variables;        // any additional variables
     bool (*item_function)(object_t*, object_t*, bool*, uint64_t);
+};
+
+struct collision {
+    object_t* partner;
+    float c_x;
+    float c_y;
+    bool use_for_impulse;
 };
 
 struct object {
@@ -99,13 +107,19 @@ struct object {
 	float acc_y;
 	float acc_abs;
     
-    // carried by other object:
+    // carried by another object:
     object_t* obj_carried_by;
+    
+    // carries another object:
+    object_t* obj_carries;
 	
+    // facing direction:
+    uint8_t facing;
+    
 	// screen positions:
 	float scr_pos_x;    // pos in relation to top left corner of screen
 	float scr_pos_y;
-	
+    
 	// bitmaps:
 	SDL_Surface* surface;	// current picture
 	
@@ -193,6 +207,8 @@ void stop(object_t* obj);
 void move_on(object_t* obj);
 void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
+void pick_up(object_t* obj, object_t* obj_target);
+void throw(object_t* obj);
 void start_waypoints(object_t* obj, uint32_t id);
 bool waypoints_finished(object_t* obj);
 bool squared_distance_smaller(
@@ -204,5 +220,10 @@ bool squared_distance_greater(
 #define OBJECT_HERO_ID 2
 #define OBJECT_SCORE_ID 3
 #define OBJECT_BUS 3001
+
+#define OBJECT_FACING_NORTH 0
+#define OBJECT_FACING_SOUTH 1
+#define OBJECT_FACING_WEST 2
+#define OBJECT_FACING_EAST 3
 
 #endif

@@ -1,8 +1,0 @@
-object = 2002
-pos_x = 810
-pos_y = 800
-surface = money.bmp
-walls = stone_walls.bmp
-
-item = 2                # this object is an item using item function 3
-item_surface = money.bmp #  picture shown to indicate the item to user

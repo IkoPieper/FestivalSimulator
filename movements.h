@@ -4,6 +4,7 @@
 #include "object.h"
 #include "groups.h"
 #include "event.h"
+#include "animation.h"
 #include <math.h>
 
 void movements(groups_t* grp, bool* keys, float dt);
@@ -12,5 +13,6 @@ void movements_background(object_t* obj, object_t* obj_hero);
 void movements_carried(object_t* obj, object_t* obj_host);
 void movements_accelerate(object_t* obj, float dt);
 void movements_screen_position(object_t* obj, object_t* obj_bg);
+void movements_facing(object_t* obj);
     
 #endif

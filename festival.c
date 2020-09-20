@@ -68,7 +68,7 @@ bool on_execute() {
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
     uint8_t area = 1;
-	
+    
     sound_t* snd = on_init_sound();
     
 	video_t* vid = on_init_video(VSYNC);
@@ -96,8 +96,9 @@ bool on_execute() {
 	SDL_Event event;
 	
     // test:
-    object_t* obj_test = object_get(obj, 4001); // ball area 1
+    /*object_t* obj_test = object_get(obj, 4001); // ball area 1
     obj_test->obj_carried_by = grp->obj_hero;
+    grp->obj_hero->obj_carries = obj_test;*/
     
 	while (running) {
 		
@@ -135,6 +136,7 @@ bool on_execute() {
         printf("-------------------\n\n");*/
         
 		on_loop(grp, snd, vbox, keys, frame, dt);
+        
 		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
 		//time = SDL_GetTicks();
 		on_render(grp, vid, dt);

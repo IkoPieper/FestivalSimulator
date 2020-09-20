@@ -44,7 +44,8 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
 		
         // check for render_is_in_blobb as well. this allows objects
         // to be rendered that have render_after entry.
-        if (!obj->disable_render || obj->render_is_in_blobb) {
+        if ((!obj->disable_render && !obj->obj_carried_by) || 
+            obj->render_is_in_blobb) {
         
             if (obj != obj_bg && !obj->render_early) {
                 
@@ -327,14 +328,58 @@ list_t* render_blobb_sort(list_t* blobb) {
 
 void on_render_object(object_t* obj, video_t* vid) {
     
-    // render the object:
-    surface_on_draw(
-        vid->surface, 
-        obj->surface, 
-        (int32_t) obj->scr_pos_x, 
-        (int32_t) obj->scr_pos_y);
+    if (obj->obj_carries != NULL) { 
         
+        switch (obj->anim->id) {
+            
+            case ANIMATION_WALK_SOUTH:
+            case ANIMATION_REST_SOUTH:
+        
+                // render the object:
+                surface_on_draw(
+                    vid->surface, 
+                    obj->surface, 
+                    (int32_t) obj->scr_pos_x, 
+                    (int32_t) obj->scr_pos_y);
+                
+                // render carried object:
+                surface_on_draw(
+                    vid->surface, 
+                    obj->obj_carries->surface, 
+                    (int32_t) obj->obj_carries->scr_pos_x, 
+                    (int32_t) obj->obj_carries->scr_pos_y);
+                
+                break;
+                
+            default:
+                
+                // render carried object:
+                surface_on_draw(
+                    vid->surface, 
+                    obj->obj_carries->surface, 
+                    (int32_t) obj->obj_carries->scr_pos_x, 
+                    (int32_t) obj->obj_carries->scr_pos_y);
+                
+                // render the object:
+                surface_on_draw(
+                    vid->surface, 
+                    obj->surface, 
+                    (int32_t) obj->scr_pos_x, 
+                    (int32_t) obj->scr_pos_y);
+        }
+        
+    } else {
+    
+        // render the object:
+        surface_on_draw(
+            vid->surface, 
+            obj->surface, 
+            (int32_t) obj->scr_pos_x, 
+            (int32_t) obj->scr_pos_y);
+    }
+    
     on_render_object_id(vid, obj);
+    //on_render_object_walls(vid, obj);
     
     // render item after host. for example: render
     // active water pistol right after hero:
@@ -352,6 +397,7 @@ void on_render_object(object_t* obj, video_t* vid) {
                 (int32_t) obj_itm->scr_pos_y);
                 
             on_render_object_id(vid, obj);
+            //on_render_object_walls(vid, obj);
         }
     }
 }
@@ -456,4 +502,12 @@ void on_render_object_id(video_t* vid, object_t* obj) {
     surface_on_draw(vid->surface, surf, obj->scr_pos_x, obj->scr_pos_y);
     
     SDL_FreeSurface(surf);
+}
+
+void on_render_object_walls(video_t* vid, object_t* obj) {
+    
+    int x = obj->scr_pos_x + obj->wall->x + obj->wall->x_shift;
+    int y = obj->scr_pos_y + obj->wall->y + obj->wall->y_shift;
+    
+    surface_on_draw(vid->surface, obj->wall->surf, x, y);
 }

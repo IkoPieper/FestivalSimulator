@@ -8,15 +8,6 @@
 #include <math.h>
 #include <stdbool.h>
 
-typedef struct collision collision_t;
-
-struct collision {
-    object_t* partner;
-    float c_x;
-    float c_y;
-    bool use_for_impulse;
-};
-
 collision_t* collisions_add_to_object(object_t* obj, object_t* partner);
 void collisions_free(object_t* obj);
 

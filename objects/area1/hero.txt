@@ -5,6 +5,7 @@ has_item = 2000         # stone id
 has_item = 2001         # red stone id
 has_item = 2002         # money id
 has_item = 2003         # water pistol id
+has_item = 2004         # hand id
 surface = hero_s_1.bmp  # main picture
 walls = hero_walls.bmp  # collision zones
 can_move = 1            # object can move

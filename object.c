@@ -72,8 +72,14 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->acc_y = 0.0;
 	obj_new->acc_abs = 0.01;
 	
-    // carried by other object:
+    // carried by another object:
     obj_new->obj_carried_by = NULL;
+    
+    // carries another object:
+    obj_new->obj_carries = NULL;
+    
+    // facing direction:
+    obj_new->facing = OBJECT_FACING_SOUTH;
     
 	// screen positions:
 	obj_new->scr_pos_x = 0.0;
@@ -670,6 +676,66 @@ void change_mood(object_t* obj, int16_t value) {
     lst = find_id(lst, METER_MOOD);
     meter_t* mtr = (meter_t*) lst->entry;
     meter_update(mtr, mtr->value + value);
+}
+
+void pick_up(object_t* obj, object_t* obj_target) {
+    
+    obj->obj_carries = obj_target;
+    obj_target->obj_carried_by = obj;
+}
+
+void throw(object_t* obj) {
+    
+    object_t* obj_target = obj->obj_carries; // object to be thrown
+    obj->obj_carries = NULL;
+    obj_target->obj_carried_by = NULL;
+    
+    float offset = (float) obj->wall->w;
+    if (offset < (float) obj->wall->h) {
+        offset = (float) obj->wall->h;
+    }
+    
+    const float vel_add = 2.0;
+    float vel_x = obj->vel_x;
+    float vel_y = obj->vel_y;
+    
+    if (fabsf(vel_x) > 0.0 || fabsf(vel_y) > 0.0) {
+        
+        float norm = sqrtf(vel_x * vel_x + vel_y * vel_y);
+        float norm_x = vel_x / norm;
+        float norm_y = vel_y / norm;
+        
+        obj_target->pos_x += norm_x * offset;
+        obj_target->pos_y += norm_y * offset;
+        
+        obj_target->vel_x = vel_x + vel_add * norm_x;
+        obj_target->vel_y = vel_y + vel_add * norm_y;
+        
+    } else {
+    
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
+                obj_target->pos_y -= offset;
+                obj_target->vel_x = 0.0;
+                obj_target->vel_y = -vel_add;
+                break;
+            case OBJECT_FACING_SOUTH:
+                obj_target->pos_y += offset;
+                obj_target->vel_x = 0.0;
+                obj_target->vel_y = vel_add;
+                break;
+            case OBJECT_FACING_WEST:
+                obj_target->pos_x -= offset;
+                obj_target->vel_x = -vel_add;
+                obj_target->vel_y = 0.0;
+                break;
+            case OBJECT_FACING_EAST:
+                obj_target->pos_x += offset;
+                obj_target->vel_x = vel_add;
+                obj_target->vel_y = 0.0;
+                break;
+        }
+    }
 }
 
 void start_waypoints(object_t* obj, uint32_t id) {

@@ -214,7 +214,12 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
 void collisions_check(object_t* obj1, object_t* obj2, float dt) {
 	
 	bool collision = false;
-	
+    
+    if (obj1->obj_carried_by != NULL || obj2->obj_carried_by != NULL) {
+        
+        return;
+    }
+    
 	// boundary boxes base positions:
 	int32_t x01 = (int32_t) obj1->pos_x;
 	int32_t y01 = (int32_t) obj1->pos_y;

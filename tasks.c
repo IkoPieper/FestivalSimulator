@@ -522,7 +522,7 @@ void task_hunt(
     }
 }
 
-void task_hunt_save( //unfinished
+/*void task_hunt_save( //unfinished
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
@@ -536,7 +536,7 @@ void task_hunt_load( //unfinished
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
-}
+}*/
 
 void task_hunt_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
