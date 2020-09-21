@@ -332,8 +332,8 @@ void on_render_object(object_t* obj, video_t* vid) {
         
         switch (obj->anim->id) {
             
-            case ANIMATION_WALK_SOUTH:
-            case ANIMATION_REST_SOUTH:
+            case ANIMATION_CARRY_SOUTH:
+            case ANIMATION_CARRY_REST_SOUTH:
         
                 // render the object:
                 surface_on_draw(

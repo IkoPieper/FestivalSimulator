@@ -23,11 +23,18 @@ void on_loop_animations(
     
 void on_loop_sounds(
     groups_t* grp, bool* keys, sound_t* snd, uint64_t frame, float dt);
-    
-uint32_t on_loop_get_animation_walk_hero(object_t* obj, bool* keys);
 
 uint32_t on_loop_get_animation_walk(
-    uint32_t anim_id, float vel_x, float vel_y);
+    object_t* obj, float vel_x, float vel_y);
+
+uint32_t on_loop_get_animation_walk_default(
+    object_t* obj, float vel_x, float vel_y);
+
+uint32_t on_loop_get_animation_walk_hand(
+    object_t* obj, float vel_x, float vel_y);
+    
+uint32_t on_loop_get_animation_walk_pistol(
+    object_t* obj, float vel_x, float vel_y);
     
 void on_loop_waypoints(groups_t* grp, uint64_t frame, float dt);
 

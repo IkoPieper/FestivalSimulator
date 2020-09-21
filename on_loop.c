@@ -110,10 +110,6 @@ void on_loop_animations(
             
             uint32_t anim_id = 0;
             
-            // calculate actual velocity:
-            //float vel_x = (obj->pos_x - obj->pos_x_old) / dt;
-            //float vel_y = (obj->pos_y - obj->pos_y_old) / dt;
-            
             float vel_x = obj->vel_x;
             float vel_y = obj->vel_y;
             
@@ -126,15 +122,14 @@ void on_loop_animations(
                 // select walk cycle animation:
                 if (obj->id == OBJECT_HERO_ID) {
                     
-                    anim_id = on_loop_get_animation_walk_hero(obj, keys);
+                    anim_id = on_loop_get_animation_walk(obj, vel_x, vel_y);
                     
                 } else {
                 
                     animation_t* anim = (animation_t*) obj->anim->entry;
                     if (anim->time_active > 20.0) { // avoid fast changes
                         
-                        anim_id = on_loop_get_animation_walk(
-                            obj->anim->id, vel_x, vel_y);
+                        anim_id = on_loop_get_animation_walk(obj, vel_x, vel_y);
                     }
                 }
             }
@@ -168,112 +163,126 @@ void on_loop_animations(
 	
 }
 
-uint32_t on_loop_get_animation_walk_hero(object_t* obj, bool* keys) {
+uint32_t on_loop_get_animation_walk(
+    object_t* obj, float vel_x, float vel_y) {
     
-    uint32_t anim_id = obj->anim->id;
-    
-    bool using_water_pistol = 
-        obj->itm != NULL && 
-        obj->itm->id == ITEM_WATER_PISTOL && 
-        keys[KEY_SPACE];
-    
-    if (keys[KEY_UP]) {
-        if (using_water_pistol) {
-            return(9);
-        } else {
-            return(ANIMATION_WALK_NORTH);
+    if (obj->itm != NULL) {
+        
+        object_t* obj_item = (object_t*) obj->itm->entry;
+        
+        if (obj_item->itm_props->step > 0) { // item is in use
+            
+            switch (obj_item->itm_props->id) {
+                case ITEM_HAND:
+                    return(
+                        on_loop_get_animation_walk_hand(obj, vel_x, vel_y));
+                case ITEM_WATER_PISTOL:
+                    return(
+                        on_loop_get_animation_walk_pistol(obj, vel_x, vel_y));
+            }
         }
-    }
-    if (keys[KEY_DOWN]) {
-        if (using_water_pistol) {
-            return(10);
-        } else {
-            return(ANIMATION_WALK_SOUTH);
-        }
-    }
-    if (keys[KEY_LEFT]) {
-        return(ANIMATION_WALK_WEST);
-    }
-    if (keys[KEY_RIGHT]) {
-        return(ANIMATION_WALK_EAST);
     }
     
-    if (anim_id == ANIMATION_WALK_NORTH || anim_id == 9) {
-        if (using_water_pistol) {
-            return(11);
-        } else {
-            return(ANIMATION_REST_NORTH);
-        }
-    }
-    if (anim_id == ANIMATION_REST_NORTH) {
-        if (using_water_pistol) {
-            return(11);
-        } else {
-            return(ANIMATION_REST_NORTH);
-        }
-    }
-    if (anim_id == ANIMATION_WALK_SOUTH || anim_id == 10) {
-        if (using_water_pistol) {
-            return(12);
-        } else {
-            return(ANIMATION_REST_SOUTH);
-        }
-    }
-    if (anim_id == ANIMATION_REST_SOUTH) {
-        if (using_water_pistol) {
-            return(12);
-        } else {
-            return(ANIMATION_REST_SOUTH);
-        }
-    }
-    if (anim_id == ANIMATION_WALK_WEST) {
-        return(ANIMATION_REST_WEST);
-    }
-    if (anim_id == ANIMATION_WALK_EAST) {
-        return(ANIMATION_REST_EAST);
-    }
-    
-    return(0);
+    return(on_loop_get_animation_walk_default(obj, vel_x, vel_y));
 }
 
-uint32_t on_loop_get_animation_walk(
-    uint32_t anim_id, float vel_x, float vel_y) {
+uint32_t on_loop_get_animation_walk_default(
+    object_t* obj, float vel_x, float vel_y) {
     
     if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {
         
-        // start a stop animation:
-        if (anim_id == ANIMATION_WALK_NORTH) {
-            return(ANIMATION_REST_NORTH);
-        }
-        if (anim_id == ANIMATION_WALK_SOUTH) {
-            return(ANIMATION_REST_SOUTH);
-        }
-        if (anim_id == ANIMATION_WALK_WEST) {
-            return(ANIMATION_REST_WEST);
-        }
-        if (anim_id == ANIMATION_WALK_EAST) {
-            return(ANIMATION_REST_EAST);
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
+                return(ANIMATION_REST_NORTH);
+            case OBJECT_FACING_SOUTH:
+                return(ANIMATION_REST_SOUTH);
+            case OBJECT_FACING_WEST:
+                return(ANIMATION_REST_WEST);
+            case OBJECT_FACING_EAST:
+                return(ANIMATION_REST_EAST);
         }
         
     } else {
         
-        // start a walk animation:
-        if (fabsf(vel_y) > fabsf(vel_x)) {
-            if (vel_y < -0.8) {
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
                 return(ANIMATION_WALK_NORTH);
-            } else if (vel_y > 0.8) {
+            case OBJECT_FACING_SOUTH:
                 return(ANIMATION_WALK_SOUTH);
-            }
-        } else {
-            if (vel_x < -0.8) {
+            case OBJECT_FACING_WEST:
                 return(ANIMATION_WALK_WEST);
-            } else if (vel_x > 0.8) {
+            case OBJECT_FACING_EAST:
                 return(ANIMATION_WALK_EAST);
-            }
         }
     }
     
-    return(anim_id);
+    return(obj->anim->id);
+}
+
+uint32_t on_loop_get_animation_walk_hand(
+    object_t* obj, float vel_x, float vel_y) {
+    
+    if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {
+        
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
+                return(ANIMATION_CARRY_REST_NORTH);
+            case OBJECT_FACING_SOUTH:
+                return(ANIMATION_CARRY_REST_SOUTH);
+            case OBJECT_FACING_WEST:
+                return(ANIMATION_CARRY_REST_WEST);
+            case OBJECT_FACING_EAST:
+                return(ANIMATION_CARRY_REST_EAST);
+        }
+        
+    } else {
+        
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
+                return(ANIMATION_CARRY_NORTH);
+            case OBJECT_FACING_SOUTH:
+                return(ANIMATION_CARRY_SOUTH);
+            case OBJECT_FACING_WEST:
+                return(ANIMATION_CARRY_WEST);
+            case OBJECT_FACING_EAST:
+                return(ANIMATION_CARRY_EAST);
+        }
+    }
+    
+    return(obj->anim->id);
+}
+
+uint32_t on_loop_get_animation_walk_pistol(
+    object_t* obj, float vel_x, float vel_y) {
+    
+    if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {
+        
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
+                return(ANIMATION_PISTOL_REST_NORTH);
+            case OBJECT_FACING_SOUTH:
+                return(ANIMATION_PISTOL_REST_SOUTH);
+            case OBJECT_FACING_WEST:
+                return(ANIMATION_PISTOL_REST_WEST);
+            case OBJECT_FACING_EAST:
+                return(ANIMATION_PISTOL_REST_EAST);
+        }
+        
+    } else {
+        
+        switch (obj->facing) {
+            case OBJECT_FACING_NORTH:
+                return(ANIMATION_PISTOL_NORTH);
+            case OBJECT_FACING_SOUTH:
+                return(ANIMATION_PISTOL_SOUTH);
+            case OBJECT_FACING_WEST:
+                return(ANIMATION_PISTOL_WEST);
+            case OBJECT_FACING_EAST:
+                return(ANIMATION_PISTOL_EAST);
+        }
+    }
+    
+    return(obj->anim->id);
 }
 
 void on_loop_waypoints(groups_t* grp, uint64_t frame, float dt) {

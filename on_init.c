@@ -100,13 +100,13 @@ sound_t* on_init_sound_songs(sound_t* snd) {
 		if (on_init_sound_supported(dir->d_name)) {
             
 			// build path to file:
-			strncpy(path, "songs", 256);
-			strncat(path, "/", 256);
-			strncat(path, dir->d_name, 256);
+			strncpy(path, "songs", 6);
+			strncat(path, "/", 2);
+			strncat(path, dir->d_name, 256-6-1);
             
             // save path:
             snd->songs[n] = (char*) malloc(256 * sizeof(char));
-            strncpy(snd->songs[n], path, 256);
+            strncpy(snd->songs[n], path, 256-1);
             
             n++;
 		}
@@ -416,9 +416,9 @@ bool on_init_objects_config(object_t* obj, float dt, uint8_t area) {
 
 	
 			// build path to file:
-			strncpy(path, path_area, 100);
-			strncat(path, "/", 100);
-			strncat(path, dir->d_name, 100);
+			strncpy(path, path_area, 100-1);
+			strncat(path, "/", 2);
+			strncat(path, dir->d_name, 100-1);
 	
 			configentry* data = conf_load_data(path);
 			configentry* entry = data;
@@ -434,25 +434,29 @@ bool on_init_objects_config(object_t* obj, float dt, uint8_t area) {
 			
 				if        (strcmp(entry->key, "object") == 0) {
                     
-					entry = load_config_defaults(entry, path, obj);
+					entry = load_config_defaults(entry, obj);
                     
                 } else if (strcmp(entry->key, "item") == 0) {
                     
-					entry = load_config_item(entry, path, obj);
+					entry = load_config_item(entry, obj);
                     
 				} else if (strcmp(entry->key, "animation") == 0) {
                     
-					entry = load_config_animation(entry, path, obj, dt);
+					entry = load_config_animation(entry, obj, dt);
                     
                 } else if (strcmp(entry->key, "waypoints") == 0) {
                     
-					entry = load_config_waypoints(entry, path, obj, dt);
+					entry = load_config_waypoints(entry, obj, dt);
                     
 				} else if (strcmp(entry->key, "text") == 0) {
                     
 					entry = load_config_text(entry, obj);
-				} 
-
+                    
+				} else {
+                    
+                    printf("ERROR: Unknown key %s in %s!\n", entry->key, path);
+                    exit(1);
+                }
 			}
 			
 			conf_free_data(data);

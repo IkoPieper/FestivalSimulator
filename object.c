@@ -107,6 +107,8 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->anim = NULL;
 	obj_new->anim_first_call = true;
     obj_new->anim_walk = false;
+    obj_new->anim_carry = false;
+    obj_new->anim_pistol = false;
 	
 	// texts:
 	obj_new->txt_language = (char *) malloc(3 * sizeof(char));
@@ -360,29 +362,6 @@ void object_select_animation(object_t* obj, uint32_t id) {
     anim->time_active = 0.0;
 }
 
-void object_select_animation_target(object_t* obj, float x, float y) {
-    
-    float distance_x = x - obj->pos_x;
-    float distance_y = y - obj->pos_y;
-    
-    if (fabsf(distance_x) > fabsf(distance_y)) {
-        
-        if (distance_x < 0) {
-            object_select_animation(obj, ANIMATION_REST_WEST);
-        } else {
-            object_select_animation(obj, ANIMATION_REST_EAST);
-        }
-        
-    } else {
-        
-        if (distance_y < 0) {
-            object_select_animation(obj, ANIMATION_REST_NORTH);
-        } else {
-            object_select_animation(obj, ANIMATION_REST_SOUTH);
-        }
-    }
-}
-
 void object_animate(object_t* obj, uint64_t frame, float dt) {
 	
 	// free original surface if it is not part of the animation:
@@ -628,10 +607,25 @@ void say_free(object_t* obj) {
 
 void face(object_t* obj, object_t* obj_target, float dt) {
     
-    float x = obj_target->pos_x;
-    float y = obj_target->pos_y;
-    object_select_animation_target(obj, x, y);
-    object_animate(obj, 0, dt);
+    float distance_x = obj_target->pos_x - obj->pos_x;
+    float distance_y = obj_target->pos_y - obj->pos_y;
+    
+    if (fabsf(distance_x) > fabsf(distance_y)) {
+        
+        if (distance_x < 0) {
+            obj->facing = OBJECT_FACING_WEST;
+        } else {
+            obj->facing = OBJECT_FACING_EAST;
+        }
+        
+    } else {
+        
+        if (distance_y < 0) {
+            obj->facing = OBJECT_FACING_NORTH;
+        } else {
+            obj->facing = OBJECT_FACING_SOUTH;
+        }
+    }
 }
 
 void stop(object_t* obj) {

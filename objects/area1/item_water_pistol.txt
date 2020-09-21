@@ -1,4 +1,4 @@
-object = 2003
+object = 2001
 pos_x = 810
 pos_y = 800
 surface = water_pistol_s_1.bmp
@@ -6,8 +6,8 @@ walls = water_pistol_walls.bmp
 can_move = 1
 disable_render = 1
 
-item = 3                # this object is an item using item function 3
-item_surface = item_water_pistol.bmp
+item = 1                                # this object is item 1
+item_surface = item_water_pistol.bmp    # picture shown in item selection screen
 
 animation = 1
 delay_frames = 7

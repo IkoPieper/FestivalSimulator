@@ -1,11 +1,11 @@
 #include "load_config.h"
 
-configentry* load_config_defaults(configentry* entry, char* path, object_t* obj) {
+configentry* load_config_defaults(configentry* entry, object_t* obj) {
 	
 	SDL_Surface* surf = NULL;
 	SDL_Surface* surf_wall = NULL;
+    char path[100];
 	char* file_name;
-	
 	
 	while (entry != NULL) {
 		
@@ -29,9 +29,9 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 		} else if (strcmp(entry->key, "surface") == 0) {
 			
 			file_name = entry->value;
-			strncpy(path, "objects", 100);
-			strncat(path, "/", 100);
-			strncat(path, file_name, 100);
+			strncpy(path, "objects", 8);
+			strncat(path, "/", 2);
+			strncat(path, file_name, 100-8-1);
 			surf = surface_on_load(path);
 			if(surf == NULL) {
 				printf("Error: File %s not found.\n", file_name);
@@ -43,9 +43,9 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 		} else if (strcmp(entry->key, "walls") == 0) {
 			
 			file_name = entry->value;
-			strncpy(path, "objects", 100);
-			strncat(path, "/", 100);
-			strncat(path, file_name, 100);
+			strncpy(path, "objects", 8);
+			strncat(path, "/", 2);
+			strncat(path, file_name, 100-8-1);
 			surf_wall = surface_on_load(path);
 			if(surf_wall == NULL) {
 				printf("Error: File %s not found.\n", file_name);
@@ -108,6 +108,16 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 			obj->anim_walk = atoi(entry->value);
 			entry = entry->next;
             
+        } else if (strcmp(entry->key, "anim_carry") == 0) {
+			
+			obj->anim_carry = atoi(entry->value);
+			entry = entry->next;
+            
+        } else if (strcmp(entry->key, "anim_pistol") == 0) {
+			
+			obj->anim_carry = atoi(entry->value);
+			entry = entry->next;
+            
         } else if (strcmp(entry->key, "is_security") == 0) {
 			
 			obj->is_security = atoi(entry->value);
@@ -127,11 +137,11 @@ configentry* load_config_defaults(configentry* entry, char* path, object_t* obj)
 	
 }
 
-configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
+configentry* load_config_item(configentry* entry, object_t* obj) {
 	
 	SDL_Surface* surf = NULL;
+    char path[100];
 	char* file_name;
-	
 	
 	while (entry != NULL) {
         
@@ -144,9 +154,9 @@ configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
 		} else if (strcmp(entry->key, "item_surface") == 0) {
 			
 			file_name = entry->value;
-			strncpy(path, "objects", 100);
-			strncat(path, "/", 100);
-			strncat(path, file_name, 100);
+			strncpy(path, "objects", 8);
+			strncat(path, "/", 2);
+			strncat(path, file_name, 100-8-1);
 			surf = surface_on_load(path);
 			if(surf == NULL) {
 				printf("Warning: Problem loading config file.\n");
@@ -167,12 +177,12 @@ configentry* load_config_item(configentry* entry, char* path, object_t* obj) {
 	
 }
 
-configentry* load_config_animation(configentry* entry, char* path, 
-    object_t* obj, float dt) {
+configentry* load_config_animation(
+    configentry* entry, object_t* obj, float dt) {
 	
 	SDL_Surface* surf = NULL;
+    char path[100];
 	char* file_name;
-	
 	
 	while (entry != NULL) {
 		
@@ -197,9 +207,9 @@ configentry* load_config_animation(configentry* entry, char* path,
 		} else if (strcmp(entry->key, "surface") == 0) {
 			
 			file_name = entry->value;
-			strncpy(path, "objects", 100);
-			strncat(path, "/", 100);
-			strncat(path, file_name, 100);
+			strncpy(path, "objects", 8);
+			strncat(path, "/", 2);
+			strncat(path, file_name, 100-8-1);
 			surf = surface_on_load(path);
 			if(surf == NULL) {
 				printf("Warning: Problem loading config file.\n");
@@ -218,8 +228,8 @@ configentry* load_config_animation(configentry* entry, char* path,
 	
 }
 
-configentry* load_config_waypoints(configentry* entry, char* path, 
-    object_t* obj, float dt) {
+configentry* load_config_waypoints(
+    configentry* entry, object_t* obj, float dt) {
 	
     uint32_t num_waypoints = 0;
     uint32_t id = atoi(entry->value);

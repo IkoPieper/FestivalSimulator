@@ -358,7 +358,8 @@ void task_bus(
                 object_t* passenger = (object_t*) lst->entry;
                 passenger->pos_x = obj->pos_x + x_shift;
                 passenger->pos_y = obj->pos_y + 32.0;
-                face(passenger, obj, dt);
+                object_select_animation(passenger, ANIMATION_REST_WEST);
+                object_animate(passenger, 0, dt);
                 passenger->disable_render = false;
                 passenger->anim_walk = false;
                 x_shift += 60.0;

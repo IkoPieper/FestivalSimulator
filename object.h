@@ -146,6 +146,8 @@ struct object {
 							// the first time
                             
     bool anim_walk;         // use animations 1 to 8 for walk cycles
+    bool anim_carry;        // use animations 9 to 16 for carry walk cycles
+    bool anim_pistol;       // use animations 17 to 24 for pistol walk cycles
 							
 	// texts:
 	char* txt_language;			// the language the object speaks
@@ -180,7 +182,6 @@ void object_free_meters(list_t* mtr);
 
 void object_add_animation(object_t* obj, uint32_t id, float dt);
 void object_select_animation(object_t* obj, uint32_t id);
-void object_select_animation_target(object_t* obj, float x, float y);
 void object_animate(object_t* obj, uint64_t frame, float dt);
 void object_free_animations(list_t* anim);
 

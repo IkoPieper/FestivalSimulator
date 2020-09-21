@@ -25,12 +25,6 @@ void items_free(object_t* obj);
 bool (*get_item_function(uint32_t id))(
     object_t*, object_t*, bool*, uint64_t);
     
-bool use_stone(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
-    
-bool use_red_stone(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
-    
 bool use_money(
     object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
     
@@ -40,10 +34,8 @@ bool use_water_pistol(
 bool use_hand(
     object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
 
-#define ITEM_STONE 0
-#define ITEM_RED_STONE 1
-#define ITEM_MONEY 2
-#define ITEM_WATER_PISTOL 3
-#define ITEM_HAND 4
+#define ITEM_MONEY 0
+#define ITEM_WATER_PISTOL 1
+#define ITEM_HAND 2
 
 #endif
