@@ -5,6 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <stdbool.h>
  
 typedef struct video video_t;
 
@@ -17,5 +18,9 @@ struct video {
     uint32_t fps;
     TTF_Font* font;
 };
+
+video_t* video_init(bool VSYNC);
+void video_free(video_t* vid);
+void video_render(video_t* vid);
 
 #endif

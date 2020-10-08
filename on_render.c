@@ -115,12 +115,7 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
 		obj = obj->next_object;
 	}
     
-	glBindTexture(GL_TEXTURE_2D, vid->render_id);
-	glEnable(GL_TEXTURE_2D);
-	
-	
-	
-	// many filters possible with the following code:
+    // many filters possible with the following code:
 	/*uint32_t* pxl = (uint32_t*) surf->pixels;
 	uint8_t* pxl8;
 	uint8_t pxl_tmp;
@@ -133,43 +128,9 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
 		
 		//pxl[n] = pxl[n] << 16;
 	}*/
-	
-	// this reads from the sdl surface and puts it into an opengl 
-    // texture
-	glTexImage2D(
-		GL_TEXTURE_2D, 0, vid->surface->format->BytesPerPixel, 
-		vid->surface->w, vid->surface->h, 
-		0, 0x80E1, GL_UNSIGNED_BYTE, 
-		vid->surface->pixels);
     
-	// clear the color and depth buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-	
-	// make a rectangle
-	glBegin(GL_QUADS);
-
-	// top left
-	glTexCoord2i(0, 0);
-	glVertex3f(0, 0, 0);
-
-	// top right
-	glTexCoord2i(1, 0);
-	glVertex3f(vid->surface->w, 0, 0);
-
-	// bottom right
-	glTexCoord2i(1, 1);
-	glVertex3f(vid->surface->w, vid->surface->h, 0);
-
-	// bottom left
-	glTexCoord2i(0, 1);
-	glVertex3f(0, vid->surface->h, 0);
-
-	glEnd();
- 
-	glDisable(GL_TEXTURE_2D);
-	
-    SDL_GL_SwapWindow(vid->window);
+    // all the above constructs a new 2D surface. send it to the screen:
+    video_render(vid);
 }
 
 // sort the objects in the render list:

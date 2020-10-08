@@ -1,72 +1,114 @@
 object = 2              # hard coded hero id
+has_item = 2002         # hand id
 pos_x = 900             # start position
 pos_y = 1600
 surface = hero_s_1.bmp  # main picture
 walls = hero_walls.bmp  # collision zones
 can_move = 1            # object can move
 mass = 1.0              # mass of the object
-damping = 0.2           # damping slows a moving object down
-acc_abs = 0.6           # acceleration on key press (only used for hero)
+damping = 0.1           # damping slows a moving object down
+acc_abs = 0.3           # acceleration on key press (only used for hero)
 
 anim_walk = 1           # use animations 1 to 8 for walk cycles
-
-# for the hero 8 animations have to be present!
-# the number of surfaces doesn't matter:
+anim_carry = 1          # use animations 9 to 16 for carry walk cycles
+anim_pistol = 1         # use animations 17 to 24 for pistol walk cycles
 
 animation = 1           # animation for walking north
-delay_frames = 7        # animation speed: lower value is faster
 surface = hero_n_1.bmp  # first picture ...
 surface = hero_n_2.bmp  # second picture ...
 
 animation = 2           # animation for walking south
-delay_frames = 7
 surface = hero_s_1.bmp
 surface = hero_s_2.bmp
 
 animation = 3           # animation for walking west
-delay_frames = 7
 surface = hero_w_1.bmp
 surface = hero_w_stand.bmp
 surface = hero_w_2.bmp
 surface = hero_w_stand.bmp
 
 animation = 4           # animation for walking east
-delay_frames = 7
 surface = hero_e_1.bmp
 surface = hero_e_stand.bmp
 surface = hero_e_2.bmp
 surface = hero_e_stand.bmp
 
 animation = 5           # animation for stopping north
-delay_frames = 1
 surface = hero_n_stand.bmp
 
 animation = 6           # animation for stopping south
-delay_frames = 1
 surface = hero_s_stand.bmp
 
 animation = 7           # animation for stopping west
-delay_frames = 1
 surface = hero_w_stand.bmp
 
 animation = 8           # animation for stopping east
-delay_frames = 1
 surface = hero_e_stand.bmp
 
-animation = 9           # animation for walking north without arms
-delay_frames = 7
-surface = hero_no_arms_n_1.bmp
-surface = hero_no_arms_n_2.bmp
+animation = 9           # animation for carrying something north
+surface = hero_carry_n_1.bmp
+surface = hero_carry_n_2.bmp
 
-animation = 10          # animation for walking south without arms
-delay_frames = 7
-surface = hero_no_arms_s_1.bmp
-surface = hero_no_arms_s_2.bmp
+animation = 10          # animation for carrying something south
+surface = hero_carry_s_1.bmp
+surface = hero_carry_s_2.bmp
 
-animation = 11          # animation for stopping north without arms
-delay_frames = 7
-surface = hero_no_arms_n_stand.bmp
+animation = 11          # animation for carrying something west
+surface = hero_carry_w_1.bmp
+surface = hero_carry_w_stand.bmp
+surface = hero_carry_w_2.bmp
+surface = hero_carry_w_stand.bmp
 
-animation = 12          # animation for stoping south without arms
-delay_frames = 7
-surface = hero_no_arms_s_stand.bmp
+animation = 12          # animation for carrying something east
+surface = hero_carry_e_1.bmp
+surface = hero_carry_e_stand.bmp
+surface = hero_carry_e_2.bmp
+surface = hero_carry_e_stand.bmp
+
+animation = 13
+surface = hero_carry_n_stand.bmp
+
+animation = 14
+surface = hero_carry_s_stand.bmp
+
+animation = 15
+surface = hero_carry_w_stand.bmp
+
+animation = 16
+surface = hero_carry_e_stand.bmp
+
+animation = 17          # animation for carrying pistol north
+surface = hero_pistol_n_1.bmp
+surface = hero_pistol_n_stand.bmp
+surface = hero_pistol_n_2.bmp
+surface = hero_pistol_n_stand.bmp
+
+animation = 18          # animation for carrying pistol south
+surface = hero_pistol_s_1.bmp
+surface = hero_pistol_s_stand.bmp
+surface = hero_pistol_s_2.bmp
+surface = hero_pistol_s_stand.bmp
+
+animation = 19          # animation for carrying pistol west
+surface = hero_pistol_w_1.bmp
+surface = hero_pistol_w_stand.bmp
+surface = hero_pistol_w_2.bmp
+surface = hero_pistol_w_stand.bmp
+
+animation = 20          # animation for carrying pistol east
+surface = hero_pistol_e_1.bmp
+surface = hero_pistol_e_stand.bmp
+surface = hero_pistol_e_2.bmp
+surface = hero_pistol_e_stand.bmp
+
+animation = 21
+surface = hero_pistol_n_stand.bmp
+
+animation = 22
+surface = hero_pistol_s_stand.bmp
+
+animation = 23
+surface = hero_pistol_w_stand.bmp
+
+animation = 24
+surface = hero_pistol_e_stand.bmp

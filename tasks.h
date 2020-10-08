@@ -55,9 +55,17 @@ void task_bus(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 
+typedef struct flunky flunky_t;
+struct flunky {
+    bool team_b;            // if true: obj is in team b, otherwise team a
+    uint32_t pos_x_line;    // start x-position behind line
+    uint32_t pos_y_line;    // start y-position behind line
+};
+
 void task_soccer(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+    
 void task_soccer_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
@@ -75,13 +83,21 @@ struct hunt {
 void task_hunt(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
-
+    
 void task_hunt_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 
 void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
     object_t* obj_hunted, float dt);
+
+void task_flunky(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
+    
+void task_flunky_free(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt);
 
 #define TASK_FIND_BOB 0
 #define TASK_FIND_EVA 1
@@ -91,5 +107,6 @@ void hunt_object(object_t* obj, task_t* tsk, bool clockwise,
 #define TASK_HUNT 5
 #define TASK_SOCCER 6
 #define TASK_SOCCER_BALL 7
+#define TASK_FLUNKY 8
 
 #endif

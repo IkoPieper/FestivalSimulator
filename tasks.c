@@ -89,6 +89,11 @@ void tasks_get_functions(task_t* tsk, uint32_t id) {
             tsk->task_function = &task_soccer_ball;
             tsk->task_function_free = NULL;
             break;
+        case TASK_FLUNKY:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_flunky;
+            tsk->task_function_free = &task_flunky_free;
+            break;
         default:
             tsk->task_function_init = NULL;
             tsk->task_function = NULL;
@@ -111,12 +116,9 @@ void task_find_bob(
             say(obj, 1, 150);
             
             tsk->step = 1;
-            
-            return; // TODO: return outside of if
         }
-    }
-    
-    if (tsk->step == 1) {
+        
+    } else if (tsk->step == 1) {
         
         object_t* hero = grp->obj_hero;
         
@@ -140,12 +142,9 @@ void task_find_bob(
             move_on(obj);
             
             tsk->step = 0;
-            
-            return;
         }
-    }
-    
-    if (tsk->step == 2) {
+        
+    } else if (tsk->step == 2) {
         
         object_t* hero = grp->obj_hero;
         
@@ -162,22 +161,17 @@ void task_find_bob(
             change_mood(hero, 10);
             
             tsk->step = 3;
-            
-            return;
         }
-    }
-    
-    if (tsk->step >= 3) {
+        
+    } else if (tsk->step >= 3) {
         
         // use step as counter:
         tsk->step++;
         
         if (tsk->step == 300) {
-            tsk->step = 0;
             
-            return;
+            tsk->step = 0;
         }
-        
     }
 }
 
@@ -199,7 +193,7 @@ void task_security_fence(
         
             start_waypoints(obj, 1);
             
-            tsk->step++;
+            tsk->step = 1;
             
             return;
         }
@@ -214,7 +208,7 @@ void task_security_fence(
             stop(obj);
             obj->can_move = false;
             
-            tsk->step++;
+            tsk->step = 2;
             
             return;
         }
@@ -307,10 +301,7 @@ void task_bus_passenger(
             tsk->step = 1;
         }
         
-        return;
-    }
-        
-    if (tsk->step == 1) {
+    } else if (tsk->step == 1) {
         
         if (waypoints_finished(obj)) {
             
@@ -320,10 +311,7 @@ void task_bus_passenger(
             tsk->step = 2;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 2) {
+    } else if (tsk->step == 2) {
         
         object_t* bus = object_get(obj, OBJECT_BUS);
         task_t* tsk_bus = (task_t*) bus->tsk->entry;
@@ -334,8 +322,6 @@ void task_bus_passenger(
             
             tsk->step = 3;
         }
-        
-        return;
     }
 }
 
@@ -371,10 +357,7 @@ void task_bus(
             tsk->step = 1;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 1) {
+    } else if (tsk->step == 1) {
         // drive to bus stop:
         
         list_t* lst = get_first(obj->itm);
@@ -407,10 +390,7 @@ void task_bus(
             tsk->step = 2;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 2) {
+    } else if (tsk->step == 2) {
         
         list_t* lst = get_first(obj->itm);
         while (lst != NULL) {
@@ -440,10 +420,7 @@ void task_bus(
             tsk->step = 3;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 3) {
+    } else if (tsk->step == 3) {
         
         // return to the start position:
         /*if (obj->pos_x < 360.0) {
@@ -457,8 +434,6 @@ void task_bus(
             
             tsk->step = 0;
         }
-        
-        return;
     }
 }
 
@@ -492,10 +467,7 @@ void task_hunt(
             obj_b = obj_b->next_object;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 1) {
+    } else if (tsk->step == 1) {
         
         object_t* obj_hunted = (object_t*) tsk->variables;
         
@@ -518,8 +490,6 @@ void task_hunt(
             
             tsk->step = 0;
         }
-        
-        return;
     }
 }
 
@@ -635,10 +605,7 @@ void task_soccer(
         
         hunt_object(obj, tsk, true, ball, dt);
         
-        return;
-    }
-    
-    if (tsk->step == 1) {
+    } else if (tsk->step == 1) {
         
         hunt_t* var = (hunt_t*) tsk->variables;
         hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
@@ -647,8 +614,6 @@ void task_soccer(
             
             obj->vel_x = -obj->vel_x;
         }
-        
-        return;
     }
 }
 
@@ -663,13 +628,90 @@ void task_soccer_ball(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
+    if (obj->pos_x > 925.0 && obj->vel_x > 0) {
+        
+        obj->vel_x = -obj->vel_x;
+    }
+}
+
+void task_flunky(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+    static const uint32_t pos_y_line_team_a = 1070;
+    static const uint32_t pos_y_line_team_b = 1240;
+    static object_t* ball = NULL;
+    #define max_num_player 8
+    static object_t* team_a[max_num_player] = {NULL};
+    static object_t* team_b[max_num_player] = {NULL};
+    static uint8_t num_player_team_a = 0;
+    static uint8_t num_player_team_b = 0;
+    static bool static_variables_initialized = false;
+    
     if (tsk->step == 0) {
         
-        if (obj->pos_x > 925.0 && obj->vel_x > 0) {
+        // init the object's (player) task variables:
+        printf("init task flunky for object %d!\n", obj->id);
+        
+        flunky_t* var = (flunky_t*) malloc(sizeof(flunky_t));
+        var->pos_x_line = (uint32_t) obj->pos_x;  // start position behind line
+        var->pos_y_line = (uint32_t) obj->pos_y;  // start position behind line
+        if (abs(var->pos_y_line - pos_y_line_team_a) <
+            abs(var->pos_y_line - pos_y_line_team_b)) {
             
-            obj->vel_x = -obj->vel_x;
+            var->team_b = false;                // obj (player) is in team a
+            obj->facing = OBJECT_FACING_SOUTH;
+            printf("object %d joined team a!\n", obj->id);
+        } else {
+            var->team_b = true;                 // obj (player) is in team b
+            obj->facing = OBJECT_FACING_NORTH;
+            printf("object %d joined team b!\n", obj->id);
+        }
+        tsk->variables = (void*) var;
+        
+        // init the static variables of the whole flunky ball game:
+        if (!static_variables_initialized) { // only call for first player
+            for (uint8_t i = 0; i < max_num_player; i++) {
+                team_a[i] = NULL;
+                team_b[i] = NULL;
+            }
+            num_player_team_a = 0;
+            num_player_team_b = 0;
+            static_variables_initialized = true;
         }
         
-        return;
+        if (var->team_b) {
+            team_b[num_player_team_b++] = obj;  // add obj to team b array
+        } else {
+            team_a[num_player_team_a++] = obj;  // add obj to team a array
+        }
+        
+        if (ball == NULL) {                 // only call once
+            ball = object_get(obj, 899);    // get ball object
+        }
+        
+        tsk->step = 1;
+        
+    } else if (tsk->step == 1) {
+        
+        static_variables_initialized = false;   // init again, the next time 
+        
+        for (uint8_t i = 0; i < num_player_team_a; i++) {
+            printf("object %d is in team a!\n", team_a[i]->id);
+        }
+        for (uint8_t i = 0; i < num_player_team_b; i++) {
+            printf("object %d is in team b!\n", team_b[i]->id);
+        }
+        
+        tsk->step = 2;
     }
+}
+    
+void task_flunky_free(
+    task_t* tsk, object_t* obj, groups_t* grp, 
+    bool* keys, uint64_t frame, float dt) {
+    
+    
+    
+    free((flunky_t*) tsk->variables);
 }

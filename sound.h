@@ -2,6 +2,8 @@
     #define _SOUND_H_
  
 #include <SDL2/SDL_mixer.h>
+#include <stdbool.h>
+#include <dirent.h>
  
 typedef struct sound sound_t;
 
@@ -18,6 +20,10 @@ struct sound {
     float pos_y;
 };
 
+sound_t* sound_init();
+sound_t* sound_init_samples(sound_t* snd);
+sound_t* sound_init_songs(sound_t* snd);
+bool sound_supported(char* filename);
 void sound_free(sound_t* snd);
 void sound_play_sample_distance(
     sound_t* snd, uint32_t id, float dist_x, float dist_y);

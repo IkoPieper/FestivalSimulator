@@ -21,6 +21,7 @@ struct groups {
     object_t* obj_first;    // first object in object list
 };
 
+groups_t* groups_init(object_t* obj);
 void groups_free(groups_t* grp);
 
 #endif

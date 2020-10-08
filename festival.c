@@ -67,11 +67,11 @@ bool on_execute() {
     uint64_t frame = 0;					// current frame
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
-    uint8_t area = 1;
+    uint8_t area = 2;                   // area / level to start the game with
     
-    sound_t* snd = on_init_sound();
+    sound_t* snd = sound_init();
     
-	video_t* vid = on_init_video(VSYNC);
+	video_t* vid = video_init(VSYNC);
 	if (vid == NULL) {
 		fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
 		return(true);
@@ -85,7 +85,7 @@ bool on_execute() {
     }
     
 	object_t* obj = on_init_objects(vid, dt, area);
-    groups_t* grp = on_init_groups(obj);
+    groups_t* grp = groups_init(obj);
  	verletbox_t* vbox = verletbox_init(obj);
  	
  	bool* keys = (bool*) malloc(9 * sizeof(bool));
@@ -146,7 +146,7 @@ bool on_execute() {
             
             on_cleanup_area(grp, snd, vbox);
             obj = on_init_objects(vid, dt, area);
-            grp = on_init_groups(obj);
+            grp = groups_init(obj);
             vbox = verletbox_init(obj);
         }
         

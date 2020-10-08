@@ -6,18 +6,9 @@ void on_cleanup(groups_t* grp, video_t* vid, sound_t* snd,
     on_cleanup_area(grp, snd, vbox);
     
     // video:
-    SDL_GL_DeleteContext(vid->glcontext);
-    SDL_DestroyRenderer(vid->renderer);
-    SDL_FreeSurface(vid->surface);
-    TTF_CloseFont(vid->font);
-    free(vid);
-    SDL_VideoQuit();
+    video_free(vid);
     
     // sound:
-    while(Mix_Init(0)) {
-        Mix_Quit();
-    }
-    Mix_CloseAudio();
     sound_free(snd);
     
     // fonts:

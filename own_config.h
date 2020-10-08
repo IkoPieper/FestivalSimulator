@@ -16,15 +16,9 @@ struct configstruct {
 
 typedef struct configstruct configentry;
 
-#ifndef KEYSIZE 
 #define KEYSIZE	128 
-#endif
-#ifndef VALUESIZE
 #define VALUESIZE 512 
-#endif
-#ifndef LINESIZE 
 #define LINESIZE 1024 
-#endif
 
 configentry *conf_load_data(const char *filename);
 void conf_write_data(configentry *data, const char *filename);
