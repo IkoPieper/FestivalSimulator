@@ -2,12 +2,7 @@
     #define _LOAD_CONFIG_H_
 
 #include "own_config.h"
-#include "object.h"
 #include "tasks.h"
-#include "items.h"
-#include "surface.h"
-#include "text.h"
-#include <stdlib.h>
 
 configentry* load_config_defaults(
     configentry* entry, object_t* obj);

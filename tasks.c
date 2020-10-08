@@ -89,7 +89,12 @@ void tasks_get_functions(task_t* tsk, uint32_t id) {
             tsk->task_function = &task_soccer_ball;
             tsk->task_function_free = NULL;
             break;
-        case TASK_FLUNKY:
+        case TASK_FLUNKY_0:
+            tsk->task_function_init = NULL;
+            tsk->task_function = &task_flunky;
+            tsk->task_function_free = &task_flunky_free;
+            break;
+        case TASK_FLUNKY_1:
             tsk->task_function_init = NULL;
             tsk->task_function = &task_flunky;
             tsk->task_function_free = &task_flunky_free;
@@ -638,22 +643,15 @@ void task_flunky(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
-    static const uint32_t pos_y_line_team_a = 1070;
-    static const uint32_t pos_y_line_team_b = 1240;
-    static object_t* ball = NULL;
-    #define max_num_player 8
-    static object_t* team_a[max_num_player] = {NULL};
-    static object_t* team_b[max_num_player] = {NULL};
-    static uint8_t num_player_team_a = 0;
-    static uint8_t num_player_team_b = 0;
-    static bool static_variables_initialized = false;
     
-    if (tsk->step == 0) {
+    /*if (tsk->step == 0) {
+        
         
         // init the object's (player) task variables:
         printf("init task flunky for object %d!\n", obj->id);
         
         flunky_t* var = (flunky_t*) malloc(sizeof(flunky_t));
+        var->global = NULL;
         var->pos_x_line = (uint32_t) obj->pos_x;  // start position behind line
         var->pos_y_line = (uint32_t) obj->pos_y;  // start position behind line
         if (abs(var->pos_y_line - pos_y_line_team_a) <
@@ -669,25 +667,35 @@ void task_flunky(
         }
         tsk->variables = (void*) var;
         
-        // init the static variables of the whole flunky ball game:
         if (!static_variables_initialized) { // only call for first player
+            
+            // init the global variables of the whole flunky ball game:
+            var->global = (flunky_global_t*) malloc(sizeof(flunky_global_t));
+            
+            var->global->pos_y_line_team_a = 1070;
+            var->global->pos_y_line_team_b = 1240;
+            var->global->ball = object_get(obj, 899);    // get ball object
+            
+            const uint8_t max_num_player = 8;
             for (uint8_t i = 0; i < max_num_player; i++) {
-                team_a[i] = NULL;
-                team_b[i] = NULL;
+                var->global->team_a[i] = NULL;
+                var->global->team_b[i] = NULL;
             }
-            num_player_team_a = 0;
-            num_player_team_b = 0;
-            static_variables_initialized = true;
+            var->global->num_player_team_a = 0;
+            var->global->num_player_team_b = 0;
+            
+            global_variables_initialized = true;
+            
+        } else { // other players
+            
+            // get pointer to global game variables:
+            
         }
         
         if (var->team_b) {
             team_b[num_player_team_b++] = obj;  // add obj to team b array
         } else {
             team_a[num_player_team_a++] = obj;  // add obj to team a array
-        }
-        
-        if (ball == NULL) {                 // only call once
-            ball = object_get(obj, 899);    // get ball object
         }
         
         tsk->step = 1;
@@ -704,7 +712,7 @@ void task_flunky(
         }
         
         tsk->step = 2;
-    }
+    }*/
 }
     
 void task_flunky_free(

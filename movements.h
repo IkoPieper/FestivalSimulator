@@ -1,11 +1,8 @@
 #ifndef _MOVEMENTS_H_
     #define _MOVEMENTS_H_
 
-#include "object.h"
-#include "groups.h"
-#include "event.h"
-#include "animation.h"
-#include <math.h>
+#include "datatypes.h"
+#include "constants.h"
 
 void movements(groups_t* grp, bool* keys, float dt);
 void movements_hero(object_t* obj, bool* keys);

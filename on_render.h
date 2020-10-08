@@ -1,13 +1,12 @@
 #ifndef _ON_RENDER_H_
     #define _ON_RENDER_H_
 
-#include "object.h"
-#include "groups.h"
+#include "datatypes.h"
+#include "constants.h"
 #include "video.h"
 #include "surface.h"
 #include "meter.h"
 #include "text.h"
-#include "list.h"
 
 void on_render(groups_t* grp, video_t* vid, float dt);
 void on_render_sort(object_t* obj_first);

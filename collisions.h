@@ -1,12 +1,9 @@
 #ifndef _COLLISION_H_
     #define _COLLISION_H_
 
-//#include "datatypes.h"
-#include "object.h"
-#include "groups.h"
+#include "datatypes.h"
 #include "verletbox.h"
 #include <math.h>
-#include <stdbool.h>
 
 collision_t* collisions_add_to_object(object_t* obj, object_t* partner);
 void collisions_free(object_t* obj);

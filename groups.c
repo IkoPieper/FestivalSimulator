@@ -9,6 +9,8 @@ groups_t* groups_init(object_t* obj) {
     grp->lst_have_anim = NULL;
     grp->lst_have_ways = NULL;
     grp->lst_have_tsk = NULL;
+    grp->lst_have_tsk_flunky_0 = NULL;
+    grp->lst_have_tsk_flunky_1 = NULL;
     grp->obj_bg = NULL;
     grp->obj_hero = NULL;
     grp->obj_first = NULL;
@@ -48,7 +50,17 @@ groups_t* groups_init(object_t* obj) {
         if (obj->tsk != NULL) {
             grp->lst_have_tsk = create_before(
                 grp->lst_have_tsk, obj, obj->id);
+            
+            if (obj->tsk->id == TASK_FLUNKY_0) {
+                grp->lst_have_tsk_flunky_0 = create_before(
+                    grp->lst_have_tsk_flunky_0, obj, obj->id);
+            } else if (obj->tsk->id == TASK_FLUNKY_1) {
+                grp->lst_have_tsk_flunky_1 = create_before(
+                    grp->lst_have_tsk_flunky_1, obj, obj->id);
+            }
         }
+        
+        
         
         obj = obj->next_object;
     }

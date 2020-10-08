@@ -2,15 +2,6 @@
     #define _ITEMS_H_
 
 #include "object.h"
-#include "groups.h"
-#include "list.h"
-#include "meter.h"
-#include "animation.h"
-#include "text.h"
-#include "waypoints.h"
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
 
 void items_init_object_item_props(
     object_t* obj, SDL_Surface* surf, uint32_t id);

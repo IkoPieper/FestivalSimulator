@@ -1,4 +1,4 @@
-#include "event.h"
+#include "on_event.h"
 
 void on_event(SDL_Event* event, bool* keys) {
 	switch(event->type) {

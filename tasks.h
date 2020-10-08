@@ -2,33 +2,8 @@
     #define _TASKS_H_
 
 #include "object.h"
-#include "collisions.h"
-#include "groups.h"
-#include "list.h"
-#include "meter.h"
-#include "animation.h"
-#include "text.h"
-#include "waypoints.h"
-#include "tasks.h"
 #include "items.h"
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-
-typedef struct task task_t;
-
-typedef void (*task_function_t) (
-    task_t* tsk, object_t* obj, groups_t* grp, 
-    bool* keys, uint64_t frame, float dt);
-
-struct task {
-    uint32_t step;          // step in task function
-    uint32_t counter;       // usefull counter
-    void* variables;        // any additional variables
-    task_function_t task_function_init;
-    task_function_t task_function;
-    task_function_t task_function_free;
-};
+#include "collisions.h"
 
 void tasks_add_to_object(object_t* obj, uint32_t id);
 void tasks_free(groups_t* grp);
@@ -55,8 +30,19 @@ void task_bus(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 
+typedef struct flunky_global flunky_global_t;
 typedef struct flunky flunky_t;
+struct flunky_global {
+    uint32_t pos_y_line_team_a;
+    uint32_t pos_y_line_team_b;
+    object_t* ball;
+    object_t* team_a;
+    object_t* team_b;
+    uint8_t num_player_team_a;
+    uint8_t num_player_team_b;
+};
 struct flunky {
+    flunky_global_t* global;
     bool team_b;            // if true: obj is in team b, otherwise team a
     uint32_t pos_x_line;    // start x-position behind line
     uint32_t pos_y_line;    // start y-position behind line
@@ -98,15 +84,5 @@ void task_flunky(
 void task_flunky_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
-
-#define TASK_FIND_BOB 0
-#define TASK_FIND_EVA 1
-#define TASK_SECURITY_FENCE 2
-#define TASK_BUS_PASSENGER 3
-#define TASK_BUS 4
-#define TASK_HUNT 5
-#define TASK_SOCCER 6
-#define TASK_SOCCER_BALL 7
-#define TASK_FLUNKY 8
 
 #endif

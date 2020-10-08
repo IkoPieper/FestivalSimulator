@@ -1,14 +1,8 @@
 #ifndef _ON_LOOP_H_
     #define _ON_LOOP_H_
 
-#include <SDL2/SDL.h>
-#include <math.h>
 #include "sound.h"
-#include "object.h"
 #include "tasks.h"
-#include "groups.h"
-#include "verletbox.h"
-#include "event.h"
 
 void on_loop(
     groups_t* grp, sound_t* snd, verletbox_t* vbox, 
