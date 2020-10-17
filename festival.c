@@ -94,11 +94,6 @@ bool on_execute() {
 	}
     
 	SDL_Event event;
-	
-    // test:
-    /*object_t* obj_test = object_get(obj, 4001); // ball area 1
-    obj_test->obj_carried_by = grp->obj_hero;
-    grp->obj_hero->obj_carries = obj_test;*/
     
 	while (running) {
 		

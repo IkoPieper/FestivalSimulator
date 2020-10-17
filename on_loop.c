@@ -152,6 +152,9 @@ void on_loop_animations(
                 }
                 
                 anim->delay_frames = (uint32_t) delay_frames;
+                if (anim->delay_frames < 1) {
+                    anim->delay_frames = 1;
+                }
             }
         }
         

@@ -51,6 +51,7 @@ void movements(groups_t* grp, bool* keys, float dt) {
             if (obj->obj_carried_by != NULL) {
                 
                 movements_carried(obj, obj->obj_carried_by);
+                movements_accelerate(obj, dt);
                 
             } else if (obj->can_move) {
                 
@@ -105,45 +106,59 @@ void movements_background(object_t* obj, object_t* obj_hero) {
 
 void movements_carried(object_t* obj, object_t* obj_host) {
     
-    // position object according to direction the host object faces:
+    float pos_x_target;
+    float pos_y_target;
+    
+    // position caried object according to direction the host object faces:
     switch (obj_host->facing) {
         
         case OBJECT_FACING_NORTH:
             // center of host object:
-            obj->pos_x = obj_host->pos_x + obj_host->surface->w / 2 - 
+            pos_x_target = obj_host->pos_x + obj_host->surface->w / 2 - 
                 obj->surface->w / 2;
             // upper side of host object:
-            obj->pos_y = obj_host->pos_y - 
+            pos_y_target = obj_host->pos_y - 
                 obj->surface->h / 2;
             break;
             
         case OBJECT_FACING_SOUTH:
             // center of host object:
-            obj->pos_x = obj_host->pos_x + obj_host->surface->w / 2 - 
+            pos_x_target = obj_host->pos_x + obj_host->surface->w / 2 - 
                 obj->surface->w / 2;
             // lower side of host object:
-            obj->pos_y = obj_host->pos_y + obj_host->surface->h - 
+            pos_y_target = obj_host->pos_y + obj_host->surface->h - 
                 obj->surface->h / 2;
             break;
             
         case OBJECT_FACING_WEST:
             // left side of host object:
-            obj->pos_x = obj_host->pos_x - 
+            pos_x_target = obj_host->pos_x - 
                 obj->surface->w / 2;
             // lower third of host object:
-            obj->pos_y = obj_host->pos_y + 2 * obj_host->surface->h / 3 - 
+            pos_y_target = obj_host->pos_y + 2 * obj_host->surface->h / 3 - 
                 obj->surface->h / 2;
             break;
             
         case OBJECT_FACING_EAST:
             // right side of host object:
-            obj->pos_x = obj_host->pos_x + obj_host->surface->w - 
+            pos_x_target = obj_host->pos_x + obj_host->surface->w - 
                 obj->surface->w / 2;
             // lower third of host object:
-            obj->pos_y = obj_host->pos_y + 2 * obj_host->surface->h / 3 - 
+            pos_y_target = obj_host->pos_y + 2 * obj_host->surface->h / 3 - 
                 obj->surface->h / 2;
             break;
     }
+    
+    // modify velocity of carried object to reach the target position after some 
+    // frames. This avoids the caried object to pop up behind thin 
+    // collision zones that might happen to lie between it and its host object:
+    float vel_x_add = (pos_x_target - obj->pos_x) / 4.0; // TODO: dt required?
+    float vel_y_add = (pos_y_target - obj->pos_y) / 4.0;
+    
+    obj->vel_x = obj_host->vel_x + vel_x_add;
+    obj->vel_y = obj_host->vel_y + vel_y_add;
+    /*obj->vel_x = vel_x_add;
+    obj->vel_y = vel_y_add;*/
 }
 
 void movements_accelerate(object_t* obj, float dt) {

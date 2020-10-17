@@ -215,7 +215,7 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
 	
 	bool collision = false;
     
-    if (obj1->obj_carried_by != NULL || obj2->obj_carried_by != NULL) {
+    if (obj1->obj_carries == obj2 || obj2->obj_carries == obj1) {
         
         return;
     }
@@ -894,7 +894,7 @@ void collisions_impulse(
 	float v1y = 0.0;
 	float v2x = 0.0;
 	float v2y = 0.0;
-	
+    
 	if (obj1->can_move) {
 		v1x = obj1->vel_x;
 		v1y = obj1->vel_y;
@@ -904,6 +904,18 @@ void collisions_impulse(
 		v2x = obj2->vel_x;
 		v2y = obj2->vel_y;
 	}
+    
+    if (obj1->obj_carried_by != NULL) {
+        printf("impulse of obj %d calculated for obj %d\n", obj1->id, obj1->obj_carried_by->id);
+        m1 = m1 + obj1->obj_carried_by->mass;
+        obj1 = obj1->obj_carried_by;
+    }
+    
+    if (obj2->obj_carried_by != NULL) {
+        printf("impulse of obj %d calculated for obj %d\n", obj2->id, obj2->obj_carried_by->id);
+        m2 = m2 + obj2->obj_carried_by->mass;
+        obj2 = obj2->obj_carried_by;
+    }
 	
 	// velocity in direction of impulse:
 	v1n_pre = c1x * v1x + c1y * v1y;

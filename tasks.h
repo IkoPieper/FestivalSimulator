@@ -30,24 +30,6 @@ void task_bus(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 
-typedef struct flunky_global flunky_global_t;
-typedef struct flunky flunky_t;
-struct flunky_global {
-    uint32_t pos_y_line_team_a;
-    uint32_t pos_y_line_team_b;
-    object_t* ball;
-    object_t* team_a;
-    object_t* team_b;
-    uint8_t num_player_team_a;
-    uint8_t num_player_team_b;
-};
-struct flunky {
-    flunky_global_t* global;
-    bool team_b;            // if true: obj is in team b, otherwise team a
-    uint32_t pos_x_line;    // start x-position behind line
-    uint32_t pos_y_line;    // start y-position behind line
-};
-
 void task_soccer(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
@@ -76,6 +58,28 @@ void task_hunt_free(
 
 void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
     object_t* obj_hunted, float dt);
+
+typedef struct flunky_shared flunky_shared_t;
+struct flunky_shared {
+    uint32_t pos_y_line_team_a;
+    uint32_t pos_y_line_team_b;
+    object_t* ball;
+    object_t* team_a;
+    object_t* team_b;
+    uint8_t num_player_team_a;
+    uint8_t num_player_team_b;
+};
+typedef struct flunky flunky_t;
+struct flunky {
+    flunky_shared_t* shared;
+    bool team_b;            // if true: obj is in team b, otherwise team a
+    uint32_t pos_x_line;    // start x-position behind line
+    uint32_t pos_y_line;    // start y-position behind line
+};
+
+//void* task_flunky_init_shared(groups_t* grp, uint32_t id);
+
+//void task_flunky_free_shared(void* variables_shared, uint32_t id);
 
 void task_flunky(
     task_t* tsk, object_t* obj, groups_t* grp, 

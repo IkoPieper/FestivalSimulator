@@ -309,6 +309,9 @@ void on_render_object(object_t* obj, video_t* vid) {
                     obj->obj_carries->surface, 
                     (int32_t) obj->obj_carries->scr_pos_x, 
                     (int32_t) obj->obj_carries->scr_pos_y);
+                    
+                on_render_object_id(vid, obj->obj_carries);
+                on_render_object_walls(vid, obj->obj_carries);
                 
                 break;
                 
@@ -320,6 +323,9 @@ void on_render_object(object_t* obj, video_t* vid) {
                     obj->obj_carries->surface, 
                     (int32_t) obj->obj_carries->scr_pos_x, 
                     (int32_t) obj->obj_carries->scr_pos_y);
+                
+                on_render_object_id(vid, obj->obj_carries);
+                on_render_object_walls(vid, obj->obj_carries);
                 
                 // render the object:
                 surface_on_draw(
@@ -340,7 +346,7 @@ void on_render_object(object_t* obj, video_t* vid) {
     }
     
     on_render_object_id(vid, obj);
-    //on_render_object_walls(vid, obj);
+    on_render_object_walls(vid, obj);
     
     // render item after host. for example: render
     // active water pistol right after hero:
@@ -358,7 +364,7 @@ void on_render_object(object_t* obj, video_t* vid) {
                 (int32_t) obj_itm->scr_pos_y);
                 
             on_render_object_id(vid, obj);
-            //on_render_object_walls(vid, obj);
+            on_render_object_walls(vid, obj);
         }
     }
 }

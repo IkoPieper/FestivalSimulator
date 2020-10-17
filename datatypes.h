@@ -22,9 +22,11 @@ struct task {
     uint32_t step;          // step in task function
     uint32_t counter;       // usefull counter
     void* variables;        // any additional variables
-    task_function_t task_function_init;
-    task_function_t task_function;
-    task_function_t task_function_free;
+    void* variables_shared; // variables shared with other objects which have
+                            // the same task
+    task_function_t task_function;      // called every frame for the object
+                                        // that owns the task
+    task_function_t task_function_free; // free variables, called when needed
 };
 
 struct walls {
