@@ -11,7 +11,11 @@ void tasks_add_to_object(object_t* obj, uint32_t id);
 void tasks_free(groups_t* grp);
 
 void tasks_get_functions(task_t* tsk, uint32_t id);
-    
+
+task_t* tasks_get_task(object_t* obj, uint32_t id);
+
+void tasks_share_variables(list_t* lst_obj, void* var_shared, uint32_t id);
+
 void task_find_bob(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
@@ -66,8 +70,8 @@ struct flunky_shared {
     uint32_t pos_y_line_team_a;
     uint32_t pos_y_line_team_b;
     object_t* ball;
-    object_t* team_a;
-    object_t* team_b;
+    object_t** team_a;
+    object_t** team_b;
     uint8_t num_player_team_a;
     uint8_t num_player_team_b;
 };
@@ -79,7 +83,7 @@ struct flunky {
     uint32_t pos_y_line;    // start y-position behind line
 };
 
-//void* task_flunky_init_shared(groups_t* grp, uint32_t id);
+void task_flunky_init(list_t* lst_obj, uint32_t id);
 
 //void task_flunky_free_shared(void* variables_shared, uint32_t id);
 
