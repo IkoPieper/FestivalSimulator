@@ -86,6 +86,7 @@ bool on_execute() {
     
 	object_t* obj = on_init_objects(vid, dt, area);
     groups_t* grp = groups_init(obj);
+    tasks_init(grp);
  	verletbox_t* vbox = verletbox_init(obj);
  	
  	bool* keys = (bool*) malloc(9 * sizeof(bool));
@@ -142,6 +143,7 @@ bool on_execute() {
             on_cleanup_area(grp, snd, vbox);
             obj = on_init_objects(vid, dt, area);
             grp = groups_init(obj);
+            tasks_init(grp);
             vbox = verletbox_init(obj);
         }
         

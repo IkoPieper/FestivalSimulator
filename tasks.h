@@ -5,6 +5,8 @@
 #include "items.h"
 #include "collisions.h"
 
+void tasks_init(groups_t* grp);
+
 void tasks_add_to_object(object_t* obj, uint32_t id);
 void tasks_free(groups_t* grp);
 

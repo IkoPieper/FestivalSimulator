@@ -11,6 +11,10 @@ void tasks_add_to_object(object_t* obj, uint32_t id) {
     obj->tsk = create_before(obj->tsk, tsk, id);
 }
 
+void tasks_init(groups_t* grp) {
+    
+    
+}
 
 /*void tasks_init(groups_t* grp) {
     
