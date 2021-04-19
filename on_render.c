@@ -346,7 +346,7 @@ void on_render_object(object_t* obj, video_t* vid) {
     }
     
     on_render_object_id(vid, obj);
-    on_render_object_walls(vid, obj);
+    //on_render_object_walls(vid, obj);
     
     // render item after host. for example: render
     // active water pistol right after hero:
