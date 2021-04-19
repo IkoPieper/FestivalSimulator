@@ -189,16 +189,18 @@ void movements_accelerate(object_t* obj, float dt) {
     }
     
     // limit high velocities:
+    const float vel_max = 16.0;
+    const float vel_max_2 = 256.0; // vel_max squared
     float vx = obj->vel_x;
     float vy = obj->vel_y;
     float norm = vx * vx + vy * vy;
     
-    if (norm > 16.0) {
+    if (norm > vel_max_2) {
         norm = sqrtf(norm);
         obj->vel_x /= norm;
         obj->vel_y /= norm;
-        obj->vel_x *= 4.0;
-        obj->vel_y *= 4.0;
+        obj->vel_x *= vel_max;
+        obj->vel_y *= vel_max;
     }
     
     // derive position from velovity:

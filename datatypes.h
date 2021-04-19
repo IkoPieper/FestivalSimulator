@@ -122,6 +122,9 @@ struct object {
     // carries another object:
     object_t* obj_carries;
 	
+    // disable collision until object escaped collision zone (used for throws):
+    object_t* obj_escape_col;
+    
     // facing direction:
     uint8_t facing;
     

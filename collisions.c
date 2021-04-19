@@ -42,6 +42,7 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
     object_t* obj_first = grp->obj_first;
     
 	uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
+    bool collision = false;
 	
 	verletbox_update(vbox, obj_first);
 	
@@ -118,7 +119,16 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                         // interactions with other objects in vbox:
                         while (obj_b != NULL) {
                             
-                            collisions_check(obj, obj_b, dt);
+                            collision = collisions_check(obj, obj_b, dt);
+                            
+                            if (!collision) {
+                                if (obj->obj_escape_col == obj_b) {
+                                    obj->obj_escape_col = NULL;
+                                }
+                                if (obj_b->obj_escape_col == obj) {
+                                    obj_b->obj_escape_col = NULL;
+                                }
+                            }
                             
                             // get next object obj_b:
                             obj_b = obj_b->next_vbox;
@@ -211,13 +221,13 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
     }
 }
 
-void collisions_check(object_t* obj1, object_t* obj2, float dt) {
+bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
 	
 	bool collision = false;
     
     if (obj1->obj_carries == obj2 || obj2->obj_carries == obj1) {
         
-        return;
+        return(false);
     }
     
 	// boundary boxes base positions:
@@ -325,7 +335,7 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
 		}
 		
         if (x1_max < x1_min || y1_max < y1_min) {
-            return;
+            return(false);
         }
         
         collision = collisions_detect_pixel_collision(
@@ -335,10 +345,14 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
             
         if (collision) {
             col1 = collisions_add_to_object(obj1, obj2);
-            col1->use_for_impulse = true;
             col2 = collisions_add_to_object(obj2, obj1);
+            // only enable impulse if one objects shall not escape the others 
+            // collision zone:
+            if (obj1->obj_escape_col != obj2 && obj2->obj_escape_col != obj1) {
+                col1->use_for_impulse = true;
+            }
         } else {
-            return;
+            return(false);
         }
         
         //printf("\n---------------------- collisions_check() pixel collision ----------------------\n");
@@ -376,16 +390,15 @@ void collisions_check(object_t* obj1, object_t* obj2, float dt) {
             c1x = -c2x;
             c1y = -c2y;
         }
-        
-		if (collision) {
             
-			// update direction of collision:
-			col1->c_x = c1x;
-			col1->c_y = c1y;
-            col2->c_x = c2x;
-			col2->c_y = c2y;
-		}
+        // update direction of collision:
+        col1->c_x = c1x;
+        col1->c_y = c1y;
+        col2->c_x = c2x;
+        col2->c_y = c2y;
 	}
+    
+    return(collision);
 }
 
 bool collisions_detect_pixel_collision(

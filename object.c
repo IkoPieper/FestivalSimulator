@@ -78,6 +78,9 @@ object_t* object_add(object_t* obj, uint32_t id) {
     // carries another object:
     obj_new->obj_carries = NULL;
     
+    // thrown by another object (usually after carried by):
+    obj_new->obj_escape_col = NULL;
+    
     // facing direction:
     obj_new->facing = OBJECT_FACING_SOUTH;
     
@@ -676,11 +679,15 @@ void pick_up(object_t* obj, object_t* obj_target) {
     
     obj->obj_carries = obj_target;
     obj_target->obj_carried_by = obj;
+    if (obj_target->obj_escape_col == obj) {
+        obj_target->obj_escape_col = NULL;
+    }
 }
 
 void throw(object_t* obj) {
     
     object_t* obj_target = obj->obj_carries; // object to be thrown
+    obj_target->obj_escape_col = obj;
     obj->obj_carries = NULL;
     obj_target->obj_carried_by = NULL;
     
@@ -689,7 +696,7 @@ void throw(object_t* obj) {
         offset = (float) obj->wall->h;
     }
     
-    const float vel_add = 2.0;
+    const float vel_add = 10.0;
     float vel_x = obj->vel_x;
     float vel_y = obj->vel_y;
     

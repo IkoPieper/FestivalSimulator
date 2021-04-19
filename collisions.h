@@ -12,7 +12,7 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt);
 
 list_t* collisions_blobb(list_t* blobb, list_t* current);
 
-void collisions_check(object_t* obj1, object_t* obj2, float dt);
+bool collisions_check(object_t* obj1, object_t* obj2, float dt);
 
 bool collisions_detect_pixel_collision(
     uint8_t* pxl1, uint8_t* pxl2,
