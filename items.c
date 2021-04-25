@@ -144,16 +144,15 @@ bool use_water_pistol(
 bool use_hand(
     object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt) {
     
+    float vel_throw = 0.0;              // throw velocity
+    const float vel_throw_max = 16.0;   // maximum throw velocity
+    
     // pick up target object using space bar:
     if (obj->itm_props->step == 0 && keys[KEY_SPACE] && obj_host->col != NULL) {
-        
-        printf("use_hand\n");
             
         // get collision partner:
         collision_t* col = (collision_t*) obj_host->col->entry;
         object_t* obj_target = col->partner;
-        
-        printf("use_hand: obj_partner->id: %d\n", obj_target->id);
         
         // start carring partner around:
         pick_up(obj_host, obj_target);
@@ -167,23 +166,34 @@ bool use_hand(
         obj->itm_props->step = 2;
     }
     
+    if (obj->itm_props->step >= 2) {
+        vel_throw = 0.2 * dt * (float) (obj->itm_props->step - 2);
+    }
+    
     // start counting time on second spacebar press:
     if (obj->itm_props->step >= 2 && keys[KEY_SPACE]) {
         
-        obj->itm_props->step++; // use step as counter
+        if (vel_throw < vel_throw_max) {
+            obj->itm_props->step++; // use step as counter
+        }
+        
+        meter_t* mtr = meter_get(obj_host, METER_ITEM);
+        if (mtr != NULL) {
+            int16_t value = (int16_t) (vel_throw / vel_throw_max * 100.0);
+            meter_update(mtr, value);
+        }
     }
     
     // throw target object on space bar release:
     if (obj->itm_props->step >= 3 && !keys[KEY_SPACE]) {
         
-        throw(obj_host, 0.2 * dt * (float) (obj->itm_props->step - 3));
+        meter_t* mtr = meter_get(obj_host, METER_ITEM);
+        if (mtr != NULL) {
+            meter_update(mtr, 0);
+        }
+        throw(obj_host, vel_throw);
         obj->itm_props->step = 0;
     }
-    
-    // wait for space bar release:
-    /*if (obj->itm_props->step == 3 && !keys[KEY_SPACE]) {
-        obj->itm_props->step = 0;
-    }*/
     
     return(false);
 }

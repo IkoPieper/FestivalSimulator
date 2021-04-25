@@ -10,4 +10,6 @@ bool surface_on_draw(
     SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, 
     int32_t X, int32_t Y);
 
+uint32_t surface_get_bmp_width(SDL_Surface* surf);
+
 #endif

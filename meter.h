@@ -18,8 +18,11 @@ struct meter {
 };
 
 meter_t* meter_init(uint8_t type, float scr_pos_x, float scr_pos_y);
-void meter_update(meter_t* mtr, int16_t value);
 void meter_free(meter_t* mtr);
+void meter_update(meter_t* mtr, int16_t value);
+int16_t meter_restrict_value(meter_t* mtr, int16_t value);
+void meter_print_value_default(meter_t* mtr, uint32_t border);
+void meter_print_value_item(meter_t* mtr, uint32_t border);
 
 // meter types:
 #define METER_BEER 0

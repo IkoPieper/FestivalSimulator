@@ -29,3 +29,14 @@ bool surface_on_draw(SDL_Surface* surf_dest, SDL_Surface* surf_src, int32_t x, i
 	return(false);
 }
 
+// bitmaps are stored as 32 bit blocks in memory. as we use
+// 8 bit per pixel, we have to account for additional junk
+// pixels that might be stored at the end of every row:
+uint32_t surface_get_bmp_width(SDL_Surface* surf) {
+    
+    if (surf->w % 4 == 0) {
+        return(surf->w);
+    }
+    
+    return(surf->w + (4 - (surf->w % 4)));
+}

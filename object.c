@@ -148,14 +148,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
 		wall->y_shift = 0;
         
 		wall->w = surf_wall->w;
-		// bitmaps are stored as 32 bit blocks in memory. as we use
-		// 8 bit per pixel, we have to account for additional junk
-		// pixels that might be stored at the end of every row:
-		if (surf_wall->w % 4 == 0) {
-			wall->w_bmp = surf_wall->w;
-		} else {
-			wall->w_bmp = surf_wall->w + (4 - (surf_wall->w % 4));
-		}
+        wall->w_bmp = surface_get_bmp_width(surf_wall);
 		wall->h = surf_wall->h;
 		// find most left pixel:
 		bool pixel_found = false;
@@ -212,11 +205,7 @@ walls_t* object_init_walls(SDL_Surface* surf_wall, SDL_Surface* surf) {
         wall->x_shift = 0;
 		wall->y_shift = 0;
 		wall->w = surf->w;
-		if (surf->w % 4 == 0) {
-			wall->w_bmp = surf->w;
-		} else {
-			wall->w_bmp = surf->w + (4 - (surf->w % 4));
-		}
+        wall->w_bmp = surface_get_bmp_width(surf);
 		wall->h = surf->h;
 		wall->rx = surf->w;
 		wall->ry = 0;
@@ -659,19 +648,30 @@ void move_on(object_t* obj) {
     //obj->anim_walk = true;
 }
 
+meter_t* meter_get(object_t* obj, uint8_t type) {
+    
+    meter_t* mtr = NULL;
+    
+    if (obj->mtr != NULL) {
+        list_t* lst = (list_t*) obj->mtr;
+        lst = find_id(lst, type);
+        if (lst != NULL) {
+            mtr = (meter_t*) lst->entry;
+        }
+    }
+    
+    return(mtr);
+}
+
 void drink_beer(object_t* obj, int16_t value) {
     
-    list_t* lst = (list_t*) obj->mtr;
-    lst = find_id(lst, METER_BEER);
-    meter_t* mtr = (meter_t*) lst->entry;
+    meter_t* mtr = meter_get(obj, METER_BEER);
     meter_update(mtr, mtr->value + value);
 }
 
 void change_mood(object_t* obj, int16_t value) {
     
-    list_t* lst = (list_t*) obj->mtr;
-    lst = find_id(lst, METER_MOOD);
-    meter_t* mtr = (meter_t*) lst->entry;
+    meter_t* mtr = meter_get(obj, METER_MOOD);
     meter_update(mtr, mtr->value + value);
 }
 

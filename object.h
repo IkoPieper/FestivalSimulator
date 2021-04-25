@@ -51,6 +51,7 @@ void say_free(object_t* obj);
 void face(object_t* obj, object_t* obj_target, float dt);
 void stop(object_t* obj);
 void move_on(object_t* obj);
+meter_t* meter_get(object_t* obj, uint8_t type);
 void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
 void pick_up(object_t* obj, object_t* obj_target);
