@@ -14,7 +14,7 @@ void on_loop(
     
     on_loop_tasks(grp, keys, frame, dt);
     
-    on_loop_items(grp->obj_hero, keys, frame);
+    on_loop_items(grp->obj_hero, keys, frame, dt);
     
 	on_loop_animations(grp, keys, frame, dt);
     
@@ -52,7 +52,7 @@ void on_loop_tasks(
 	}
 }
 
-void on_loop_items(object_t* hero, bool* keys, uint64_t frame) {
+void on_loop_items(object_t* hero, bool* keys, uint64_t frame, float dt) {
     
     static bool released_key_shift = true;
     static bool released_key_ctrl = true;
@@ -62,7 +62,7 @@ void on_loop_items(object_t* hero, bool* keys, uint64_t frame) {
         // call item function of the item object. in other words:
         // use the selected item:
         object_t* obj = (object_t*) hero->itm->entry;
-        obj->itm_props->item_function(obj, hero, keys, frame);
+        obj->itm_props->item_function(obj, hero, keys, frame, dt);
         
         // item selection:
         if (!keys[KEY_SHIFT]) {

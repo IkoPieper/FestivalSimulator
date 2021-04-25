@@ -10,6 +10,8 @@
 typedef struct video video_t;
 
 struct video {
+    bool show_ids;
+    bool show_walls;
 	GLuint render_id;           // openGL id
     SDL_GLContext glcontext;
     SDL_Window* window;

@@ -46,7 +46,8 @@ void items_free(object_t* obj) {
     }
 }
 
-bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t) {
+bool (*get_item_function(uint32_t id))
+    (object_t*, object_t*, bool*, uint64_t, float) {
     
     switch (id) {
         case ITEM_MONEY: return(&use_money); break;
@@ -58,13 +59,13 @@ bool (*get_item_function(uint32_t id))(object_t*, object_t*, bool*, uint64_t) {
 }
 
 bool use_money(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame) {
+    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt) {
     
     return(false);
 }
 
 bool use_water_pistol(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame) {
+    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt) {
     
     if (keys[KEY_SPACE] && obj->itm_props->step == 0) {
         
@@ -141,7 +142,7 @@ bool use_water_pistol(
 }
 
 bool use_hand(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame) {
+    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt) {
     
     // pick up target object using space bar:
     if (obj->itm_props->step == 0 && keys[KEY_SPACE] && obj_host->col != NULL) {
@@ -166,17 +167,23 @@ bool use_hand(
         obj->itm_props->step = 2;
     }
     
-    // throw target object on second space bar press:
-    if (obj->itm_props->step == 2 && keys[KEY_SPACE]) {
+    // start counting time on second spacebar press:
+    if (obj->itm_props->step >= 2 && keys[KEY_SPACE]) {
         
-        throw(obj_host);
-        obj->itm_props->step = 3;
+        obj->itm_props->step++; // use step as counter
+    }
+    
+    // throw target object on space bar release:
+    if (obj->itm_props->step >= 3 && !keys[KEY_SPACE]) {
+        
+        throw(obj_host, 0.2 * dt * (float) (obj->itm_props->step - 3));
+        obj->itm_props->step = 0;
     }
     
     // wait for space bar release:
-    if (obj->itm_props->step == 3 && !keys[KEY_SPACE]) {
+    /*if (obj->itm_props->step == 3 && !keys[KEY_SPACE]) {
         obj->itm_props->step = 0;
-    }
+    }*/
     
     return(false);
 }

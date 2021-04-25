@@ -14,16 +14,16 @@ void items_add_to_object(
 void items_free(object_t* obj);
 
 bool (*get_item_function(uint32_t id))(
-    object_t*, object_t*, bool*, uint64_t);
+    object_t*, object_t*, bool*, uint64_t, float);
     
 bool use_money(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
+    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt);
     
 bool use_water_pistol(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
+    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt);
     
 bool use_hand(
-    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame);
+    object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt);
 
 #define ITEM_MONEY 0
 #define ITEM_WATER_PISTOL 1

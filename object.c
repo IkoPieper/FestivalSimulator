@@ -684,7 +684,7 @@ void pick_up(object_t* obj, object_t* obj_target) {
     }
 }
 
-void throw(object_t* obj) {
+void throw(object_t* obj, float vel_add) {
     
     object_t* obj_target = obj->obj_carries; // object to be thrown
     obj_target->obj_escape_col = obj;
@@ -696,7 +696,6 @@ void throw(object_t* obj) {
         offset = (float) obj->wall->h;
     }
     
-    const float vel_add = 10.0;
     float vel_x = obj->vel_x;
     float vel_y = obj->vel_y;
     

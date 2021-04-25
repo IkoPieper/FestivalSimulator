@@ -42,32 +42,21 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
     
 	while (obj != NULL) {
 		
-        // check for render_is_in_blobb as well. this allows objects
-        // to be rendered that have render_after entry.
-        if ((!obj->disable_render && !obj->obj_carried_by) || 
-            obj->render_is_in_blobb) {
-        
-            if (obj != obj_bg && !obj->render_early) {
-                
-                if (!obj->render_is_in_blobb) {
-                    
-                    on_render_object(obj, vid);
+        if (obj->render_is_in_blobb) {
+            
+            // render all objects in the sorted render blobb:
+            list_t* blobb = obj->render_blobb;
+            
+            while (blobb != NULL) {
+
+                on_render_object((object_t*) blobb->entry, vid);
                         
-                } else if (obj->render_blobb != NULL) {
-                    
-                    // render all objects in the sorted render blobb:
-                    list_t* blobb = obj->render_blobb;
-                    
-                    while (blobb != NULL) {
-                        
-                        object_t* obj_tmp = (object_t*) blobb->entry;
-                        
-                        on_render_object(obj_tmp, vid);
-                        
-                        blobb = blobb->next;
-                    }
-                }
+                blobb = blobb->next;
             }
+            
+        } else {
+            
+            on_render_object(obj, vid);
         }
         
         // reset render blobbs:
@@ -289,6 +278,10 @@ list_t* render_blobb_sort(list_t* blobb) {
 
 void on_render_object(object_t* obj, video_t* vid) {
     
+    if (obj->disable_render || obj->obj_carried_by != NULL) {
+        return;
+    }
+    
     if (obj->obj_carries != NULL) { 
         
         switch (obj->anim->id) {
@@ -459,6 +452,10 @@ void on_render_text(object_t* obj, video_t* vid) {
 
 void on_render_object_id(video_t* vid, object_t* obj) {
     
+    if (!vid->show_ids) {
+        return;
+    }
+    
     SDL_Color fg_color = {0, 255, 0};   // text color
  	
     char str[8];
@@ -472,6 +469,10 @@ void on_render_object_id(video_t* vid, object_t* obj) {
 }
 
 void on_render_object_walls(video_t* vid, object_t* obj) {
+    
+    if (!vid->show_walls) {
+        return;
+    }
     
     int x = obj->scr_pos_x + obj->wall->x + obj->wall->x_shift;
     int y = obj->scr_pos_y + obj->wall->y + obj->wall->y_shift;

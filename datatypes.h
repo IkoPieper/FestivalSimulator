@@ -63,7 +63,7 @@ struct item {
     uint32_t step;          // step in item use function
     bool render_after_host; // render directly after the host object
     void* variables;        // any additional variables
-    bool (*item_function)(object_t*, object_t*, bool*, uint64_t);
+    bool (*item_function)(object_t*, object_t*, bool*, uint64_t, float);
 };
 
 struct collision {

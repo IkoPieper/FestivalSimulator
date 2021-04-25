@@ -86,6 +86,7 @@ void meter_update(meter_t* mtr, int16_t value) {
             
             index = (y * w_bmp) + x;
             if (pxl[index] != 0 && pxl[index] != 215) { // black, white
+            //if (pxl[index] == color) {
                 pxl[index] = mtr->bg;
             }
         }
@@ -124,6 +125,7 @@ void meter_update(meter_t* mtr, int16_t value) {
             
             index = (y * w_bmp) + x;
             if (pxl[index] != 0 && pxl[index] != 215) { // black, white
+            //if (pxl[index] == mtr->bg) {
                 pxl[index] = color;
             }
         }

@@ -58,6 +58,7 @@ bool toggle_fullscreen(bool fullscreen, video_t* vid) {
 
 bool on_execute() {
 	
+    bool debug = false;                  // show object id and walls
     bool running = true;				// program running?
     const bool VSYNC = true;            // enable vertical sync
 	const uint16_t FPS = 60;			// frames per second
@@ -76,7 +77,10 @@ bool on_execute() {
 		fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
 		return(true);
 	}
-    
+    if (debug) {
+        vid->show_ids = true;
+        vid->show_walls = true;
+    }
     if (VSYNC) {
         dt = 60.0 / vid->fps;
         printf("Vertical Syncronisation enabled. fps = %d\n", vid->fps);

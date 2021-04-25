@@ -10,7 +10,7 @@ void on_loop(
     
 void on_loop_tasks(groups_t* grp, bool* keys, uint64_t frame, float dt);
 
-void on_loop_items(object_t* hero, bool* keys, uint64_t frame);
+void on_loop_items(object_t* hero, bool* keys, uint64_t frame, float dt);
 
 void on_loop_animations(
     groups_t* grp, bool* keys, uint64_t frame, float dt);
