@@ -1,4 +1,5 @@
 object = 899
+task = 8
 pos_x = 1200
 pos_y = 1300
 surface = soccer_ball_0.bmp

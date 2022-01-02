@@ -77,6 +77,8 @@ void groups_free(groups_t* grp) {
     delete_all(grp->lst_have_anim);
     delete_all(grp->lst_have_ways);
     delete_all(grp->lst_have_tsk);
+    delete_all(grp->lst_have_tsk_flunky_0);
+    delete_all(grp->lst_have_tsk_flunky_1);
     
     free(grp);
 }

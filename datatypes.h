@@ -19,6 +19,7 @@ typedef void (*task_function_t) (
     bool* keys, uint64_t frame, float dt);
 
 struct task {
+    uint32_t id;
     uint32_t step;          // step in task function
     uint32_t counter;       // usefull counter
     void* variables;        // any additional variables

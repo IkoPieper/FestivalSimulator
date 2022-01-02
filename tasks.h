@@ -70,6 +70,7 @@ struct flunky_shared {
     uint32_t pos_y_line_team_a;
     uint32_t pos_y_line_team_b;
     object_t* ball;
+    object_t* bottle;
     object_t** team_a;
     object_t** team_b;
     uint8_t num_player_team_a;
@@ -77,15 +78,19 @@ struct flunky_shared {
 };
 typedef struct flunky flunky_t;
 struct flunky {
-    flunky_shared_t* shared;
-    bool team_b;            // if true: obj is in team b, otherwise team a
+    flunky_shared_t* shared;// task variables shared between objects
+    bool is_player;         // if true: object is human player
+    bool is_ball;           // if true: object is the ball
+    bool is_bottle;         // if true: object is the bottle
+    bool team_a;            // if true: obj is in team a
+    bool team_b;            // if true: obj is in team b
     uint32_t pos_x_line;    // start x-position behind line
     uint32_t pos_y_line;    // start y-position behind line
 };
 
 void task_flunky_init(list_t* lst_obj, uint32_t id);
 
-//void task_flunky_free_shared(void* variables_shared, uint32_t id);
+void task_flunky_free_shared(void* var_shared, uint32_t id);
 
 void task_flunky(
     task_t* tsk, object_t* obj, groups_t* grp, 

@@ -3,18 +3,16 @@
 void tasks_add_to_object(object_t* obj, uint32_t id) {
     
     task_t* tsk = (task_t*) malloc(sizeof(task_t));
+    tsk->id = id;
     tsk->step = 0;
     tsk->counter = 0;
     tsk->variables = NULL;
     tsk->variables_shared = NULL;
+    tsk->task_function = NULL;
+    tsk->task_function_free = NULL;
     tasks_get_functions(tsk, id);
     obj->tsk = create_before(obj->tsk, tsk, id);
 }
-
-/*void tasks_init(groups_t* grp) {
-    
-    
-}*/
 
 void tasks_init(groups_t* grp) {
     
@@ -29,8 +27,8 @@ void tasks_init(groups_t* grp) {
 
 void tasks_free(groups_t* grp) {
     
-    /*bool freed_flunky_0 = false;
-    bool freed_flunky_1 = false;*/
+    bool freed_flunky_0 = false;
+    bool freed_flunky_1 = false;
     
     object_t* obj;
     
@@ -49,16 +47,11 @@ void tasks_free(groups_t* grp) {
             
             task_t* tsk = (task_t*) lst_tsk->entry;
             
-            /*if (tsk->task_function == &task_hunt || 
-                tsk->task_function == &task_soccer) {
-                
-                free((hunt_t*) tsk->variables);
-            }*/
             if (tsk->task_function_free != NULL) {
                 tsk->task_function_free(tsk, obj, grp, NULL, 0, 0.0);
             }
             
-            /*if (tsk->variables_shared != NULL) {
+            if (tsk->variables_shared != NULL) {
                 switch (tsk->id) {
                     case TASK_FLUNKY_0:
                         if (!freed_flunky_0) {
@@ -73,7 +66,7 @@ void tasks_free(groups_t* grp) {
                         }
                         break;
                 }
-            }*/
+            }
             
             free(tsk);
             lst_tsk = lst_tsk->next;
@@ -90,23 +83,18 @@ void tasks_get_functions(task_t* tsk, uint32_t id) {
     switch (id) {
         case TASK_FIND_BOB:
             tsk->task_function = &task_find_bob;
-            tsk->task_function_free = NULL;
             break;
         case TASK_FIND_EVA:
             tsk->task_function = &task_find_eva;
-            tsk->task_function_free = NULL;
             break;
         case TASK_SECURITY_FENCE:
             tsk->task_function = &task_security_fence;
-            tsk->task_function_free = NULL;
             break;
         case TASK_BUS_PASSENGER:
             tsk->task_function = &task_bus_passenger;
-            tsk->task_function_free = NULL;
             break;
         case TASK_BUS:
             tsk->task_function = &task_bus;
-            tsk->task_function_free = NULL;
             break;
         case TASK_HUNT:
             tsk->task_function = &task_hunt;
@@ -118,7 +106,6 @@ void tasks_get_functions(task_t* tsk, uint32_t id) {
             break;
         case TASK_SOCCER_BALL:
             tsk->task_function = &task_soccer_ball;
-            tsk->task_function_free = NULL;
             break;
         case TASK_FLUNKY_0:
             tsk->task_function = &task_flunky;
@@ -704,6 +691,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     
     switch (id) {
         case TASK_FLUNKY_0:
+            var_shared->bottle = object_get((object_t*) lst_obj->entry, 898);
             var_shared->ball = object_get((object_t*) lst_obj->entry, 899);
             pos_y_line_team_a = 1070;
             pos_y_line_team_b = 1240;
@@ -712,6 +700,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
             break;
         case TASK_FLUNKY_1:
             // change values if adding TASK_FLUNKY_1 game:
+            var_shared->bottle = object_get((object_t*) lst_obj->entry, 898);
             var_shared->ball = object_get((object_t*) lst_obj->entry, 899);
             pos_y_line_team_a = 1070;
             pos_y_line_team_b = 1240;
@@ -724,42 +713,8 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     // variables here as well. this is usually done later, in the first step 
     // inside the players task function, but here is nicer:
     
-    var_shared->num_player_team_a = 0;
-    var_shared->num_player_team_b = 0;
-    
-    object_t* obj;
-    lst_obj = get_first(lst_obj);
-    
-    while (lst_obj != NULL) {
-        
-        obj = (object_t*) lst_obj->entry;
-        
-        task_t* tsk = tasks_get_task(obj, id);
-        
-        // malloc players task variables:
-        tsk->variables = (void*) malloc(sizeof(flunky_t));
-        flunky_t* var = (flunky_t*) tsk->variables;
-        
-        var->pos_x_line = obj->pos_x;
-        var->pos_y_line = obj->pos_y;
-        
-        // add player to team according to distance to start line:
-        if (abs(obj->pos_y - pos_y_line_team_a) <
-            abs(obj->pos_y - pos_y_line_team_b)) {
-            
-            var->team_b = false;                // obj (player) is in team a
-            obj->facing = OBJECT_FACING_SOUTH;
-            printf("object %d joined team a!\n", obj->id);
-            var_shared->num_player_team_a++;
-        } else {
-            var->team_b = true;                 // obj (player) is in team b
-            obj->facing = OBJECT_FACING_NORTH;
-            printf("object %d joined team b!\n", obj->id);
-            var_shared->num_player_team_b++;
-        }
-        
-        lst_obj = lst_obj->next;
-    }
+    var_shared->num_player_team_a = 4;
+    var_shared->num_player_team_b = 4;
     
     // malloc team pointer arrays:
     var_shared->team_a = 
@@ -767,12 +722,80 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     var_shared->team_b = 
         (object_t**) malloc(var_shared->num_player_team_b * sizeof(object_t*));
     
+    uint8_t a = 0;  // team a counter
+    uint8_t b = 0;  // team b counter
     
-    // TODO: fill team pointer arrays with players!
+    object_t* obj;
+    lst_obj = get_first(lst_obj);
+    
+    while (lst_obj != NULL) {
+        
+        // get object:
+        obj = (object_t*) lst_obj->entry;
+        
+        task_t* tsk = tasks_get_task(obj, id);
+        
+        // malloc task variables of object:
+        tsk->variables = (void*) malloc(sizeof(flunky_t));
+        flunky_t* var = (flunky_t*) tsk->variables;
+        
+        var->pos_x_line = obj->pos_x;
+        var->pos_y_line = obj->pos_y;
+        
+        
+        // init task variables of object:
+        switch (obj->id) {
+            case 801 ... 804:   // obj (player) is in team a
+                var->is_player = true;
+                var->is_ball = false;
+                var->is_bottle = false;
+                var->team_a = true;
+                var->team_b = false;
+                obj->facing = OBJECT_FACING_SOUTH;
+                printf("object %d joined team a!\n", obj->id);
+                var_shared->team_a[a++] = obj;
+                break;
+            
+            case 805 ... 808:   // obj (player) is in team b
+                var->is_player = true;
+                var->is_ball = false;
+                var->is_bottle = false;
+                var->team_a = false;
+                var->team_b = true;
+                obj->facing = OBJECT_FACING_NORTH;
+                printf("object %d joined team b!\n", obj->id);
+                var_shared->team_b[b++] = obj;
+                break;
+                
+            case 898:           // flunky bottle
+                var->is_player = false;
+                var->is_ball = false;
+                var->is_bottle = true;
+                var->team_a = false;
+                var->team_b = false;
+                break;
+                
+            case 899:           // flunky ball
+                var->is_player = true;
+                var->is_ball = true;
+                var->is_bottle = false;
+                var->team_a = false;
+                var->team_b = false;
+                break;
+        }
+        
+        lst_obj = lst_obj->next;
+    }
+    
 }
 
-void task_flunky_free_shared(void* variables_shared, uint8_t id) {
+void task_flunky_free_shared(void* var_shared, uint32_t id) {
     
+    flunky_shared_t* var = (flunky_shared_t*) var_shared;
+    
+    free(var->team_a);
+    free(var->team_b);
+    free(var);
 }
 
 void task_flunky(
@@ -784,8 +807,6 @@ void task_flunky(
 void task_flunky_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
-    
-    
     
     free((flunky_t*) tsk->variables);
 }
