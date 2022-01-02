@@ -1,0 +1,65 @@
+object = 899
+pos_x = 1200
+pos_y = 1300
+surface = soccer_ball_0.bmp
+walls = soccer_ball_walls.bmp
+can_move = 1            # object can move
+mass = 0.1              # mass of the object
+damping = 0.02          # damping slows a moving object down
+elasticity = 0.5        # how much the object bounces in collisions
+                        # value of elasticity between 0.0 and 0.9
+
+anim_walk = 1           # use animations 1 to 8 for walk cycles
+
+animation = 1           # animation for rolling north
+delay_frames = 4        # animation speed: lower value is faster
+surface = soccer_ball_0.bmp
+surface = soccer_ball_45u.bmp
+surface = soccer_ball_90d.bmp
+surface = soccer_ball_45d.bmp
+
+animation = 2           # animation for rolling south
+delay_frames = 4
+surface = soccer_ball_0.bmp
+surface = soccer_ball_45d.bmp
+surface = soccer_ball_90d.bmp
+surface = soccer_ball_45u.bmp
+
+
+animation = 3           # animation for rolling west
+delay_frames = 4
+surface = soccer_ball_0.bmp
+surface = soccer_ball_45l.bmp
+surface = soccer_ball_90l.bmp
+surface = soccer_ball_135l.bmp
+surface = soccer_ball_180.bmp
+surface = soccer_ball_135r.bmp
+surface = soccer_ball_90r.bmp
+surface = soccer_ball_45r.bmp
+
+animation = 4           # animation for rolling east
+delay_frames = 4
+surface = soccer_ball_0.bmp
+surface = soccer_ball_45r.bmp
+surface = soccer_ball_90r.bmp
+surface = soccer_ball_135r.bmp
+surface = soccer_ball_180.bmp
+surface = soccer_ball_135l.bmp
+surface = soccer_ball_90l.bmp
+surface = soccer_ball_45l.bmp
+
+animation = 5           # animation for stopping north
+delay_frames = 1
+surface = soccer_ball_0.bmp
+
+animation = 6           # animation for stopping south
+delay_frames = 1
+surface = soccer_ball_0.bmp
+
+animation = 7           # animation for stopping west
+delay_frames = 1
+surface = soccer_ball_0.bmp
+
+animation = 8           # animation for stopping east
+delay_frames = 1
+surface = soccer_ball_0.bmp

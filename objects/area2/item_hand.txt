@@ -1,0 +1,8 @@
+object = 2002
+pos_x = 810
+pos_y = 800
+surface = item_hand.bmp
+walls = stone_walls.bmp
+
+item = 2                        # this object is item number 2
+item_surface = item_hand.bmp    # picture shown in item selection screen
