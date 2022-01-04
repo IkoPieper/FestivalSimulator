@@ -41,3 +41,35 @@ surface = soccer_guy1_red_w_stand.bmp
 
 animation = 8           # animation for stopping east
 surface = soccer_guy1_red_e_stand.bmp
+
+animation = 9           # animation for carrying something north
+surface = hero_carry_n_1.bmp
+surface = hero_carry_n_2.bmp
+
+animation = 10          # animation for carrying something south
+surface = hero_carry_s_1.bmp
+surface = hero_carry_s_2.bmp
+
+animation = 11          # animation for carrying something west
+surface = hero_carry_w_1.bmp
+surface = hero_carry_w_stand.bmp
+surface = hero_carry_w_2.bmp
+surface = hero_carry_w_stand.bmp
+
+animation = 12          # animation for carrying something east
+surface = hero_carry_e_1.bmp
+surface = hero_carry_e_stand.bmp
+surface = hero_carry_e_2.bmp
+surface = hero_carry_e_stand.bmp
+
+animation = 13
+surface = hero_carry_n_stand.bmp
+
+animation = 14
+surface = hero_carry_s_stand.bmp
+
+animation = 15
+surface = hero_carry_w_stand.bmp
+
+animation = 16
+surface = hero_carry_e_stand.bmp

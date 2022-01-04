@@ -169,6 +169,10 @@ void on_loop_animations(
 uint32_t on_loop_get_animation_walk(
     object_t* obj, float vel_x, float vel_y) {
     
+    if (obj->obj_carries != NULL) {
+        return(on_loop_get_animation_walk_carry(obj, vel_x, vel_y));
+    }
+    
     if (obj->itm != NULL) {
         
         object_t* obj_item = (object_t*) obj->itm->entry;
@@ -176,9 +180,6 @@ uint32_t on_loop_get_animation_walk(
         if (obj_item->itm_props->step > 0) { // item is in use
             
             switch (obj_item->itm_props->id) {
-                case ITEM_HAND:
-                    return(
-                        on_loop_get_animation_walk_hand(obj, vel_x, vel_y));
                 case ITEM_WATER_PISTOL:
                     return(
                         on_loop_get_animation_walk_pistol(obj, vel_x, vel_y));
@@ -222,7 +223,7 @@ uint32_t on_loop_get_animation_walk_default(
     return(obj->anim->id);
 }
 
-uint32_t on_loop_get_animation_walk_hand(
+uint32_t on_loop_get_animation_walk_carry(
     object_t* obj, float vel_x, float vel_y) {
     
     if (fabsf(vel_x) < 0.1 && fabsf(vel_y) < 0.1) {

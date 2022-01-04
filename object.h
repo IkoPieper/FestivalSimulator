@@ -54,7 +54,7 @@ void move_on(object_t* obj);
 meter_t* meter_get(object_t* obj, uint8_t type);
 void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
-void pick_up(object_t* obj, object_t* obj_target);
+bool pick_up(object_t* obj, object_t* obj_target);
 void throw(object_t* obj, float vel_add);
 void start_waypoints(object_t* obj, uint32_t id);
 bool waypoints_finished(object_t* obj);

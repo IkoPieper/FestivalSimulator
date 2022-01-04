@@ -155,7 +155,10 @@ bool use_hand(
         object_t* obj_target = col->partner;
         
         // start carring partner around:
-        pick_up(obj_host, obj_target);
+        if(!pick_up(obj_host, obj_target)) {
+            return(false);  // value does not matter.
+            // the important part is to not go to the next step.
+        }
         obj->itm_props->step = 1;
         
         return(true);

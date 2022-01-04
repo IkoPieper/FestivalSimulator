@@ -1,0 +1,50 @@
+object = 814
+task = 8
+pos_x = 1300
+pos_y = 1060
+surface = bottle_upright.bmp
+walls = bottle_walls.bmp
+can_move = 1
+mass = 0.1
+damping = 0.04
+disable_collision = 1
+
+anim_walk = 1           # use animations 1 to 8 for walk cycles
+
+animation = 1           # animation for walking north
+surface = bottle_upright.bmp    # first picture ...
+surface = bottle_ns_2.bmp       # second picture ...
+surface = bottle_ns_3.bmp
+surface = bottle_ns_4.bmp
+surface = bottle_ns_5.bmp
+
+animation = 2           # animation for walking south
+surface = bottle_upright.bmp
+surface = bottle_ns_5.bmp
+surface = bottle_ns_4.bmp
+surface = bottle_ns_3.bmp
+surface = bottle_ns_2.bmp
+
+animation = 3           # animation for walking west
+surface = bottle_upright.bmp
+surface = bottle_we_4.bmp
+surface = bottle_we_3.bmp
+surface = bottle_we_2.bmp
+
+animation = 4           # animation for walking east
+surface = bottle_upright.bmp
+surface = bottle_we_2.bmp
+surface = bottle_we_3.bmp
+surface = bottle_we_4.bmp
+
+animation = 5           # animation for stopping north
+surface = bottle_ns_lie.bmp
+
+animation = 6           # animation for stopping south
+surface = bottle_ns_lie.bmp
+
+animation = 7           # animation for stopping west
+surface = bottle_we_lie.bmp
+
+animation = 8           # animation for stopping east
+surface = bottle_we_lie.bmp

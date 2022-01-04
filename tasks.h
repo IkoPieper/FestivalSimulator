@@ -70,9 +70,12 @@ struct flunky_shared {
     uint32_t pos_y_line_team_a;
     uint32_t pos_y_line_team_b;
     object_t* ball;
-    object_t* bottle;
-    object_t** team_a;
-    object_t** team_b;
+    object_t* target;
+    object_t** team_a;          // array of team a players TODO: needed?
+    object_t** team_b;          // array of team b players TODO: needed?
+    bool target_hit;            // target bottle got hit
+    bool team_a_turn;           // team a's turn to throw the ball
+    bool team_b_turn;           // team b's turn to throw the ball
     uint8_t num_player_team_a;
     uint8_t num_player_team_b;
 };
@@ -81,11 +84,13 @@ struct flunky {
     flunky_shared_t* shared;// task variables shared between objects
     bool is_player;         // if true: object is human player
     bool is_ball;           // if true: object is the ball
-    bool is_bottle;         // if true: object is the bottle
+    bool is_target;         // if true: object is the target bottle
+    bool is_beer;           // if true: object is a beer bottle
     bool team_a;            // if true: obj is in team a
     bool team_b;            // if true: obj is in team b
-    uint32_t pos_x_line;    // start x-position behind line
-    uint32_t pos_y_line;    // start y-position behind line
+    object_t* beer;         // every player has a beer
+    uint32_t pos_x_default; // default x-position
+    uint32_t pos_y_default; // default y-position
 };
 
 void task_flunky_init(list_t* lst_obj, uint32_t id);
@@ -99,5 +104,33 @@ void task_flunky(
 void task_flunky_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
+
+void task_flunky_player(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+
+void task_flunky_beer(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+    
+void task_flunky_target(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+
+void task_flunky_ball(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+    
+void task_flunky_player_drink(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+
+void task_flunky_player_throw_ball(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+
+void task_flunky_player_retrieve_ball_or_target(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
 
 #endif

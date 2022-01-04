@@ -691,7 +691,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     
     switch (id) {
         case TASK_FLUNKY_0:
-            var_shared->bottle = object_get((object_t*) lst_obj->entry, 898);
+            var_shared->target = object_get((object_t*) lst_obj->entry, 898);
             var_shared->ball = object_get((object_t*) lst_obj->entry, 899);
             pos_y_line_team_a = 1070;
             pos_y_line_team_b = 1240;
@@ -700,7 +700,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
             break;
         case TASK_FLUNKY_1:
             // change values if adding TASK_FLUNKY_1 game:
-            var_shared->bottle = object_get((object_t*) lst_obj->entry, 898);
+            var_shared->target = object_get((object_t*) lst_obj->entry, 898);
             var_shared->ball = object_get((object_t*) lst_obj->entry, 899);
             pos_y_line_team_a = 1070;
             pos_y_line_team_b = 1240;
@@ -712,6 +712,11 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     // put the players (obj) into team arrays. also init the player task 
     // variables here as well. this is usually done later, in the first step 
     // inside the players task function, but here is nicer:
+    
+    var_shared->target_hit = false;
+    
+    var_shared->team_a_turn = true;
+    var_shared->team_b_turn = false;
     
     var_shared->num_player_team_a = 4;
     var_shared->num_player_team_b = 4;
@@ -739,18 +744,20 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
         tsk->variables = (void*) malloc(sizeof(flunky_t));
         flunky_t* var = (flunky_t*) tsk->variables;
         
-        var->pos_x_line = obj->pos_x;
-        var->pos_y_line = obj->pos_y;
-        
+        var->pos_x_default = obj->pos_x;
+        var->pos_y_default = obj->pos_y;
         
         // init task variables of object:
         switch (obj->id) {
             case 801 ... 804:   // obj (player) is in team a
                 var->is_player = true;
+                var->is_beer = false;
                 var->is_ball = false;
-                var->is_bottle = false;
+                var->is_target = false;
                 var->team_a = true;
                 var->team_b = false;
+                var->beer = 
+                    object_get((object_t*) lst_obj->entry, obj->id + 10);
                 obj->facing = OBJECT_FACING_SOUTH;
                 printf("object %d joined team a!\n", obj->id);
                 var_shared->team_a[a++] = obj;
@@ -758,30 +765,58 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
             
             case 805 ... 808:   // obj (player) is in team b
                 var->is_player = true;
+                var->is_beer = false;
                 var->is_ball = false;
-                var->is_bottle = false;
+                var->is_target = false;
                 var->team_a = false;
                 var->team_b = true;
+                var->beer = 
+                    object_get((object_t*) lst_obj->entry, obj->id + 10);
                 obj->facing = OBJECT_FACING_NORTH;
                 printf("object %d joined team b!\n", obj->id);
                 var_shared->team_b[b++] = obj;
                 break;
                 
-            case 898:           // flunky bottle
+            case 811 ... 814:   // beer bottles of team a
                 var->is_player = false;
+                var->is_beer = true;
                 var->is_ball = false;
-                var->is_bottle = true;
+                var->is_target = false;
+                var->team_a = true;
+                var->team_b = false;
+                break;
+                
+            case 815 ... 818:   // beer bottles of team b
+                var->is_player = false;
+                var->is_beer = true;
+                var->is_ball = false;
+                var->is_target = false;
+                var->team_a = false;
+                var->team_b = true;
+                break;
+                
+            case 898:           // flunky target
+                var->is_player = false;
+                var->is_beer = false;
+                var->is_ball = false;
+                var->is_target = true;
                 var->team_a = false;
                 var->team_b = false;
                 break;
                 
             case 899:           // flunky ball
                 var->is_player = true;
+                var->is_beer = false;
                 var->is_ball = true;
-                var->is_bottle = false;
+                var->is_target = false;
                 var->team_a = false;
                 var->team_b = false;
                 break;
+        }
+        
+        // give ball to a player of team a:
+        if (obj->id == 803) {
+            pick_up(obj, var_shared->ball);
         }
         
         lst_obj = lst_obj->next;
@@ -802,11 +837,101 @@ void task_flunky(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
-}
+    flunky_t* var = (flunky_t*) tsk->variables;
+    flunky_shared_t* var_shared = (flunky_shared_t*) tsk->variables_shared;
     
+    if (var->is_player) {
+        
+        task_flunky_player(obj, var, var_shared, frame, dt);
+        
+    } else if (var->is_beer) {
+        
+        task_flunky_beer(obj, var, var_shared, frame, dt);
+        
+    } else if (var->is_target) {
+        
+        task_flunky_target(obj, var, var_shared, frame, dt);
+        
+    } else if (var->is_ball) {
+        
+        task_flunky_ball(obj, var, var_shared, frame, dt);
+    }
+}
+
 void task_flunky_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
     free((flunky_t*) tsk->variables);
+}
+
+void task_flunky_player(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    bool players_turn = 
+        (var->team_a && var_shared->team_a_turn) ||
+        (var->team_b && var_shared->team_b_turn);
+    
+    if (players_turn) {
+        
+        if (var_shared->target_hit) {
+            
+            task_flunky_player_drink(obj, var, var_shared, frame, dt);
+            
+        } else {
+            
+            task_flunky_player_throw_ball(obj, var, var_shared, frame, dt);
+        }
+        
+    } else {    // other teams turn
+        
+        if (var_shared->target_hit) {
+            
+            task_flunky_player_retrieve_ball_or_target(
+                obj, var, var_shared, frame, dt);
+        }
+    }
+}
+
+void task_flunky_beer(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    
+}
+
+void task_flunky_target(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    
+}
+
+void task_flunky_ball(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    
+}
+
+void task_flunky_player_drink(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    
+}
+
+void task_flunky_player_throw_ball(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    
+}
+
+void task_flunky_player_retrieve_ball_or_target(
+    object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    
 }

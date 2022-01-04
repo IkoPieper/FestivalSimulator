@@ -1,12 +1,13 @@
-object = 898
+object = 818
 task = 8
-pos_x = 1150
-pos_y = 1060
+pos_x = 1320
+pos_y = 1190
 surface = bottle_upright.bmp
 walls = bottle_walls.bmp
 can_move = 1
 mass = 0.1
 damping = 0.04
+disable_collision = 1
 
 anim_walk = 1           # use animations 1 to 8 for walk cycles
 

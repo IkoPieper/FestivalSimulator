@@ -24,7 +24,7 @@ uint32_t on_loop_get_animation_walk(
 uint32_t on_loop_get_animation_walk_default(
     object_t* obj, float vel_x, float vel_y);
 
-uint32_t on_loop_get_animation_walk_hand(
+uint32_t on_loop_get_animation_walk_carry(
     object_t* obj, float vel_x, float vel_y);
     
 uint32_t on_loop_get_animation_walk_pistol(

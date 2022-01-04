@@ -350,6 +350,11 @@ void object_add_animation(object_t* obj, uint32_t id, float dt) {
 void object_select_animation(object_t* obj, uint32_t id) {
 	
 	obj->anim = find_id(obj->anim, id);
+    if (obj->anim == NULL) {
+        printf("WARNING! Missing animation %d for object %d!\n", id, obj->id);
+        printf("Selecting first animation to avoid crash!\n");
+        obj->anim = find_id(obj->anim, 1);
+    }
     animation_t* anim = (animation_t*) obj->anim->entry;
     anim->time_active = 0.0;
 }
@@ -675,13 +680,34 @@ void change_mood(object_t* obj, int16_t value) {
     meter_update(mtr, mtr->value + value);
 }
 
-void pick_up(object_t* obj, object_t* obj_target) {
+bool pick_up(object_t* obj, object_t* obj_target) {
+    
+    // don't pick up what is carried by another object:
+    if (obj_target->obj_carried_by != NULL) {
+        return(false);
+    }
+    
+    // don't pick up what carries another object:
+    if (obj_target->obj_carries != NULL) {
+        return(false);
+    }
+    
+    // don't pick up what has collisions disabled:
+    /*if (obj_target->disable_collision) {
+        return(false);
+    }*/
     
     obj->obj_carries = obj_target;
     obj_target->obj_carried_by = obj;
+    
+    obj_target->pos_x = obj->pos_x;
+    obj_target->pos_y = obj->pos_y;
+    
     if (obj_target->obj_escape_col == obj) {
         obj_target->obj_escape_col = NULL;
     }
+    
+    return(true);
 }
 
 void throw(object_t* obj, float vel_add) {
