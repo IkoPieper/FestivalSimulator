@@ -758,6 +758,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->team_b = false;
                 var->beer = 
                     object_get((object_t*) lst_obj->entry, obj->id + 10);
+                //obj->facing = OBJECT_FACING_SOUTH;
                 obj->facing = OBJECT_FACING_SOUTH;
                 printf("object %d joined team a!\n", obj->id);
                 var_shared->team_a[a++] = obj;
@@ -926,6 +927,8 @@ void task_flunky_player_throw_ball(
     object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
+    float target_pos_x = var_shared->target->pos_x;
+    float target_pos_y = var_shared->target->pos_y;
     
 }
 

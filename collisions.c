@@ -154,8 +154,10 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                 
                 collision_t* col = (collision_t*) lst->entry;
                 
-                //printf("obj->id: %d\n", obj->id);
-                //printf("col->partner->id: %d\n", col->partner->id);
+                /*if (obj->id == 2 || col->partner->id == 2) {
+                    printf("\nobj->id: %d\n", obj->id);
+                    printf("col->partner->id: %d\n", col->partner->id);
+                }*/
                 
                 if (col->use_for_impulse) {
                 
@@ -163,6 +165,8 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                     float c1y = col->c_y;
                     float c2x = -col->c_x;
                     float c2y = -col->c_y;
+                    
+                    
                     //printf("c1x: %f\n", c1x);
                     //printf("c1y: %f\n", c1y);
                     //printf("c2x: %f\n", c2x);
@@ -178,10 +182,14 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                     } else {
                         is_moving1 = false;
                     }
-                    //printf("obj->vel_x: %f\n", obj->vel_x);
-                    //printf("obj->vel_y: %f\n", obj->vel_y);
-                    //printf("v1x: %f\n", v1x);
-                    //printf("v1y: %f\n", v1y);
+                    
+                    /*if (obj->id == 2 || col->partner->id == 2) {
+                        printf("obj->vel_x: %f\n", obj->vel_x);
+                        printf("obj->vel_y: %f\n", obj->vel_y);
+                        printf("v1x: %f\n", v1x);
+                        printf("v1y: %f\n", v1y);
+                    }*/
+                    
                     bool is_moving2 = true;
                     float v2x = col->partner->vel_x;
                     float v2y = col->partner->vel_y;
@@ -192,10 +200,13 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                     } else {
                         is_moving2 = false;
                     }
-                    //printf("col->partner->vel_x: %f\n", col->partner->vel_x);
-                    //printf("col->partner->vel_y: %f\n", col->partner->vel_y);
-                    //printf("v2x: %f\n", v2x);
-                    //printf("v2y: %f\n", v2y);
+                    
+                    /*if (obj->id == 2 || col->partner->id == 2) {
+                        printf("col->partner->vel_x: %f\n", col->partner->vel_x);
+                        printf("col->partner->vel_y: %f\n", col->partner->vel_y);
+                        printf("v2x: %f\n", v2x);
+                        printf("v2y: %f\n", v2y);
+                    }*/
                     
                     // if angle not smaller than 90°:
                     if ((is_moving1 && !((c2x < -v1y && c2y < -v1x) || 
@@ -204,12 +215,6 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                             (c1x > -v2y && c1y > -v2x)))) {
                         
                         collisions_impulse(obj, col->partner, c1x, c1y);
-                        //printf("After collisions_impulse():\n");
-                        //printf("col->partner->id: %d\n", col->partner->id);
-                        //printf("obj->vel_x: %f\n", obj->vel_x);
-                        //printf("obj->vel_y: %f\n", obj->vel_y);
-                        //printf("col->partner->vel_x: %f\n", col->partner->vel_x);
-                        //printf("col->partner->vel_y: %f\n", col->partner->vel_y);
                     }
                 }
             
@@ -908,16 +913,6 @@ void collisions_impulse(
 	float v2x = 0.0;
 	float v2y = 0.0;
     
-	if (obj1->can_move) {
-		v1x = obj1->vel_x;
-		v1y = obj1->vel_y;
-	}
-	
-	if (obj2->can_move) {
-		v2x = obj2->vel_x;
-		v2y = obj2->vel_y;
-	}
-    
     if (obj1->obj_carried_by != NULL) {
         printf("impulse of obj %d calculated for obj %d\n", obj1->id, obj1->obj_carried_by->id);
         m1 = m1 + obj1->obj_carried_by->mass;
@@ -929,6 +924,16 @@ void collisions_impulse(
         m2 = m2 + obj2->obj_carried_by->mass;
         obj2 = obj2->obj_carried_by;
     }
+    
+    if (obj1->can_move) {
+		v1x = obj1->vel_x;
+		v1y = obj1->vel_y;
+	}
+	
+	if (obj2->can_move) {
+		v2x = obj2->vel_x;
+		v2y = obj2->vel_y;
+	}
 	
 	// velocity in direction of impulse:
 	v1n_pre = c1x * v1x + c1y * v1y;
@@ -953,6 +958,12 @@ void collisions_impulse(
         
         obj1->vel_x -= 0.8 * c1x;
         obj1->vel_y -= 0.8 * c1y;
+        
+        /*if (obj1->id == 2 || obj2->id == 2) {
+            printf("obj1->id: %d\n", obj1->id);
+            printf("obj1->vel_x: %f\n", obj1->vel_x);
+            printf("obj1->vel_y: %f\n", obj1->vel_y);
+        }*/
 	}
 	
 	if (obj2->can_move) {
@@ -962,6 +973,12 @@ void collisions_impulse(
         
         obj2->vel_x += 0.8 * c1x;
         obj2->vel_y += 0.8 * c1y;
+        
+        /*if (obj1->id == 2 || obj2->id == 2) {
+            printf("obj2->id: %d\n", obj2->id);
+            printf("obj2->vel_x: %f\n", obj2->vel_x);
+            printf("obj2->vel_y: %f\n", obj2->vel_y);
+        }*/
 	}
 }
 

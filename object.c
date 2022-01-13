@@ -535,29 +535,26 @@ void object_get_next_waypoint(object_t* obj, float dt) {
 void object_aim_for_waypoint(object_t* obj) {
 
     waypoints_t* ways = (waypoints_t*) obj->ways->entry;
-
+    
+    if (ways->frame != 0) {
+        return;
+    }
+    
 	float pos_x_wp = ways->pos_x[ways->n];
 	float pos_y_wp = ways->pos_y[ways->n];
-	float vel_x_wanted = 0.0;
-	float vel_y_wanted = 0.0;
+	float vel_x_wanted = pos_x_wp - obj->pos_x;
+	float vel_y_wanted = pos_y_wp - obj->pos_y;
 	
-	
-	vel_x_wanted = pos_x_wp - obj->pos_x;
-	vel_y_wanted = pos_y_wp - obj->pos_y;
-	
-    if (ways->frame == 0) {
-    
-        // normalize:
-        float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
-        vel_x_wanted /= norm;
-        vel_y_wanted /= norm;
+    // normalize:
+    float norm = sqrtf(vel_x_wanted * vel_x_wanted + vel_y_wanted * vel_y_wanted);
+    vel_x_wanted /= norm;
+    vel_y_wanted /= norm;
         
-        vel_x_wanted *= ways->vel_abs[ways->n];
-        vel_y_wanted *= ways->vel_abs[ways->n];
+    vel_x_wanted *= ways->vel_abs[ways->n];
+    vel_y_wanted *= ways->vel_abs[ways->n];
         
-        obj->vel_x = vel_x_wanted;
-        obj->vel_y = vel_y_wanted;
-    }
+    obj->vel_x = vel_x_wanted;
+    obj->vel_y = vel_y_wanted;
 }
 
 void object_free_waypoints(list_t* ways) {
@@ -600,6 +597,18 @@ void say_new(object_t* obj, char* str, uint32_t duration) {
 void say_free(object_t* obj) {
     
     object_remove_text(obj, 0);
+}
+
+void move_to_position(object_t* obj, float x, float y, float vel_abs) {
+    
+    const float border_x = 2.0;
+    const float border_y = 2.0;
+    
+    
+}
+
+void move_to_relative(object_t* obj, float x, float y, float vel_abs) {
+    
 }
 
 void face(object_t* obj, object_t* obj_target, float dt) {

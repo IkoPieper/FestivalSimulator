@@ -48,6 +48,8 @@ void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
+void move_to_position(object_t* obj, float x, float y);
+void move_to_relative(object_t* obj, float x, float y);
 void face(object_t* obj, object_t* obj_target, float dt);
 void stop(object_t* obj);
 void move_on(object_t* obj);
