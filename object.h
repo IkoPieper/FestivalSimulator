@@ -48,18 +48,20 @@ void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
 void say_free(object_t* obj);
-void move_to_position(object_t* obj, float x, float y);
-void move_to_relative(object_t* obj, float x, float y);
+bool move_to_position(object_t* obj, float x, float y, float vel_abs);
+bool move_to_relative(object_t* obj, float x, float y, float vel_abs);
 void face(object_t* obj, object_t* obj_target, float dt);
 void stop(object_t* obj);
 void move_on(object_t* obj);
 meter_t* meter_get(object_t* obj, uint8_t type);
 void drink_beer(object_t* obj, int16_t value);
 void change_mood(object_t* obj, int16_t value);
+bool check_collision(object_t* obj1, uint32_t id_obj2);
 bool pick_up(object_t* obj, object_t* obj_target);
 void throw(object_t* obj, float vel_add);
 void start_waypoints(object_t* obj, uint32_t id);
 bool waypoints_finished(object_t* obj);
+float squared_distance(object_t* obj1, object_t* obj2);
 bool squared_distance_smaller(
     object_t* obj1, object_t* obj2, float dist_squared);
 bool squared_distance_greater(

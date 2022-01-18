@@ -62,7 +62,7 @@ void task_hunt_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 
-void hunt_object(object_t* obj, task_t* tsk, bool clockwise, 
+void hunt_object(object_t* obj, uint32_t* counter, bool clockwise, 
     object_t* obj_hunted, float dt);
 
 typedef struct flunky_shared flunky_shared_t;
@@ -73,11 +73,17 @@ struct flunky_shared {
     object_t* target;
     object_t** team_a;          // array of team a players TODO: needed?
     object_t** team_b;          // array of team b players TODO: needed?
+    float pos_x_target;         // default position of target
+    float pos_y_target;
     bool target_hit;            // target bottle got hit
+    bool target_retrieved;
+    bool ball_retrieved;
+    uint8_t num_finished;       // number of players that finished the round
     bool team_a_turn;           // team a's turn to throw the ball
     bool team_b_turn;           // team b's turn to throw the ball
     uint8_t num_player_team_a;
     uint8_t num_player_team_b;
+    
 };
 typedef struct flunky flunky_t;
 struct flunky {
@@ -91,6 +97,9 @@ struct flunky {
     object_t* beer;         // every player has a beer
     uint32_t pos_x_default; // default x-position
     uint32_t pos_y_default; // default y-position
+    uint32_t step;          // current step
+    uint32_t counter;       // used in hunt_object() for running after target and ball
+    bool clockwise;         // used in hunt_object() for running after target and ball
 };
 
 void task_flunky_init(list_t* lst_obj, uint32_t id);

@@ -318,7 +318,7 @@ void task_security_fence(
         
         // hunt the hero:
         hero->is_hunted_by_security = true;
-        hunt_object(obj, tsk, true, hero, dt);
+        hunt_object(obj, &tsk->counter, true, hero, dt);
         
         // reduce heros mood on collision:
         if (obj->col != NULL) {
@@ -514,23 +514,27 @@ void task_hunt(
         
     } else if (tsk->step == 1) {
         
-        object_t* obj_hunted = (object_t*) tsk->variables;
+        hunt_t* var = (hunt_t*) tsk->variables;
         
-        if (obj->is_security && obj_hunted->is_hunted_by_security) {
+        if (obj->is_security && var->obj_hunted->is_hunted_by_security) {
             
-            hunt_t* var = (hunt_t*) tsk->variables;
-            hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
+            hunt_object(obj, &tsk->counter, var->clockwise, var->obj_hunted, dt);
             
             // reduce heros mood on collision:
-            if (obj->col != NULL) {
-                if (find_id(obj->col, OBJECT_HERO_ID) != NULL) {
+            if (var->obj_hunted->id == OBJECT_HERO_ID) {
+                if (check_collision(obj, OBJECT_HERO_ID)) {
                     change_mood(grp->obj_hero, -10);
                 }
             }
+            /*if (obj->col != NULL && var->obj_hunted->id == OBJECT_HERO_ID) {
+                if (find_id(obj->col, OBJECT_HERO_ID) != NULL) {
+                    change_mood(grp->obj_hero, -10);
+                }
+            }*/
             
         } else {
             
-            free(tsk->variables);
+            free((hunt_t*) tsk->variables);
             tsk->variables = NULL;
             
             tsk->step = 0;
@@ -558,14 +562,18 @@ void task_hunt_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
     
-    free((hunt_t*) tsk->variables);
+    if (tsk->variables != NULL) {
+        free((hunt_t*) tsk->variables);
+    }
 }
 
 void hunt_object(
-    object_t* obj, task_t* tsk, bool clockwise, 
+    object_t* obj, uint32_t* counter, bool clockwise, 
     object_t* obj_hunted, float dt) {
     
-    if (obj->col != NULL && tsk->counter == 0) {
+    const float vel_abs = 2.0;
+    
+    if (obj->col != NULL && *counter == 0) {
         
         float vel_x;
         float vel_y;
@@ -597,19 +605,19 @@ void hunt_object(
             vel_y = col->c_y;
         }
         
-        vel_x *= 2.0;
-        vel_y *= 2.0;
+        vel_x *= vel_abs;
+        vel_y *= vel_abs;
         
         obj->vel_x = vel_x;
         obj->vel_y = vel_y;
         obj->disable_damping = true;
         
-        tsk->counter = (int32_t) (30.0 / dt);
+        *counter = (int32_t) (30.0 / dt);
         
-    } else if (tsk->counter > 0) {
+    } else if (*counter > 0) {
         
         // go away from collision:
-        tsk->counter--;
+        (*counter)--;
         
     } else {
         
@@ -625,8 +633,8 @@ void hunt_object(
         vel_x /= norm;
         vel_y /= norm;
         
-        vel_x *= 2.0;
-        vel_y *= 2.0;
+        vel_x *= vel_abs;
+        vel_y *= vel_abs;
         
         obj->vel_x = vel_x;
         obj->vel_y = vel_y;
@@ -648,12 +656,12 @@ void task_soccer(
         
         tsk->step = 1;
         
-        hunt_object(obj, tsk, true, ball, dt);
+        hunt_object(obj, &tsk->counter, true, ball, dt);
         
     } else if (tsk->step == 1) {
         
         hunt_t* var = (hunt_t*) tsk->variables;
-        hunt_object(obj, tsk, var->clockwise, var->obj_hunted, dt);
+        hunt_object(obj, &tsk->counter, var->clockwise, var->obj_hunted, dt);
         
         if (obj->pos_x > 925.0 && obj->vel_x > 0) {
             
@@ -714,12 +722,16 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     // inside the players task function, but here is nicer:
     
     var_shared->target_hit = false;
+    var_shared->ball_retrieved = true;
+    var_shared->target_retrieved = true;
+    var_shared->num_finished = 0;
     
     var_shared->team_a_turn = true;
     var_shared->team_b_turn = false;
     
     var_shared->num_player_team_a = 4;
     var_shared->num_player_team_b = 4;
+    
     
     // malloc team pointer arrays:
     var_shared->team_a = 
@@ -746,6 +758,9 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
         
         var->pos_x_default = obj->pos_x;
         var->pos_y_default = obj->pos_y;
+        var->step = 0;
+        var->counter = 0;
+        var->clockwise = false;
         
         // init task variables of object:
         switch (obj->id) {
@@ -803,10 +818,13 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->is_target = true;
                 var->team_a = false;
                 var->team_b = false;
+                var_shared->pos_x_target = obj->pos_x;
+                var_shared->pos_y_target = obj->pos_y;
+                obj->disable_collision = true;
                 break;
                 
             case 899:           // flunky ball
-                var->is_player = true;
+                var->is_player = false;
                 var->is_beer = false;
                 var->is_ball = true;
                 var->is_target = false;
@@ -874,7 +892,15 @@ void task_flunky_player(
         (var->team_a && var_shared->team_a_turn) ||
         (var->team_b && var_shared->team_b_turn);
     
+    if (var_shared->team_b_turn) {
+        frame++;
+    }
+        
     if (players_turn) {
+        
+        if (var->step == 666) {
+            var->step = 0;
+        }
         
         if (var_shared->target_hit) {
             
@@ -882,10 +908,16 @@ void task_flunky_player(
             
         } else {
             
-            task_flunky_player_throw_ball(obj, var, var_shared, frame, dt);
+            if (obj->obj_carries == var_shared->ball) {
+                task_flunky_player_throw_ball(obj, var, var_shared, frame, dt);
+            }
         }
         
     } else {    // other teams turn
+        
+        if (obj->obj_carries == var->beer) {
+            throw(obj, 0.0);
+        }
         
         if (var_shared->target_hit) {
             
@@ -899,14 +931,29 @@ void task_flunky_beer(
     object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
-    
 }
 
 void task_flunky_target(
     object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
+    /*const float x_border = 4.0;
+    const float y_border = 4.0;
+    float x = obj->pos_x;
+    float y = obj->pos_y;
+    float x_def = var->pos_x_default;
+    float y_def = var->pos_y_default;
     
+    if (x < x_def - x_border ||
+        x > x_def + x_border ||
+        y < y_def - y_border ||
+        y > y_def + y_border) {
+        
+        var_shared->target_hit = true;
+    }*/
+    if (check_collision(obj, var_shared->ball->id)) {
+        var_shared->target_hit = true;
+    }
 }
 
 void task_flunky_ball(
@@ -920,21 +967,194 @@ void task_flunky_player_drink(
     object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
-    
+    pick_up(obj, var->beer);
 }
 
 void task_flunky_player_throw_ball(
     object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
-    float target_pos_x = var_shared->target->pos_x;
-    float target_pos_y = var_shared->target->pos_y;
+    const float vel_abs = 4.0;
+    static float x = 0.0;
+    static float y = 0.0;
     
+    if (var->step == 0) {
+        // mirror position to target (half the distance):
+    
+        x = var_shared->target->pos_x;
+        y = var_shared->target->pos_y;
+        float x_obj = obj->pos_x;
+        float y_obj = obj->pos_y;
+    
+        x = x_obj + (x_obj - x) / 2.0;
+        y = y_obj + (y_obj - y) / 2.0;
+        
+        var->step++;
+        
+        return;
+    }
+    
+    if (var->step == 1) {
+        // go away from target:
+        
+        if (move_to_position(obj, x, y, vel_abs)) {
+            var->step++;    // position reached
+        }
+        
+        return;
+    }
+    
+    if (var->step == 2) {
+        // move to target:
+        
+        float x = var_shared->target->pos_x;
+        float y = var_shared->target->pos_y;
+        move_to_position(obj, x, y, vel_abs);
+        
+        if ((var->team_a && obj->pos_y > var->pos_y_default) ||
+            (var->team_b && obj->pos_y < var->pos_y_default)) {
+            
+            // throw ball and stop:
+            var_shared->target->disable_collision = false;
+            throw(obj, 4.0);
+            obj->vel_x = 0.0;
+            obj->vel_y = 0.0;
+
+            var->step = 0;
+        }
+        
+        return;
+    }
 }
 
 void task_flunky_player_retrieve_ball_or_target(
     object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
+    if (var->step == 0) {
+        // init:
+        
+        var_shared->target_retrieved = false;
+        var_shared->ball_retrieved = false;
+        var_shared->num_finished = 0;
+        
+        var->step = 1;
+        
+        return;
+    }
     
+    if (var->step == 1) {
+        // get ball or bottle and pick it up:
+        
+        if (var_shared->target_retrieved && var_shared->ball_retrieved) {
+            var->step = 3;
+            return;
+        }
+        
+        // hunt the object that is not yet retrieved. If both are not
+        // retrieved, hunt the object that is closer:
+        
+        object_t* obj_hunted = var_shared->target;
+        
+        if (var_shared->target_retrieved && !var_shared->ball_retrieved) {
+            
+            obj_hunted = var_shared->ball;
+            
+        } else if 
+            (!var_shared->target_retrieved && !var_shared->ball_retrieved) {
+            
+            if (squared_distance(obj, var_shared->target) >
+                squared_distance(obj, var_shared->ball)) {
+                
+                obj_hunted = var_shared->ball;
+            }
+        }
+        
+        hunt_object(obj, &var->counter, var->clockwise, obj_hunted, dt);
+        
+        if (check_collision(obj, obj_hunted->id)) {
+            
+            pick_up(obj, obj_hunted);
+            
+            if (obj_hunted == var_shared->target) {
+                var_shared->target_retrieved = true;
+                var->step = 2;
+            } else {
+                var_shared->ball_retrieved = true;
+                var->step = 3;
+            }
+        }
+        
+        return;
+    }
+    
+    if (var->step == 2) {
+        // place target:
+        
+        // reset hunt variables:
+        obj->disable_damping = false;
+        var->counter = 0;
+        
+        if(move_to_position(
+            obj, var_shared->pos_x_target, var_shared->pos_y_target, 2.0)) {
+            
+            obj->vel_x = 0.0;
+            obj->vel_y = 0.0;
+            
+            throw(obj, 0.0);
+        
+            var_shared->target->disable_collision = true;
+        
+            var->step = 3;
+        }
+        
+        return;
+    }
+    
+    
+    if (var->step == 3) {
+        // move to start position:
+        
+        // reset hunt variables:
+        obj->disable_damping = false;
+        var->counter = 0;
+        
+        if(move_to_position(obj, var->pos_x_default, var->pos_y_default, 2.0)) {
+            obj->vel_x = 0.0;
+            obj->vel_y = 0.0;
+            if (var->team_a) {
+                obj->facing = OBJECT_FACING_SOUTH;
+            } else {
+                obj->facing = OBJECT_FACING_NORTH;
+            }
+            
+            var_shared->num_finished++;
+            
+            var->step = 666;
+        }
+        
+        return;
+    }
+    
+    if (var->step == 666) {
+        
+        if ((var->team_a && 
+            var_shared->num_finished == var_shared->num_player_team_a)
+            ||
+            (var->team_b &&
+            var_shared->num_finished == var_shared->num_player_team_b)) {
+            
+            var_shared->target_hit = false;
+            
+            if (var->team_a) {
+                var_shared->team_a_turn = true;
+                var_shared->team_b_turn = false;
+            } else {
+                var_shared->team_a_turn = false;
+                var_shared->team_b_turn = true;
+            }
+        }
+        
+        return;
+    }
 }

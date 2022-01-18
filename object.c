@@ -599,16 +599,38 @@ void say_free(object_t* obj) {
     object_remove_text(obj, 0);
 }
 
-void move_to_position(object_t* obj, float x, float y, float vel_abs) {
+bool move_to_position(object_t* obj, float x, float y, float vel_abs) {
     
-    const float border_x = 2.0;
-    const float border_y = 2.0;
+    const float x_border = 4.0;
+    const float y_border = 4.0;
+    
+    float x_obj = obj->pos_x;
+    float y_obj = obj->pos_y;
     
     
+    if (x_obj > x - x_border &&
+        x_obj < x + x_border &&
+        y_obj > y - y_border &&
+        y_obj < y + y_border) {
+        
+        // object reached targeted position
+        return(true);
+    
+    }
+        
+    // set velocity toward position:
+    x = x - x_obj;
+    y = y - y_obj;
+    float norm = sqrtf(x * x + y * y);
+    obj->vel_x = vel_abs * x / norm;
+    obj->vel_y = vel_abs * y / norm;
+    
+    return(false);
 }
 
-void move_to_relative(object_t* obj, float x, float y, float vel_abs) {
-    
+bool move_to_relative(object_t* obj, float x, float y, float vel_abs) {
+    // not implemented yet:
+    return (false);
 }
 
 void face(object_t* obj, object_t* obj_target, float dt) {
@@ -687,6 +709,17 @@ void change_mood(object_t* obj, int16_t value) {
     
     meter_t* mtr = meter_get(obj, METER_MOOD);
     meter_update(mtr, mtr->value + value);
+}
+
+bool check_collision(object_t* obj1, uint32_t id_obj2) {
+    
+    if (obj1->col != NULL) {
+        if (find_id(obj1->col, id_obj2) != NULL) {
+            return(true);
+        }
+    }
+    
+    return(false);
 }
 
 bool pick_up(object_t* obj, object_t* obj_target) {
@@ -801,6 +834,14 @@ bool waypoints_finished(object_t* obj) {
     waypoints_t* ways = (waypoints_t*) obj->ways->entry;
     
     return(!ways->active);
+}
+
+float squared_distance(object_t* obj1, object_t* obj2) {
+    
+    float dist_x = obj1->pos_x - obj2->pos_x;
+    float dist_y = obj1->pos_y - obj2->pos_y;
+    
+    return(dist_x * dist_x + dist_y * dist_y);
 }
 
 bool squared_distance_smaller(
