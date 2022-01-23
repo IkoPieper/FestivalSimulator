@@ -348,15 +348,7 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
             x1_min, x1_max, y1_min, y1_max, w1_bmp, w1, h1,
             x2_min, y2_min, w2_bmp, w2, h2);
             
-        if (collision) {
-            col1 = collisions_add_to_object(obj1, obj2);
-            col2 = collisions_add_to_object(obj2, obj1);
-            // only enable impulse if one objects shall not escape the others 
-            // collision zone:
-            if (obj1->obj_escape_col != obj2 && obj2->obj_escape_col != obj1) {
-                col1->use_for_impulse = true;
-            }
-        } else {
+        if (!collision) {
             return(false);
         }
         
@@ -378,24 +370,35 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         
         if (c1x == 666.0) {
             // obj1 is buried inside obj2:
-            c1x = obj1->vel_x;
+            /*c1x = obj1->vel_x;
             c1y = obj1->vel_y;
             float norm = sqrtf(c1x * c1x + c1y * c1y);
             c1x /= norm;
             c1y /= norm;
             c2x = -c1x;
-            c2y = -c1y;
+            c2y = -c1y;*/ // old solution caused segmentation fault in SDL2 lib
+            return(false);
+            
         } else if (c2x == 666.0) {
             // obj2 is buried inside obj1:
-            c2x = obj2->vel_x;
+            /*c2x = obj2->vel_x;
             c2y = obj2->vel_y;
             float norm = sqrtf(c2x * c2x + c2y * c2y);
             c2x /= norm;
             c2y /= norm;
             c1x = -c2x;
-            c1y = -c2y;
+            c1y = -c2y;*/
+            return(false);
         }
-            
+        
+        col1 = collisions_add_to_object(obj1, obj2);
+        col2 = collisions_add_to_object(obj2, obj1);
+        // only enable impulse if one objects shall not escape the others 
+        // collision zone:
+        if (obj1->obj_escape_col != obj2 && obj2->obj_escape_col != obj1) {
+            col1->use_for_impulse = true;
+        }
+        
         // update direction of collision:
         col1->c_x = c1x;
         col1->c_y = c1y;
