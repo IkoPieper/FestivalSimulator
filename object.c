@@ -633,6 +633,80 @@ bool move_to_relative(object_t* obj, float x, float y, float vel_abs) {
     return (false);
 }
 
+void hunt_object(
+    object_t* obj, uint32_t* counter, bool clockwise, 
+    object_t* obj_hunted, float dt) {
+    
+    const float vel_abs = 2.0;
+    
+    if (obj->col != NULL && *counter == 0) {
+        
+        float vel_x;
+        float vel_y;
+        collision_t* col = (collision_t*) obj->col->entry;
+        uint32_t rdm = rand();
+        
+        // start to go away from collision in 90° angle:
+        if (rdm > RAND_MAX / 4) {
+            if (clockwise) {
+                vel_x = col->c_y;
+                vel_y = -col->c_x;
+            } else {
+                vel_x = -col->c_y;
+                vel_y = col->c_x;
+            }
+        } else if (rdm > RAND_MAX / 8) {
+            if (clockwise) {
+                vel_x = -col->c_y;
+                vel_y = col->c_x;
+            } else {
+                vel_x = col->c_y;
+                vel_y = -col->c_x;
+            }
+        } else if (rdm > RAND_MAX / 16) {
+            vel_x = -col->c_x;
+            vel_y = -col->c_y;
+        } else {
+            vel_x = col->c_x;
+            vel_y = col->c_y;
+        }
+        
+        vel_x *= vel_abs;
+        vel_y *= vel_abs;
+        
+        obj->vel_x = vel_x;
+        obj->vel_y = vel_y;
+        obj->disable_damping = true;
+        
+        *counter = (int32_t) (30.0 / dt);
+        
+    } else if (*counter > 0) {
+        
+        // go away from collision:
+        (*counter)--;
+        
+    } else {
+        
+        obj->disable_damping = false;
+        
+        // follow obj_hunted:
+        float vel_x = (obj_hunted->pos_x + obj_hunted->wall->x) - 
+            (obj->pos_x + obj->wall->x);
+        float vel_y = (obj_hunted->pos_y + obj_hunted->wall->y) - 
+            (obj->pos_y + obj->wall->y);
+        
+        float norm = sqrtf(vel_x * vel_x + vel_y * vel_y);
+        vel_x /= norm;
+        vel_y /= norm;
+        
+        vel_x *= vel_abs;
+        vel_y *= vel_abs;
+        
+        obj->vel_x = vel_x;
+        obj->vel_y = vel_y;
+    }
+}
+
 void face(object_t* obj, object_t* obj_target, float dt) {
     
     float distance_x = obj_target->pos_x - obj->pos_x;
@@ -752,12 +826,18 @@ bool pick_up(object_t* obj, object_t* obj_target) {
     return(true);
 }
 
-void throw(object_t* obj, float vel_add) {
+void put_down(object_t* obj) {
     
-    object_t* obj_target = obj->obj_carries; // object to be thrown
+    object_t* obj_target = obj->obj_carries;
     obj_target->obj_escape_col = obj;
     obj->obj_carries = NULL;
     obj_target->obj_carried_by = NULL;
+}
+
+void throw(object_t* obj, float vel_add) {
+    
+    object_t* obj_target = obj->obj_carries;
+    put_down(obj);
     
     float offset = (float) obj->wall->w;
     if (offset < (float) obj->wall->h) {

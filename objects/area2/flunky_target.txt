@@ -10,6 +10,9 @@ damping = 0.04
 
 anim_walk = 1           # use animations 1 to 8 for walk cycles
 
+animation = 0           # animation standing upright
+surface = bottle_upright.bmp
+
 animation = 1           # animation for walking north
 surface = bottle_upright.bmp    # first picture ...
 surface = bottle_ns_2.bmp       # second picture ...
@@ -47,3 +50,6 @@ surface = bottle_we_lie.bmp
 
 animation = 8           # animation for stopping east
 surface = bottle_we_lie.bmp
+
+animation = 9           # animation standing upright
+surface = bottle_upright.bmp

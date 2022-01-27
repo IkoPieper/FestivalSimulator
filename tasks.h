@@ -85,9 +85,6 @@ void task_hunt_free(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt);
 
-void hunt_object(object_t* obj, uint32_t* counter, bool clockwise, 
-    object_t* obj_hunted, float dt);
-
 typedef struct flunky_shared flunky_shared_t;
 struct flunky_shared {
     team_game_shared_t* teams;
@@ -152,6 +149,10 @@ void task_flunky_ball(
 void task_flunky_player_drink(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt);
+    
+void task_flunky_player_stop_drinking(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
 
 void task_flunky_player_throw_ball(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
@@ -159,7 +160,7 @@ void task_flunky_player_throw_ball(
 
 void task_flunky_player_retrieve_ball_or_target(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
-    uint64_t frame, float dt, bool ball_only);
+    uint64_t frame, float dt);
 
 // final step is used to set local parameters back to init values:
 #define TASK_FINAL_STEP 666

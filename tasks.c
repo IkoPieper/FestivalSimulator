@@ -601,80 +601,6 @@ void task_hunt_free(
     }
 }
 
-void hunt_object(
-    object_t* obj, uint32_t* counter, bool clockwise, 
-    object_t* obj_hunted, float dt) {
-    
-    const float vel_abs = 2.0;
-    
-    if (obj->col != NULL && *counter == 0) {
-        
-        float vel_x;
-        float vel_y;
-        collision_t* col = (collision_t*) obj->col->entry;
-        uint32_t rdm = rand();
-        
-        // start to go away from collision in 90° angle:
-        if (rdm > RAND_MAX / 4) {
-            if (clockwise) {
-                vel_x = col->c_y;
-                vel_y = -col->c_x;
-            } else {
-                vel_x = -col->c_y;
-                vel_y = col->c_x;
-            }
-        } else if (rdm > RAND_MAX / 8) {
-            if (clockwise) {
-                vel_x = -col->c_y;
-                vel_y = col->c_x;
-            } else {
-                vel_x = col->c_y;
-                vel_y = -col->c_x;
-            }
-        } else if (rdm > RAND_MAX / 16) {
-            vel_x = -col->c_x;
-            vel_y = -col->c_y;
-        } else {
-            vel_x = col->c_x;
-            vel_y = col->c_y;
-        }
-        
-        vel_x *= vel_abs;
-        vel_y *= vel_abs;
-        
-        obj->vel_x = vel_x;
-        obj->vel_y = vel_y;
-        obj->disable_damping = true;
-        
-        *counter = (int32_t) (30.0 / dt);
-        
-    } else if (*counter > 0) {
-        
-        // go away from collision:
-        (*counter)--;
-        
-    } else {
-        
-        obj->disable_damping = false;
-        
-        // follow obj_hunted:
-        float vel_x = (obj_hunted->pos_x + obj_hunted->wall->x) - 
-            (obj->pos_x + obj->wall->x);
-        float vel_y = (obj_hunted->pos_y + obj_hunted->wall->y) - 
-            (obj->pos_y + obj->wall->y);
-        
-        float norm = sqrtf(vel_x * vel_x + vel_y * vel_y);
-        vel_x /= norm;
-        vel_y /= norm;
-        
-        vel_x *= vel_abs;
-        vel_y *= vel_abs;
-        
-        obj->vel_x = vel_x;
-        obj->vel_y = vel_y;
-    }
-}
-
 void task_soccer(
     task_t* tsk, object_t* obj, groups_t* grp, 
     bool* keys, uint64_t frame, float dt) {
@@ -803,13 +729,12 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->is_beer = false;
                 var->is_ball = false;
                 var->is_target = false;
-                var->teams->team_a = true;
-                var->teams->team_b = false;
                 var->beer = 
                     object_get((object_t*) lst_obj->entry, obj->id + 10);
-                //obj->facing = OBJECT_FACING_SOUTH;
                 obj->facing = OBJECT_FACING_SOUTH;
                 printf("object %d joined team a!\n", obj->id);
+                var->teams->team_a = true;
+                var->teams->team_b = false;
                 var_shared->teams->team_a[a++] = obj;
                 break;
             
@@ -818,12 +743,12 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->is_beer = false;
                 var->is_ball = false;
                 var->is_target = false;
-                var->teams->team_a = false;
-                var->teams->team_b = true;
                 var->beer = 
                     object_get((object_t*) lst_obj->entry, obj->id + 10);
                 obj->facing = OBJECT_FACING_NORTH;
                 printf("object %d joined team b!\n", obj->id);
+                var->teams->team_a = false;
+                var->teams->team_b = true;
                 var_shared->teams->team_b[b++] = obj;
                 break;
                 
@@ -855,6 +780,8 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var_shared->pos_x_target = obj->pos_x;
                 var_shared->pos_y_target = obj->pos_y;
                 obj->disable_collision = true;
+                obj->anim_walk = false;
+                object_select_animation(obj, ANIMATION_UPRIGHT);
                 break;
                 
             case 899:           // flunky ball
@@ -933,10 +860,6 @@ void task_flunky_player(
         
     if (tasks_is_players_turn(var->teams, var_shared->teams)) {
         
-        /*if (tsk->step == TASK_FINAL_STEP) {
-            tsk->step = 0;
-        }*/
-        
         if (var_shared->target_hit) {
             
             task_flunky_player_drink(tsk, obj, var, var_shared, frame, dt);
@@ -944,28 +867,21 @@ void task_flunky_player(
         } else {
             
             if (obj->obj_carries == var_shared->ball) {
-                task_flunky_player_throw_ball(tsk, obj, var, var_shared, frame, dt);
+                task_flunky_player_throw_ball(
+                    tsk, obj, var, var_shared, frame, dt);
             }
         }
         
     } else {    // other teams turn
         
         if (obj->obj_carries == var->beer) {
-            throw(obj, 0.0);
+            
+            task_flunky_player_stop_drinking(
+                tsk, obj, var, var_shared, frame, dt);
         }
-        
-        //if (var_shared->target_hit) {
             
-            task_flunky_player_retrieve_ball_or_target(
-                tsk, obj, var, var_shared, frame, dt, false);
-                
-        //} else if (var_shared->ball->obj_carried_by != NULL &&
-        //           var_shared->ball->vel_x < 0.1 && 
-        //           var_shared->ball->vel_y < 0.1) {
-            
-        //    task_flunky_player_retrieve_ball_or_target(
-        //        tsk, obj, var, var_shared, frame, dt, true);
-        //}
+        task_flunky_player_retrieve_ball_or_target(
+            tsk, obj, var, var_shared, frame, dt);
     }
 }
 
@@ -993,6 +909,10 @@ void task_flunky_target(
         
         var_shared->target_hit = true;
     }*/
+    if (obj->col != NULL) {
+        var_shared->target->anim_walk = true;
+    }
+    
     if (check_collision(obj, var_shared->ball->id)) {
         var_shared->target_hit = true;
     }
@@ -1010,6 +930,24 @@ void task_flunky_player_drink(
     uint64_t frame, float dt) {
     
     pick_up(obj, var->beer);
+}
+
+void task_flunky_player_stop_drinking(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    if (var->teams->team_a) {
+        obj->facing = OBJECT_FACING_SOUTH;
+    } else {
+        obj->facing = OBJECT_FACING_NORTH;
+    }
+            
+    put_down(obj);
+    
+    task_t* tsk_beer = tasks_get_task(var->beer, tsk->id);
+    flunky_t* var_beer = tsk_beer->variables;
+    var->beer->pos_x = var_beer->pos_x_default;
+    var->beer->pos_y = var_beer->pos_y_default;
 }
 
 void task_flunky_player_throw_ball(
@@ -1071,7 +1009,7 @@ void task_flunky_player_throw_ball(
 
 void task_flunky_player_retrieve_ball_or_target(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
-    uint64_t frame, float dt, bool ball_only) {
+    uint64_t frame, float dt) {
     
     if (tsk->step == 0) {
         // init:
@@ -1086,8 +1024,8 @@ void task_flunky_player_retrieve_ball_or_target(
             printf("TARGET AND BALL!\n");
             
         } else if (var_shared->ball->obj_carried_by == NULL &&
-                   var_shared->ball->vel_x < 0.1 && 
-                   var_shared->ball->vel_y < 0.1) {
+                   fabsf(var_shared->ball->vel_x) < 0.1 && 
+                   fabsf(var_shared->ball->vel_y) < 0.1) {
             
             // only retrieve the ball:           
             var_shared->target_retrieved = true;
@@ -1131,14 +1069,16 @@ void task_flunky_player_retrieve_ball_or_target(
         
         if (check_collision(obj, obj_hunted->id)) {
             
-            pick_up(obj, obj_hunted);
+            if (!pick_up(obj, obj_hunted)) {
+                return;
+            }
             
             if (obj_hunted == var_shared->target) {
                 var_shared->target_retrieved = true;
                 tsk->step = 2;
             } else {
                 var_shared->ball_retrieved = true;
-                tsk->step = 3;
+                tsk->step = 4;
             }
         }
         
@@ -1158,9 +1098,17 @@ void task_flunky_player_retrieve_ball_or_target(
             obj->vel_x = 0.0;
             obj->vel_y = 0.0;
             
-            throw(obj, 0.0);
+            put_down(obj);
+            
+            var_shared->target->vel_x = 0.0;
+            var_shared->target->vel_y = 0.0;
         
             var_shared->target->disable_collision = true;
+            
+            var_shared->target->anim_walk = false;
+            object_select_animation(var_shared->target, ANIMATION_UPRIGHT);
+            
+            tsk->counter = 0;
         
             tsk->step = 3;
         }
@@ -1168,8 +1116,21 @@ void task_flunky_player_retrieve_ball_or_target(
         return;
     }
     
-    
     if (tsk->step == 3) {
+        // place target, wait
+        
+        if (tsk->counter == (uint32_t) (60.0 * dt)) {
+            tsk->counter = 0;
+            tsk->step = 4;
+        } else {
+            tsk->counter++;
+        }
+        
+        return;
+    }
+    
+    
+    if (tsk->step == 4) {
         // move to start position:
         
         // reset hunt variables:
