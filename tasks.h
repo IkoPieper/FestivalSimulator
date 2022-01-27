@@ -33,9 +33,20 @@ struct team_game_shared {
     uint8_t num_player_team_b;
 };
 
+team_game_t* tasks_init_team_game();
+void tasks_free_team_game(team_game_t* t);
+team_game_shared_t* tasks_init_team_game_shared(
+    uint8_t num_player_team_a, uint8_t num_player_team_b);
+void tasks_free_team_game_shared(team_game_shared_t* t_shared);
+void tasks_team_a_add(
+    team_game_t* t, team_game_shared_t* t_shared, object_t* obj);
+void tasks_team_b_add(
+    team_game_t* t, team_game_shared_t* t_shared, object_t* obj);
 bool tasks_is_players_turn(team_game_t* t, team_game_shared_t* t_shared);
 bool tasks_team_has_finished(team_game_t* t, team_game_shared_t* t_shared);
 void tasks_switch_teams(team_game_shared_t* t_shared);
+void tasks_team_a_set_step(uint32_t step, team_game_shared_t* t, uint32_t id);
+void tasks_team_b_set_step(uint32_t step, team_game_shared_t* t, uint32_t id);
 void tasks_team_set_step(
     uint32_t step, object_t** team, uint8_t num_player, uint32_t id);
 
