@@ -119,6 +119,7 @@ struct flunky {
     bool is_target;         // if true: object is the target bottle
     bool is_beer;           // if true: object is a beer bottle
     object_t* beer;         // every player has a beer
+    float beer_amount;      // amount of beer inside of a beer bottle
     float pos_x_default;    // default x-position
     float pos_y_default;    // default y-position
     float pos_x_next;       // currently targeted x-position

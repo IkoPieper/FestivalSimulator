@@ -303,8 +303,6 @@ void task_find_bob(
         
         if (said(hero)) {
             
-            say_free(hero);
-            
             say(obj, 2, 50);
             
             move_on(obj);
@@ -808,7 +806,9 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->is_beer = true;
                 var->is_ball = false;
                 var->is_target = false;
+                var->beer_amount = 100.0;
                 tasks_team_a_add(var->teams, var_shared->teams, NULL);
+                object_select_animation(obj, 0);
                 break;
                 
             case 815 ... 818:   // beer bottles of team b
@@ -816,7 +816,9 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->is_beer = true;
                 var->is_ball = false;
                 var->is_target = false;
+                var->beer_amount = 100.0;
                 tasks_team_b_add(var->teams, var_shared->teams, NULL);
+                object_select_animation(obj, 0);
                 break;
                 
             case 898:           // flunky target
@@ -954,6 +956,34 @@ void task_flunky_player_drink(
     uint64_t frame, float dt) {
     
     pick_up(obj, var->beer);
+    
+    task_t* tsk_beer = tasks_get_task(var->beer, tsk->id);
+    flunky_t* var_beer = tsk_beer->variables;
+    
+    var_beer->beer_amount -= dt / 10.0;
+    
+    
+    if (var_beer->beer_amount == 100.0) {
+        object_select_animation(var->beer, 0);
+    } else if (var_beer->beer_amount > 85.0) {
+        object_select_animation(var->beer, 1);
+    } else if (var_beer->beer_amount > 68.0) {
+        object_select_animation(var->beer, 2);
+    } else if (var_beer->beer_amount > 51.0) {
+        object_select_animation(var->beer, 3);
+    } else if (var_beer->beer_amount > 34.0) {
+        object_select_animation(var->beer, 4);
+    } else if (var_beer->beer_amount > 17.0) {
+        object_select_animation(var->beer, 5);
+    } else if (var_beer->beer_amount > 0.0) {
+        object_select_animation(var->beer, 6);
+    } else {    // beer is empty
+        object_select_animation(var->beer, 7);
+        
+        say_new(obj, "Fertig!", 60);
+        
+        var_beer->beer_amount = 100.0;
+    }
 }
 
 void task_flunky_player_stop_drinking(
@@ -1050,11 +1080,13 @@ void task_flunky_player_retrieve_ball_or_target(
                    fabsf(var_shared->ball->vel_x) < 0.1 && 
                    fabsf(var_shared->ball->vel_y) < 0.1) {
             
-            // only retrieve the ball:           
+            // only retrieve the ball: 
             var_shared->target_retrieved = true;
             var_shared->ball_retrieved = false;
             var_shared->teams->num_finished = 0;
             tsk->step = 1;
+            
+            var_shared->target->disable_collision = true;
         }
         
         return;
@@ -1141,7 +1173,7 @@ void task_flunky_player_retrieve_ball_or_target(
     if (tsk->step == 3) {
         // place target, wait:
         
-        if (tsk->counter == (uint32_t) (60.0 * dt)) {
+        if (tsk->counter == (uint32_t) (60.0 / dt)) {
             tsk->counter = 0;
             tsk->step = 4;
         } else {

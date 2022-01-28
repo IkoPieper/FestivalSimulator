@@ -80,6 +80,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
     
     // thrown by another object (usually after carried by):
     obj_new->obj_escape_col = NULL;
+    obj_new->obj_escape_col_time = -1.0;
     
     // facing direction:
     obj_new->facing = OBJECT_FACING_SOUTH;
@@ -405,14 +406,12 @@ void object_add_text(object_t* obj, uint32_t id) {
 void object_select_text(object_t* obj, uint32_t id) {
     
 	obj->txt = find_id(obj->txt, id);
-    
 }
 
 void object_print_text(object_t* obj) {
 	
 	obj->txt_print = 1;
     obj->txt_next_letter = 0.0;
-	
 }
 
 void object_remove_text(object_t* obj, uint32_t id) {
@@ -420,7 +419,6 @@ void object_remove_text(object_t* obj, uint32_t id) {
     list_t* txt = find_id(obj->txt, id);
     text_free((text_t*) txt->entry);
     obj->txt = delete_single(txt);
-    
 }
 
 void object_free_texts(list_t* txt) {
@@ -584,19 +582,14 @@ bool said(object_t* obj) {
     return(obj->txt_print == 0);
 }
 
-// if calling say_new, you have to call say_free at a later step:
 void say_new(object_t* obj, char* str, uint32_t duration) {
     
     object_add_text(obj, 0);
     text_t* txt = (text_t*) obj->txt->entry;
     text_add_string(txt, str);
     txt->duration = duration;
+    txt->autofree = true;
     obj->txt_print = 1;
-}
-
-void say_free(object_t* obj) {
-    
-    object_remove_text(obj, 0);
 }
 
 bool move_to_position(object_t* obj, float x, float y, float vel_abs) {
@@ -830,6 +823,7 @@ void put_down(object_t* obj) {
     
     object_t* obj_target = obj->obj_carries;
     obj_target->obj_escape_col = obj;
+    obj_target->obj_escape_col_time = 60.0;
     obj->obj_carries = NULL;
     obj_target->obj_carried_by = NULL;
 }

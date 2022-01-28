@@ -123,10 +123,19 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                             
                             if (!collision) {
                                 if (obj->obj_escape_col == obj_b) {
-                                    obj->obj_escape_col = NULL;
+                                    if (obj->obj_escape_col_time < 0.0) {
+                                        obj->obj_escape_col = NULL;
+                                    } else {
+                                        obj->obj_escape_col_time -= dt;
+                                    }
+                                    
                                 }
                                 if (obj_b->obj_escape_col == obj) {
-                                    obj_b->obj_escape_col = NULL;
+                                    if (obj_b->obj_escape_col_time < 0.0) {
+                                        obj_b->obj_escape_col = NULL;
+                                    } else {
+                                        obj_b->obj_escape_col_time -= dt;
+                                    }
                                 }
                             }
                             
@@ -917,13 +926,11 @@ void collisions_impulse(
 	float v2y = 0.0;
     
     if (obj1->obj_carried_by != NULL) {
-        printf("impulse of obj %d calculated for obj %d\n", obj1->id, obj1->obj_carried_by->id);
         m1 = m1 + obj1->obj_carried_by->mass;
         obj1 = obj1->obj_carried_by;
     }
     
     if (obj2->obj_carried_by != NULL) {
-        printf("impulse of obj %d calculated for obj %d\n", obj2->id, obj2->obj_carried_by->id);
         m2 = m2 + obj2->obj_carried_by->mass;
         obj2 = obj2->obj_carried_by;
     }

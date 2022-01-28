@@ -47,7 +47,6 @@ void object_free_waypoints(list_t* ways);
 void say(object_t* obj, uint32_t id, uint32_t duration);
 bool said(object_t* obj);
 void say_new(object_t* obj, char* str, uint32_t duration);
-void say_free(object_t* obj);
 bool move_to_position(object_t* obj, float x, float y, float vel_abs);
 bool move_to_relative(object_t* obj, float x, float y, float vel_abs);
 void hunt_object(object_t* obj, uint32_t* counter, bool clockwise, 

@@ -189,8 +189,8 @@ void movements_accelerate(object_t* obj, float dt) {
     }
     
     // limit high velocities:
-    const float vel_max = 12.0;
-    const float vel_max_2 = 144.0; // vel_max squared
+    const float vel_max = 8.0;
+    const float vel_max_2 = 64.0; // vel_max squared
     float vx = obj->vel_x;
     float vy = obj->vel_y;
     float norm = vx * vx + vy * vy;

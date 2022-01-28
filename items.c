@@ -145,7 +145,7 @@ bool use_hand(
     object_t* obj, object_t* obj_host, bool* keys, uint64_t frame, float dt) {
     
     float vel_throw = 0.0;              // throw velocity
-    const float vel_throw_max = 16.0;   // maximum throw velocity
+    const float vel_throw_max = 6.0;    // maximum throw velocity
     
     // pick up target object using space bar:
     if (obj->itm_props->step == 0 && keys[KEY_SPACE] && obj_host->col != NULL) {

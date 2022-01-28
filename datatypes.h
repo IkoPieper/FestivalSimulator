@@ -125,6 +125,7 @@ struct object {
 	
     // disable collision until object escaped collision zone (used for throws):
     object_t* obj_escape_col;
+    float obj_escape_col_time;
     
     // facing direction:
     uint8_t facing;

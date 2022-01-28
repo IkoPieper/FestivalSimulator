@@ -443,9 +443,15 @@ void on_render_text(object_t* obj, video_t* vid) {
 	surface_on_draw(vid->surface, obj->txt_surface, x, y);
     
 	if (obj->txt_print > txt->duration) {
+        
 		SDL_FreeSurface(obj->txt_surface);
 		obj->txt_surface = NULL;
 		obj->txt_print = 0; // disable printing
+        
+        if (txt->autofree) {
+            text_free(txt);
+            obj->txt = delete_single(obj->txt);
+        }
 	}
 	
 }

@@ -8,3 +8,27 @@ can_move = 1
 mass = 0.1
 damping = 0.04
 disable_collision = 1
+
+animation = 0           # bottle is full
+surface = bottle_upright.bmp
+
+animation = 1           # bottle is not so full anymore
+surface = bottle_upright_empty1.bmp
+
+animation = 2
+surface = bottle_upright_empty2.bmp
+
+animation = 3
+surface = bottle_upright_empty3.bmp
+
+animation = 4
+surface = bottle_upright_empty4.bmp
+
+animation = 5
+surface = bottle_upright_empty5.bmp
+
+animation = 6
+surface = bottle_upright_empty6.bmp
+
+animation = 7           # bottle is empty
+surface = bottle_upright_empty7.bmp
