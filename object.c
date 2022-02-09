@@ -72,6 +72,9 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	obj_new->acc_y = 0.0;
 	obj_new->acc_abs = 0.01;
 	
+    // can be carried by another object:
+    obj_new->can_be_carried = true;
+    
     // carried by another object:
     obj_new->obj_carried_by = NULL;
     
@@ -607,6 +610,9 @@ bool move_to_position(object_t* obj, float x, float y, float vel_abs) {
         y_obj < y + y_border) {
         
         // object reached targeted position
+        obj->vel_x = 0.0;
+        obj->vel_y = 0.0;
+        
         return(true);
     
     }
@@ -632,7 +638,8 @@ void hunt_object(
     
     const float vel_abs = 2.0;
     
-    if (obj->col != NULL && *counter == 0) {
+    //if (obj->col != NULL && *counter == 0) {
+    if (obj->col != NULL) {
         
         float vel_x;
         float vel_y;
@@ -669,18 +676,22 @@ void hunt_object(
         
         obj->vel_x = vel_x;
         obj->vel_y = vel_y;
-        obj->disable_damping = true;
+        //obj->disable_damping = true;
         
         *counter = (int32_t) (30.0 / dt);
         
     } else if (*counter > 0) {
+        
+        float norm = sqrtf(obj->vel_x * obj->vel_x + obj->vel_y * obj->vel_y);
+        obj->vel_x = obj->vel_x / norm * vel_abs;
+        obj->vel_y = obj->vel_y / norm * vel_abs;
         
         // go away from collision:
         (*counter)--;
         
     } else {
         
-        obj->disable_damping = false;
+        //obj->disable_damping = false;
         
         // follow obj_hunted:
         float vel_x = (obj_hunted->pos_x + obj_hunted->wall->x) - 
@@ -791,6 +802,10 @@ bool check_collision(object_t* obj1, uint32_t id_obj2) {
 
 bool pick_up(object_t* obj, object_t* obj_target) {
     
+    if (!obj_target->can_be_carried) {
+        return(false);
+    }
+    
     // don't pick up what is carried by another object:
     if (obj_target->obj_carried_by != NULL) {
         return(false);
@@ -826,6 +841,8 @@ void put_down(object_t* obj) {
     obj_target->obj_escape_col_time = 60.0;
     obj->obj_carries = NULL;
     obj_target->obj_carried_by = NULL;
+    obj_target->vel_x = 0.0;
+    obj_target->vel_y = 0.0;
 }
 
 void throw(object_t* obj, float vel_add) {

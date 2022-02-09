@@ -14,6 +14,8 @@ void tasks_get_functions(task_t* tsk, uint32_t id);
 
 task_t* tasks_get_task(object_t* obj, uint32_t id);
 
+void* tasks_get_task_variables(object_t* obj, uint32_t id);
+
 void tasks_share_variables(list_t* lst_obj, void* var_shared, uint32_t id);
 
 typedef struct team_game team_game_t;
@@ -24,13 +26,14 @@ struct team_game {
 
 typedef struct team_game_shared team_game_shared_t;
 struct team_game_shared {
-    object_t** team_a;          // array of team a players TODO: needed?
-    object_t** team_b;          // array of team b players TODO: needed?
-    uint8_t num_finished;       // number of players that finished the round
+    object_t** team_a;          // array of team a players
+    object_t** team_b;          // array of team b players
+    uint8_t num_finished_a;     // number of players that finished the round
+    uint8_t num_finished_b;     // as above, but for team b
     bool team_a_turn;           // team a's turn to throw the ball
     bool team_b_turn;           // team b's turn to throw the ball
-    uint8_t num_player_team_a;
-    uint8_t num_player_team_b;
+    uint8_t num_player_team_a;  // number of players in team a
+    uint8_t num_player_team_b;  // number of players in team b
 };
 
 team_game_t* tasks_init_team_game();
@@ -43,7 +46,10 @@ void tasks_team_a_add(
 void tasks_team_b_add(
     team_game_t* t, team_game_shared_t* t_shared, object_t* obj);
 bool tasks_is_players_turn(team_game_t* t, team_game_shared_t* t_shared);
+void tasks_team_starts(team_game_t* t, team_game_shared_t* t_shared);
+void tasks_team_player_finished(team_game_t* t, team_game_shared_t* t_shared);
 bool tasks_team_has_finished(team_game_t* t, team_game_shared_t* t_shared);
+bool tasks_both_teams_have_finished(team_game_shared_t* t_shared);
 void tasks_switch_teams(team_game_shared_t* t_shared);
 void tasks_team_a_set_step(uint32_t step, team_game_shared_t* t, uint32_t id);
 void tasks_team_b_set_step(uint32_t step, team_game_shared_t* t, uint32_t id);
@@ -103,9 +109,12 @@ struct flunky_shared {
     uint32_t pos_y_line_team_b;
     object_t* ball;
     object_t* target;
-    float pos_x_target;         // default position of target
+    float pos_x_target;     // default position of target
     float pos_y_target;
-    bool target_hit;            // target bottle got hit
+    bool round_start;       // if true: prepare a new flunky ball round
+    bool round_end;         // if true: what happens if a flunky ball round ends
+    bool team_a_won;        // if true: team a won, else: team b won the round
+    bool target_hit;        // target bottle got hit
     bool target_retrieved;
     bool ball_retrieved;
 };
@@ -145,16 +154,8 @@ void task_flunky_free(
 void task_flunky_player(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt);
-
-void task_flunky_beer(
-    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
-    uint64_t frame, float dt);
     
 void task_flunky_target(
-    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
-    uint64_t frame, float dt);
-
-void task_flunky_ball(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt);
     
@@ -173,8 +174,15 @@ void task_flunky_player_throw_ball(
 void task_flunky_player_retrieve_ball_or_target(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt);
+    
+void task_flunky_player_round_end(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
+    
+void task_flunky_player_round_start(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt);
 
-// final step is used to set local parameters back to init values:
 #define TASK_FINAL_STEP 666
 
 #endif

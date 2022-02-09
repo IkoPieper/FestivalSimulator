@@ -128,6 +128,12 @@ task_t* tasks_get_task(object_t* obj, uint32_t id) {
     return ((task_t*) lst_tsk->entry);
 }
 
+void* tasks_get_task_variables(object_t* obj, uint32_t id) {
+    
+    task_t* tsk = tasks_get_task(obj, id);
+    return(tsk->variables);
+}
+
 // write pointer to shared task variables into the task of every object in 
 // lst_obj:
 void tasks_share_variables(list_t* lst_obj, void* var_shared, uint32_t id) {
@@ -167,8 +173,8 @@ team_game_shared_t* tasks_init_team_game_shared(
     team_game_shared_t* t = 
         (team_game_shared_t*) malloc(sizeof(team_game_shared_t));
     
-    t->num_finished = 0;
-    
+    t->num_finished_a = 0;
+    t->num_finished_b = 0;
     t->team_a_turn = true;
     t->team_b_turn = false;
     
@@ -217,11 +223,36 @@ bool tasks_is_players_turn(team_game_t* t, team_game_shared_t* t_shared) {
         (t->team_b && t_shared->team_b_turn));
 }
 
+void tasks_team_starts(team_game_t* t, team_game_shared_t* t_shared) {
+    
+    if (t->team_a) {
+        t_shared->num_finished_a = 0;
+    } else {
+        t_shared->num_finished_b = 0;
+    }
+}
+
+void tasks_team_player_finished(team_game_t* t, team_game_shared_t* t_shared) {
+    
+    if (t->team_a) {
+        t_shared->num_finished_a++;
+    } else {
+        t_shared->num_finished_b++;
+    }
+}
+
 bool tasks_team_has_finished(team_game_t* t, team_game_shared_t* t_shared) {
     
-    return (
-        (t->team_a && t_shared->num_finished == t_shared->num_player_team_a) ||
-        (t->team_b && t_shared->num_finished == t_shared->num_player_team_b));
+    return(
+        (t->team_a && t_shared->num_finished_a == t_shared->num_player_team_a) ||
+        (t->team_b && t_shared->num_finished_b == t_shared->num_player_team_b));
+}
+
+bool tasks_both_teams_have_finished(team_game_shared_t* t_shared) {
+    
+    return(
+        t_shared->num_finished_a == t_shared->num_player_team_a &&
+        t_shared->num_finished_b == t_shared->num_player_team_b);
 }
 
 void tasks_switch_teams(team_game_shared_t* t_shared) {
@@ -746,6 +777,9 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     // variables here as well. this is usually done later, in the first step 
     // inside the players task function, but here is nicer:
     
+    var_shared->round_start = true;
+    var_shared->round_end = false;
+    var_shared->team_a_won = false;
     var_shared->target_hit = false;
     var_shared->ball_retrieved = true;
     var_shared->target_retrieved = true;
@@ -753,6 +787,8 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
     var_shared->teams = tasks_init_team_game_shared(4, 4);
     
     object_t* obj;
+    task_t* tsk;
+    flunky_t* var;
     lst_obj = get_first(lst_obj);
     
     while (lst_obj != NULL) {
@@ -760,11 +796,11 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
         // get object:
         obj = (object_t*) lst_obj->entry;
         
-        task_t* tsk = tasks_get_task(obj, id);
+        tsk = tasks_get_task(obj, id);
         
         // malloc task variables of object:
         tsk->variables = (void*) malloc(sizeof(flunky_t));
-        flunky_t* var = (flunky_t*) tsk->variables;
+        var = (flunky_t*) tsk->variables;
         
         var->teams = tasks_init_team_game();
         
@@ -841,14 +877,8 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 break;
         }
         
-        // give ball to a player of team a:
-        if (obj->id == 803) {
-            pick_up(obj, var_shared->ball);
-        }
-        
         lst_obj = lst_obj->next;
     }
-    
 }
 
 void task_flunky_free_shared(void* var_shared, uint32_t id) {
@@ -866,21 +896,31 @@ void task_flunky(
     flunky_t* var = (flunky_t*) tsk->variables;
     flunky_shared_t* var_shared = (flunky_shared_t*) tsk->variables_shared;
     
-    if (var->is_player) {
+    if (var_shared->round_end) {
         
-        task_flunky_player(tsk, obj, var, var_shared, frame, dt);
+        if (var->is_player) {
+            
+            task_flunky_player_round_end(tsk, obj, var, var_shared, frame, dt);
+        }
         
-    } else if (var->is_beer) {
+    } else if (var_shared->round_start) {
         
-        task_flunky_beer(tsk, obj, var, var_shared, frame, dt);
+        if (var->is_player) {
+            
+            task_flunky_player_round_start(tsk, obj, var, var_shared, frame, dt);
+        }
         
-    } else if (var->is_target) {
-        
-        task_flunky_target(tsk, obj, var, var_shared, frame, dt);
-        
-    } else if (var->is_ball) {
-        
-        task_flunky_ball(tsk, obj, var, var_shared, frame, dt);
+    } else {
+    
+        if (var->is_player) {
+            
+            task_flunky_player(tsk, obj, var, var_shared, frame, dt);
+            
+        } else if (var->is_target) {
+            
+            task_flunky_target(tsk, obj, var, var_shared, frame, dt);
+            
+        }
     }
 }
 
@@ -926,12 +966,6 @@ void task_flunky_player(
     }
 }
 
-void task_flunky_beer(
-    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
-    uint64_t frame, float dt) {
-    
-}
-
 void task_flunky_target(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
@@ -945,20 +979,14 @@ void task_flunky_target(
     }
 }
 
-void task_flunky_ball(
-    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
-    uint64_t frame, float dt) {
-    
-}
-
 void task_flunky_player_drink(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
     pick_up(obj, var->beer);
     
-    task_t* tsk_beer = tasks_get_task(var->beer, tsk->id);
-    flunky_t* var_beer = tsk_beer->variables;
+    flunky_t* var_beer = 
+        (flunky_t*) tasks_get_task_variables(var->beer, tsk->id);
     
     var_beer->beer_amount -= dt / 10.0;
     
@@ -981,8 +1009,48 @@ void task_flunky_player_drink(
         object_select_animation(var->beer, 7);
         
         say_new(obj, "Fertig!", 60);
+        throw(obj, 2.0);
         
-        var_beer->beer_amount = 100.0;
+        // check if all beers of the team are empty:
+        bool beer_empty = true;
+        object_t** team = NULL;
+        uint8_t num_player = 0;
+        
+        if (var->teams->team_a) {
+            team = var_shared->teams->team_a;
+            num_player = var_shared->teams->num_player_team_a;
+        } else {
+            team = var_shared->teams->team_b;
+            num_player = var_shared->teams->num_player_team_b;
+        }
+        
+        flunky_t* var_tmp = NULL;   // beer of another team player
+        
+        for (int n = 0; n < num_player; n++) {
+            
+            var_tmp = (flunky_t*) tasks_get_task_variables(team[n], tsk->id);
+            var_tmp = 
+                (flunky_t*) tasks_get_task_variables(var_tmp->beer, tsk->id);
+            
+            if (var_tmp->beer_amount > 0.0) {
+                beer_empty = false;
+            }
+        }
+        
+        if (beer_empty == true) {   // all beers of the team are empty
+            
+            tasks_team_a_set_step(0, var_shared->teams, tsk->id);
+            tasks_team_b_set_step(0, var_shared->teams, tsk->id);
+            
+            if (var->teams->team_a) {
+                var_shared->team_a_won = true;
+            } else {
+                var_shared->team_a_won = false;
+            }
+            
+            var_shared->round_end = true;
+        }
+        
     }
 }
 
@@ -998,8 +1066,8 @@ void task_flunky_player_stop_drinking(
             
     put_down(obj);
     
-    task_t* tsk_beer = tasks_get_task(var->beer, tsk->id);
-    flunky_t* var_beer = tsk_beer->variables;
+    flunky_t* var_beer = 
+        (flunky_t*) tasks_get_task_variables(var->beer, tsk->id);
     var->beer->pos_x = var_beer->pos_x_default;
     var->beer->pos_y = var_beer->pos_y_default;
 }
@@ -1068,12 +1136,17 @@ void task_flunky_player_retrieve_ball_or_target(
     if (tsk->step == 0) {
         // init:
         
+        // not checked if everything is needed:
+        tasks_team_starts(var->teams, var_shared->teams);
+        obj->disable_damping = false;
+        var->counter = 0;
+        
+        
         if (var_shared->target_hit) {
             
             // retrieve target and ball:
             var_shared->target_retrieved = false;
             var_shared->ball_retrieved = false;
-            var_shared->teams->num_finished = 0;
             tsk->step = 1;
             
         } else if (var_shared->ball->obj_carried_by == NULL &&
@@ -1083,7 +1156,6 @@ void task_flunky_player_retrieve_ball_or_target(
             // only retrieve the ball: 
             var_shared->target_retrieved = true;
             var_shared->ball_retrieved = false;
-            var_shared->teams->num_finished = 0;
             tsk->step = 1;
             
             var_shared->target->disable_collision = true;
@@ -1149,9 +1221,6 @@ void task_flunky_player_retrieve_ball_or_target(
         if(move_to_position(
             obj, var_shared->pos_x_target, var_shared->pos_y_target, 2.0)) {
             
-            obj->vel_x = 0.0;
-            obj->vel_y = 0.0;
-            
             put_down(obj);
             
             var_shared->target->vel_x = 0.0;
@@ -1192,15 +1261,14 @@ void task_flunky_player_retrieve_ball_or_target(
         var->counter = 0;
         
         if(move_to_position(obj, var->pos_x_default, var->pos_y_default, 2.0)) {
-            obj->vel_x = 0.0;
-            obj->vel_y = 0.0;
+            
             if (var->teams->team_a) {
                 obj->facing = OBJECT_FACING_SOUTH;
             } else {
                 obj->facing = OBJECT_FACING_NORTH;
             }
             
-            var_shared->teams->num_finished++;
+            tasks_team_player_finished(var->teams, var_shared->teams);
             
             tsk->step = TASK_FINAL_STEP;
         }
@@ -1214,12 +1282,173 @@ void task_flunky_player_retrieve_ball_or_target(
             
             var_shared->target_hit = false;
             
-            tasks_switch_teams(var_shared->teams);
-            
             tasks_team_a_set_step(0, var_shared->teams, tsk->id);
             tasks_team_b_set_step(0, var_shared->teams, tsk->id);
+            
+            tasks_switch_teams(var_shared->teams);
         }
         
         return;
     }
+}
+
+void task_flunky_player_round_end(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    if (tsk->step == 0) {
+        
+        if (obj->obj_carries != NULL) {
+            throw(obj, 2.0);
+        }
+        
+        tasks_team_starts(var->teams, var_shared->teams);
+        
+        if ((var->teams->team_a && var_shared->team_a_won) ||
+            (var->teams->team_b && !var_shared->team_a_won)) {
+            // players team won
+            if (said(obj)) {
+                say_new(obj, "Yippie!", 120);
+                tsk->step = 1;
+            }
+            
+        } else {
+            
+            tsk->step = 1;
+        }
+        
+        return;
+    }
+    
+    if (tsk->step == 1) {            
+        
+        if (said(obj)) {
+            
+            var->counter = 0;
+            var->beer->disable_collision = false;
+        
+            tsk->step = 2;
+        }
+        
+        return;
+    }
+    
+    if (tsk->step == 2) {
+        
+        hunt_object(obj, &var->counter, var->clockwise, var->beer, dt);
+        
+        if (check_collision(obj, var->beer->id)) {
+            
+            pick_up(obj, var->beer);
+            
+            tsk->step = 3;
+        }
+    }
+    
+    if (tsk->step == 3) {
+        
+        float x = 1400.0;
+        float y = 0.0;
+        
+        if (var->teams->team_a) {
+            y = 1000.0;
+        } else {
+            y = 1300.0;
+        }
+                
+        if(move_to_position(obj, x, y, 1.0)) {
+            
+            flunky_t* var_beer = 
+                (flunky_t*) tasks_get_task_variables(var->beer, tsk->id);
+            var_beer->beer_amount = 100.0;
+            object_select_animation(var->beer, 0);
+            
+            tasks_team_player_finished(var->teams, var_shared->teams);
+            tsk->step = 4;
+        }
+        
+        return;
+    }
+    
+    if (tsk->step == 4) {
+        
+        if (tasks_both_teams_have_finished(var_shared->teams)) {
+            
+            tsk->step = 5;
+        }
+    
+        return;
+    }
+    
+    if (tsk->step == 5) {
+        
+        tasks_team_starts(var->teams, var_shared->teams);
+        
+        tsk->step = 6;
+        
+        return;
+    }
+    
+    if (tsk->step == 6) {
+        
+        if(move_to_position(obj, var->pos_x_default, var->pos_y_default, 2.0)) {
+            
+            if (var->teams->team_a) {
+                obj->facing = OBJECT_FACING_SOUTH;
+            } else {
+                obj->facing = OBJECT_FACING_NORTH;
+            }
+            
+            put_down(obj);
+            var->beer->disable_collision = true;
+            
+            tasks_team_player_finished(var->teams, var_shared->teams);
+            
+            tsk->step = TASK_FINAL_STEP;
+        }
+        
+        return;
+    }
+    
+    if (tsk->step == TASK_FINAL_STEP) {
+        
+        if (tasks_both_teams_have_finished(var_shared->teams)) {
+            
+            tasks_team_a_set_step(0, var_shared->teams, tsk->id);
+            tasks_team_b_set_step(0, var_shared->teams, tsk->id);
+            
+            var_shared->round_end = false;
+            var_shared->round_start = true;
+        }
+        
+        return;
+    }
+}
+
+void task_flunky_player_round_start(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+    
+    if (!tasks_is_players_turn(var->teams, var_shared->teams)) {
+    
+        if (tsk->step == 0) {
+            
+            var_shared->target->disable_collision = false;
+            var_shared->target_hit = true;
+        }
+        
+        task_flunky_player_retrieve_ball_or_target(
+            tsk, obj, var, var_shared, frame, dt);
+    
+        if (var_shared->target_hit == false) {
+            
+            var_shared->round_start = false;
+        }
+    }
+}
+
+void task_flunky_beer_round_start(
+    task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
+    uint64_t frame, float dt) {
+
 }

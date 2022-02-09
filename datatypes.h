@@ -117,6 +117,9 @@ struct object {
 	float acc_y;
 	float acc_abs;
     
+    // object can be carried by another object:
+    bool can_be_carried;
+    
     // carried by another object:
     object_t* obj_carried_by;
     

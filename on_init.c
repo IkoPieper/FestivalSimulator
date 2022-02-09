@@ -46,6 +46,8 @@ bool on_init_background(object_t* obj, video_t* vid, uint8_t area) {
 	obj->mass = 99999999999.0;
 	obj->damping = 1.0;
 	
+    obj->can_be_carried = false;
+    
     char path[64];
     snprintf(path, 64, "objects/area%d/background_walls.bmp", area);
     

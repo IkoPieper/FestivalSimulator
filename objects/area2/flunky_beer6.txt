@@ -1,7 +1,7 @@
 object = 816
 task = 8
-pos_x = 1220
-pos_y = 1190
+pos_x = 1222
+pos_y = 1227
 surface = bottle_upright.bmp
 walls = bottle_walls.bmp
 can_move = 1
