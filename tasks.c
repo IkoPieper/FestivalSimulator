@@ -495,7 +495,7 @@ void task_bus_passenger(
         
     } else if (tsk->step == 2) {
         
-        object_t* bus = object_get(obj, OBJECT_BUS);
+        object_t* bus = object_get(obj, TASK_OBJECT_ID_BUS);
         task_t* tsk_bus = (task_t*) bus->tsk->entry;
         if (tsk_bus->step == 0 && count(bus->itm) < 4) {
             
@@ -813,7 +813,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
         
         // init task variables of object:
         switch (obj->id) {
-            case 801 ... 804:   // obj (player) is in team a
+            case TASK_OBJECT_ID_FLUNKY_0_TEAM_A_PLAYERS:
                 var->is_player = true;
                 var->is_beer = false;
                 var->is_ball = false;
@@ -825,7 +825,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 tasks_team_a_add(var->teams, var_shared->teams, obj);
                 break;
             
-            case 805 ... 808:   // obj (player) is in team b
+            case TASK_OBJECT_ID_FLUNKY_0_TEAM_B_PLAYERS:
                 var->is_player = true;
                 var->is_beer = false;
                 var->is_ball = false;
@@ -837,7 +837,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 tasks_team_b_add(var->teams, var_shared->teams, obj);
                 break;
                 
-            case 811 ... 814:   // beer bottles of team a
+            case TASK_OBJECT_ID_FLUNKY_0_TEAM_A_BEERS:
                 var->is_player = false;
                 var->is_beer = true;
                 var->is_ball = false;
@@ -847,7 +847,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 object_select_animation(obj, 0);
                 break;
                 
-            case 815 ... 818:   // beer bottles of team b
+            case TASK_OBJECT_ID_FLUNKY_0_TEAM_B_BEERS:
                 var->is_player = false;
                 var->is_beer = true;
                 var->is_ball = false;
@@ -857,7 +857,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 object_select_animation(obj, 0);
                 break;
                 
-            case 898:           // flunky target
+            case TASK_OBJECT_ID_FLUNKY_0_TARGET:
                 var->is_player = false;
                 var->is_beer = false;
                 var->is_ball = false;
@@ -869,7 +869,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 object_select_animation(obj, ANIMATION_UPRIGHT);
                 break;
                 
-            case 899:           // flunky ball
+            case TASK_OBJECT_ID_FLUNKY_0_BALL:
                 var->is_player = false;
                 var->is_beer = false;
                 var->is_ball = true;
@@ -1089,10 +1089,7 @@ void task_flunky_player_throw_ball(
         
         tsk->step = 1;
         
-        return;
-    }
-    
-    if (tsk->step == 1) {
+    } else if (tsk->step == 1) {
         // go away from target:
         
         const float vel_abs = 1.0;
@@ -1101,10 +1098,7 @@ void task_flunky_player_throw_ball(
             tsk->step = 2;    // position reached
         }
         
-        return;
-    }
-    
-    if (tsk->step == 2) {
+    } else if (tsk->step == 2) {
         // move to target:
         
         const float vel_abs = 4.0;
@@ -1124,8 +1118,6 @@ void task_flunky_player_throw_ball(
 
             tsk->step = 0;
         }
-        
-        return;
     }
 }
 
@@ -1161,10 +1153,7 @@ void task_flunky_player_retrieve_ball_or_target(
             var_shared->target->disable_collision = true;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 1) {
+    } else if (tsk->step == 1) {
         // get ball or bottle and pick it up:
         
         if (var_shared->target_retrieved && var_shared->ball_retrieved) {
@@ -1208,10 +1197,7 @@ void task_flunky_player_retrieve_ball_or_target(
             }
         }
         
-        return;
-    }
-    
-    if (tsk->step == 2) {
+    } else if (tsk->step == 2) {
         // place target:
         
         // reset hunt variables:
@@ -1236,10 +1222,7 @@ void task_flunky_player_retrieve_ball_or_target(
             tsk->step = 3;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 3) {
+    } else if (tsk->step == 3) {
         // place target, wait:
         
         if (tsk->counter == (uint32_t) (60.0 / dt)) {
@@ -1249,11 +1232,7 @@ void task_flunky_player_retrieve_ball_or_target(
             tsk->counter++;
         }
         
-        return;
-    }
-    
-    
-    if (tsk->step == 4) {
+    } else if (tsk->step == 4) {
         // move to start position:
         
         // reset hunt variables:
@@ -1273,10 +1252,7 @@ void task_flunky_player_retrieve_ball_or_target(
             tsk->step = TASK_FINAL_STEP;
         }
         
-        return;
-    }
-    
-    if (tsk->step == TASK_FINAL_STEP) {
+    } else if (tsk->step == TASK_FINAL_STEP) {
         
         if (tasks_team_has_finished(var->teams, var_shared->teams)) {
             
@@ -1287,8 +1263,6 @@ void task_flunky_player_retrieve_ball_or_target(
             
             tasks_switch_teams(var_shared->teams);
         }
-        
-        return;
     }
 }
 
@@ -1317,10 +1291,7 @@ void task_flunky_player_round_end(
             tsk->step = 1;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 1) {            
+    } else if (tsk->step == 1) {            
         
         if (said(obj)) {
             
@@ -1330,10 +1301,7 @@ void task_flunky_player_round_end(
             tsk->step = 2;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 2) {
+    } else if (tsk->step == 2) {
         
         hunt_object(obj, &var->counter, var->clockwise, var->beer, dt);
         
@@ -1343,9 +1311,8 @@ void task_flunky_player_round_end(
             
             tsk->step = 3;
         }
-    }
-    
-    if (tsk->step == 3) {
+        
+    } else if (tsk->step == 3) {
         
         float x = 1400.0;
         float y = 0.0;
@@ -1367,29 +1334,20 @@ void task_flunky_player_round_end(
             tsk->step = 4;
         }
         
-        return;
-    }
-    
-    if (tsk->step == 4) {
+    } else if (tsk->step == 4) {
         
         if (tasks_both_teams_have_finished(var_shared->teams)) {
             
             tsk->step = 5;
         }
     
-        return;
-    }
-    
-    if (tsk->step == 5) {
+    } else if (tsk->step == 5) {
         
         tasks_team_starts(var->teams, var_shared->teams);
         
         tsk->step = 6;
         
-        return;
-    }
-    
-    if (tsk->step == 6) {
+    } else if (tsk->step == 6) {
         
         if(move_to_position(obj, var->pos_x_default, var->pos_y_default, 2.0)) {
             
@@ -1407,10 +1365,7 @@ void task_flunky_player_round_end(
             tsk->step = TASK_FINAL_STEP;
         }
         
-        return;
-    }
-    
-    if (tsk->step == TASK_FINAL_STEP) {
+    } else if (tsk->step == TASK_FINAL_STEP) {
         
         if (tasks_both_teams_have_finished(var_shared->teams)) {
             
@@ -1420,8 +1375,6 @@ void task_flunky_player_round_end(
             var_shared->round_end = false;
             var_shared->round_start = true;
         }
-        
-        return;
     }
 }
 

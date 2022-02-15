@@ -256,7 +256,7 @@ bool share_entry(list_t* lst1, list_t* lst2) {
 
 // TEST FUNCTION
 /*
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
 	
     int a = 1;
     int b = 2;

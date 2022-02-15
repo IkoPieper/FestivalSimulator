@@ -173,7 +173,7 @@ bool on_execute() {
 	return(false);
 }
  
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
 	
 	on_execute();
 	

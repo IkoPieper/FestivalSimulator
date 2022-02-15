@@ -12,6 +12,6 @@
 bool change_area(groups_t* grp, uint8_t* area);
 bool toggle_fullscreen(bool fullscreen, video_t* vid);
 bool on_execute();
-int main(int argc, char* argv[]);
+int main(int argc, char** argv);
 
 #endif
