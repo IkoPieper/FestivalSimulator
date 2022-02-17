@@ -58,7 +58,7 @@ bool toggle_fullscreen(bool fullscreen, video_t* vid) {
 
 bool on_execute() {
 	
-    bool debug = false;                  // show object id and walls
+    bool debug = false;                 // show object id and walls
     bool running = true;				// program running?
     const bool VSYNC = true;            // enable vertical sync
 	const uint16_t FPS = 60;			// frames per second

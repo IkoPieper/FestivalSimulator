@@ -26,19 +26,17 @@ object_t* object_add(object_t* obj, uint32_t id) {
 	
 	object_t* obj_new = (object_t*) malloc(sizeof(object_t));
 	
-	// object id:
-	obj_new->id = id;
-	
-	// object list:
+    // place object in object list:
 	obj = object_get_last(obj);
 	obj_new->prev_object = obj;
 	obj_new->next_object = NULL;
-	
-	// object list:
 	if (obj != NULL) {
 		obj->next_object = obj_new;
 	}
     
+	// object id:
+	obj_new->id = id;
+	
     // render lists:
     obj_new->disable_render = false;
     obj_new->render_before = NULL;
@@ -237,21 +235,23 @@ object_t* object_remove(object_t* obj, uint32_t id) {
 	
 	object_t* ret;
 	
+    // find object by id:
 	while (obj->id != id) {
 		obj = obj->prev_object;
 	}
+    
+    // update obj list:
 	if (obj->prev_object != NULL) {
 		obj->prev_object->next_object = obj->next_object;
 	}
 	if (obj->next_object != NULL) {
 		obj->next_object->prev_object = obj->prev_object;
-		ret = obj->next_object;
+		ret = obj->next_object; // return next object, if it exists.
 	} else {
-		ret = obj->prev_object;
+		ret = obj->prev_object; // otherwise: return previous object.
 	}
 	
-	// TODO: clean other things (animations, movements, ...)
-	
+	// free all the memory accociated with the object:
 	if (obj->surface != NULL && obj->anim_first_call) {
 		SDL_FreeSurface(obj->surface);
 	}
@@ -603,18 +603,15 @@ bool move_to_position(object_t* obj, float x, float y, float vel_abs) {
     float x_obj = obj->pos_x;
     float y_obj = obj->pos_y;
     
-    
     if (x_obj > x - x_border &&
         x_obj < x + x_border &&
         y_obj > y - y_border &&
-        y_obj < y + y_border) {
+        y_obj < y + y_border) { // object reached targeted position
         
-        // object reached targeted position
         obj->vel_x = 0.0;
         obj->vel_y = 0.0;
         
         return(true);
-    
     }
         
     // set velocity toward position:
@@ -632,6 +629,9 @@ bool move_to_relative(object_t* obj, float x, float y, float vel_abs) {
     return (false);
 }
 
+// TODO:
+// write a move_to_position_pathfinding() function, and use it here and in
+// tasks.c were appropiate.
 void hunt_object(
     object_t* obj, uint32_t* counter, bool clockwise, 
     object_t* obj_hunted, float dt) {
@@ -676,7 +676,6 @@ void hunt_object(
         
         obj->vel_x = vel_x;
         obj->vel_y = vel_y;
-        //obj->disable_damping = true;
         
         *counter = (int32_t) (30.0 / dt);
         
@@ -690,8 +689,6 @@ void hunt_object(
         (*counter)--;
         
     } else {
-        
-        //obj->disable_damping = false;
         
         // follow obj_hunted:
         float vel_x = (obj_hunted->pos_x + obj_hunted->wall->x) - 

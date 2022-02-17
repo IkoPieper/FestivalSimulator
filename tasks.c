@@ -853,6 +853,8 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var->is_ball = false;
                 var->is_target = false;
                 var->beer_amount = 100.0;
+                obj->disable_collision = true;
+                obj->can_be_carried = false;
                 tasks_team_b_add(var->teams, var_shared->teams, NULL);
                 object_select_animation(obj, 0);
                 break;
@@ -865,6 +867,7 @@ void task_flunky_init(list_t* lst_obj, uint32_t id) {
                 var_shared->pos_x_target = obj->pos_x;
                 var_shared->pos_y_target = obj->pos_y;
                 obj->disable_collision = true;
+                obj->can_be_carried = false;
                 obj->anim_walk = false;
                 object_select_animation(obj, ANIMATION_UPRIGHT);
                 break;
@@ -983,7 +986,9 @@ void task_flunky_player_drink(
     task_t* tsk, object_t* obj, flunky_t* var, flunky_shared_t* var_shared, 
     uint64_t frame, float dt) {
     
+    var->beer->can_be_carried = true;
     pick_up(obj, var->beer);
+    var->beer->can_be_carried = false;
     
     flunky_t* var_beer = 
         (flunky_t*) tasks_get_task_variables(var->beer, tsk->id);
@@ -1128,11 +1133,8 @@ void task_flunky_player_retrieve_ball_or_target(
     if (tsk->step == 0) {
         // init:
         
-        // not checked if everything is needed:
         tasks_team_starts(var->teams, var_shared->teams);
-        obj->disable_damping = false;
         var->counter = 0;
-        
         
         if (var_shared->target_hit) {
             
@@ -1184,9 +1186,14 @@ void task_flunky_player_retrieve_ball_or_target(
         
         if (check_collision(obj, obj_hunted->id)) {
             
+            var->counter = 0;   // reset hunt counter
+            
+            obj_hunted->can_be_carried = true;
             if (!pick_up(obj, obj_hunted)) {
+                obj_hunted->can_be_carried = false;
                 return;
             }
+            obj_hunted->can_be_carried = false;
             
             if (obj_hunted == var_shared->target) {
                 var_shared->target_retrieved = true;
@@ -1200,10 +1207,6 @@ void task_flunky_player_retrieve_ball_or_target(
     } else if (tsk->step == 2) {
         // place target:
         
-        // reset hunt variables:
-        obj->disable_damping = false;
-        var->counter = 0;
-        
         if(move_to_position(
             obj, var_shared->pos_x_target, var_shared->pos_y_target, 2.0)) {
             
@@ -1213,6 +1216,7 @@ void task_flunky_player_retrieve_ball_or_target(
             var_shared->target->vel_y = 0.0;
         
             var_shared->target->disable_collision = true;
+            var_shared->target->can_be_carried = false;
             
             var_shared->target->anim_walk = false;
             object_select_animation(var_shared->target, ANIMATION_UPRIGHT);
@@ -1234,10 +1238,6 @@ void task_flunky_player_retrieve_ball_or_target(
         
     } else if (tsk->step == 4) {
         // move to start position:
-        
-        // reset hunt variables:
-        obj->disable_damping = false;
-        var->counter = 0;
         
         if(move_to_position(obj, var->pos_x_default, var->pos_y_default, 2.0)) {
             
@@ -1307,7 +1307,9 @@ void task_flunky_player_round_end(
         
         if (check_collision(obj, var->beer->id)) {
             
+            var->beer->can_be_carried = true;
             pick_up(obj, var->beer);
+            var->beer->can_be_carried = false;
             
             tsk->step = 3;
         }
@@ -1323,7 +1325,7 @@ void task_flunky_player_round_end(
             y = 1300.0;
         }
                 
-        if(move_to_position(obj, x, y, 1.0)) {
+        if (move_to_position(obj, x, y, 1.0)) {
             
             flunky_t* var_beer = 
                 (flunky_t*) tasks_get_task_variables(var->beer, tsk->id);

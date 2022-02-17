@@ -93,12 +93,7 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
 		
 		if (obj->txt != NULL && obj->txt_print != 0) {
 			
-            obj->txt_next_letter += dt;
-            if (obj->txt_next_letter > 1.9) {
-                obj->txt_next_letter = 0.0;
-                obj->txt_print++;	// counter
-            }
-            on_render_text(obj, vid);
+            on_render_text(obj, vid, dt);
 		}
 		
 		obj = obj->next_object;
@@ -399,11 +394,17 @@ void on_render_item(object_t* hero, video_t* vid) {
 
 }
 
-void on_render_text(object_t* obj, video_t* vid) {
-	
+void on_render_text(object_t* obj, video_t* vid, float dt) {
+    
+    obj->txt_next_letter += dt;
+    if (obj->txt_next_letter > 1.9) {
+        obj->txt_next_letter = 0.0;
+        obj->txt_print++;	// counter, add next letter
+    }
+    
     text_t* txt = (text_t*) obj->txt->entry;
     char str[txt->length + 1];
-	
+    
 	uint32_t i = 0;
 	while (i < obj->txt_print && i < txt->length) {
 		str[i] = txt->str[i];

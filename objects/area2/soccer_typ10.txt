@@ -1,6 +1,6 @@
 object = 910
 task = 6
-pos_x = 600
+pos_x = 800
 pos_y = 1200
 surface = soccer_guy1_blue_s_1.bmp
 walls = hero_walls.bmp
