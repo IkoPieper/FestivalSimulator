@@ -70,11 +70,11 @@ sound_t* sound_init_songs(sound_t* snd) {
     snd->n = 0;
     
     DIR* hdl_dir;
-	struct dirent* dir;
-	char path[256];
-	
-	hdl_dir = opendir("songs");
-	
+    struct dirent* dir;
+    char path[256];
+    
+    hdl_dir = opendir("songs");
+    
     // count files:
     uint32_t n = 0;
     while ((dir = readdir(hdl_dir)) != NULL) {
@@ -96,22 +96,22 @@ sound_t* sound_init_songs(sound_t* snd) {
     
     rewinddir(hdl_dir);
     n = 0;
-	while ((dir = readdir(hdl_dir)) != NULL) {
+    while ((dir = readdir(hdl_dir)) != NULL) {
       
-		if (sound_supported(dir->d_name)) {
+        if (sound_supported(dir->d_name)) {
             
-			// build path to file:
-			strncpy(path, "songs", 6);
-			strncat(path, "/", 2);
-			strncat(path, dir->d_name, 256-6-1);
+            // build path to file:
+            strncpy(path, "songs", 6);
+            strncat(path, "/", 2);
+            strncat(path, dir->d_name, 256-6-1);
             
             // save path:
             snd->songs[n] = (char*) malloc(256 * sizeof(char));
             strncpy(snd->songs[n], path, 256-1);
             
             n++;
-		}
-	}
+        }
+    }
     
     closedir(hdl_dir);
     
@@ -122,7 +122,7 @@ sound_t* sound_init_songs(sound_t* snd) {
     
     // load first song:
     if (!(snd->music = Mix_LoadMUS(snd->songs[0]))) {
-		fprintf(stderr, "Error loading song %s!\n", snd->songs[0]);
+        fprintf(stderr, "Error loading song %s!\n", snd->songs[0]);
     }
     
     Mix_PlayMusic(snd->music, 1);

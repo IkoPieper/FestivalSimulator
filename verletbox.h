@@ -6,14 +6,14 @@
 typedef struct verletbox verletbox_t;
 
 struct verletbox {
-	
-	uint32_t w;	            // box width / pxl
-	uint32_t h;             // box height / pxl
-	uint32_t num_w;	        // number of boxes in x direction
-	uint32_t num_h;         // number of boxes in y direction
-	
-	object_t*** boxes;
-	
+    
+    uint32_t w;             // box width / pxl
+    uint32_t h;             // box height / pxl
+    uint32_t num_w;         // number of boxes in x direction
+    uint32_t num_h;         // number of boxes in y direction
+    
+    object_t*** boxes;
+    
 };
 
 verletbox_t* verletbox_init(object_t* obj);

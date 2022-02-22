@@ -9,12 +9,12 @@
 typedef struct meter meter_t;
 
 struct meter {
-	int16_t value;      // value to display
-    uint8_t type;	    // meter type
+    int16_t value;      // value to display
+    uint8_t type;       // meter type
     SDL_Surface* surf;
     uint8_t bg;         // pixel with background color
     int32_t scr_pos_x;  // pos in relation to top left corner of screen
-	int32_t scr_pos_y;
+    int32_t scr_pos_y;
 };
 
 meter_t* meter_init(uint8_t type, float scr_pos_x, float scr_pos_y);

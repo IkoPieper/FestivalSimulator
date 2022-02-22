@@ -9,14 +9,14 @@
 #include <stdbool.h>
 
 struct configstruct {
-	char *key;       	// Schluesselwort
-	char *value;     	// Wert
-	struct configstruct *next;	// Zeiger
+    char *key;          // Schluesselwort
+    char *value;        // Wert
+    struct configstruct *next;  // Zeiger
 };
 
 typedef struct configstruct configentry;
 
-#define KEYSIZE	128 
+#define KEYSIZE 128 
 #define VALUESIZE 512 
 #define LINESIZE 1024 
 

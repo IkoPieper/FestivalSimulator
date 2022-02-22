@@ -7,24 +7,24 @@
 void on_loop(
     groups_t* grp, sound_t* snd, verletbox_t* vbox, 
     bool* keys, uint64_t frame, float dt) {
-	
-	//collisions(obj, vbox, dt);
-	
-	//movements(obj, keys, dt);
+    
+    //collisions(obj, vbox, dt);
+    
+    //movements(obj, keys, dt);
     
     on_loop_tasks(grp, keys, frame, dt);
     
     on_loop_items(grp->obj_hero, keys, frame, dt);
     
-	on_loop_animations(grp, keys, frame, dt);
+    on_loop_animations(grp, keys, frame, dt);
     
-	on_loop_waypoints(grp, frame, dt);
+    on_loop_waypoints(grp, frame, dt);
 
     on_loop_sounds(grp, keys, snd, frame, dt);
     
     collisions(grp, vbox, dt);
     
-	movements(grp, keys, dt);
+    movements(grp, keys, dt);
 }
 
 // call all the task functions of the objects:
@@ -35,7 +35,7 @@ void on_loop_tasks(
     
     list_t* lst = grp->lst_have_tsk;
     
-	while (lst != NULL) {
+    while (lst != NULL) {
         
         obj = (object_t*) lst->entry;
         
@@ -49,7 +49,7 @@ void on_loop_tasks(
         }
         
         lst = lst->next;
-	}
+    }
 }
 
 void on_loop_items(object_t* hero, bool* keys, uint64_t frame, float dt) {
@@ -97,13 +97,13 @@ void on_loop_items(object_t* hero, bool* keys, uint64_t frame, float dt) {
 
 void on_loop_animations(
     groups_t* grp, bool* keys, uint64_t frame, float dt) {
-	
-	object_t* obj;
-	
+    
+    object_t* obj;
+    
     list_t* lst = grp->lst_have_anim;
     
-	while (lst != NULL) {
-		
+    while (lst != NULL) {
+        
         obj = (object_t*) lst->entry;
         
         if (obj->anim_walk && obj->can_move) {
@@ -158,12 +158,12 @@ void on_loop_animations(
             }
         }
         
-		// animate:
+        // animate:
         object_animate(obj, frame, dt);
         
-		lst = lst->next;
-	}
-	
+        lst = lst->next;
+    }
+    
 }
 
 uint32_t on_loop_get_animation_walk(
@@ -290,12 +290,12 @@ uint32_t on_loop_get_animation_walk_pistol(
 }
 
 void on_loop_waypoints(groups_t* grp, uint64_t frame, float dt) {
-	
-	object_t* obj;
-	
+    
+    object_t* obj;
+    
     list_t* lst = grp->lst_have_ways;
     
-	while (lst != NULL) {
+    while (lst != NULL) {
         
         obj = (object_t*) lst->entry;
         
@@ -306,10 +306,10 @@ void on_loop_waypoints(groups_t* grp, uint64_t frame, float dt) {
             object_get_next_waypoint(obj, dt);
             object_aim_for_waypoint(obj);
         }
-	
-		lst = lst->next;
-	}
-	
+    
+        lst = lst->next;
+    }
+    
 }
 
 void on_loop_sounds(

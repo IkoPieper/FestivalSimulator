@@ -2,14 +2,14 @@
 
 collision_t* collisions_add_to_object(object_t* obj, object_t* partner) {
     
-	// add new collision:
-	collision_t* entry = (collision_t*) malloc(sizeof(collision_t));
-	
-	// add at first place in list:
+    // add new collision:
+    collision_t* entry = (collision_t*) malloc(sizeof(collision_t));
+    
+    // add at first place in list:
     obj->col = create_before(obj->col, (void*) entry, partner->id);
-	
-	// initialize:
-    entry->partner = partner;	// add new partner
+    
+    // initialize:
+    entry->partner = partner;   // add new partner
     entry->c_x = 0.0;
     entry->c_y = 0.0;
     entry->use_for_impulse = false;
@@ -38,44 +38,48 @@ void collisions_free(object_t* obj) {
 }
 
 void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
-	
+    
     object_t* obj_first = grp->obj_first;
     
-	uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
-    bool collision = false;
-	
-	verletbox_update(vbox, obj_first);
-	
-	// check collisions with background first, 
-	// because background is too big for verlet boxes:
-	object_t* obj_bg = grp->obj_bg;
-	
-	object_t* obj = obj_first;
-			
-	while (obj != NULL) {
+    verletbox_update(vbox, obj_first);
+    
+    // check collisions with background first, 
+    // because background is too big for a single "verlet" box:
+    object_t* obj_bg = grp->obj_bg;
+    
+    object_t* obj = obj_first;
+            
+    while (obj != NULL) {
         
-        collisions_free(obj);
+        collisions_free(obj); // and delete all collisions of previous frame
         
-		if (obj->has_moved && 
+        if (obj->has_moved && 
             (!obj->disable_collision || !obj->disable_render)) {
-			
-			collisions_check(obj_bg, obj, dt);
-		}
-		
-		obj = obj->next_object;
-	}
-	
-	// iterate over verlet boxes:
-	object_t* obj_b = NULL;
-	
-	for (x = 0; x < vbox->num_w; x++) {
-		for (y = 0; y < vbox->num_h; y++) {
-			
-			obj = verletbox_get_first_object(vbox->boxes[x][y]);
-			
-			while (obj != NULL) {
-				
-					
+            
+            // check collision with background:
+            collisions_check(obj_bg, obj, dt);
+        }
+        
+        obj = obj->next_object;
+    }
+
+    // the space is devided into rectangular "verlet" boxes.
+    // only check collisions between objects if in the same 
+    // or neighboring "verlet" box. 
+    // this saves a lot of computations:
+    
+    // iterate over verlet boxes:
+    uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
+    bool collision = false;
+    object_t* obj_b = NULL;
+    
+    for (x = 0; x < vbox->num_w; x++) {
+        for (y = 0; y < vbox->num_h; y++) {
+            
+            obj = verletbox_get_first_object(vbox->boxes[x][y]);
+            
+            while (obj != NULL) {
+                
                 // iterate over verlet box of obj and surrounding ones:
                 if (y == 0) {
                     y2_min = 0;
@@ -121,6 +125,8 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                             
                             collision = collisions_check(obj, obj_b, dt);
                             
+                            // disable collission for some time? 
+                            // is this used?:
                             if (!collision) {
                                 if (obj->obj_escape_col == obj_b) {
                                     if (obj->obj_escape_col_time < 0.0) {
@@ -144,13 +150,13 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                         }
                     }
                 }
-				
-				// get next object obj:
-				obj = obj->next_vbox;
-			}
-			
-		}					
-	}
+                
+                // get next object obj:
+                obj = obj->next_vbox;
+            }
+            
+        }
+    }
     
     // calculate impulses (new velocites):
     obj = obj_first;
@@ -163,66 +169,45 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                 
                 collision_t* col = (collision_t*) lst->entry;
                 
-                /*if (obj->id == 2 || col->partner->id == 2) {
-                    printf("\nobj->id: %d\n", obj->id);
-                    printf("col->partner->id: %d\n", col->partner->id);
-                }*/
-                
                 if (col->use_for_impulse) {
-                
+                    
+                    bool is_moving_obj = true;
+                    float v1x = obj->vel_x;
+                    float v1y = obj->vel_y;
+                    if (v1x != 0.0 || v1y != 0.0) {
+                        // normalize velocity:
+                        float norm = sqrtf(v1x * v1x + v1y * v1y);
+                        v1x /= norm;
+                        v1y /= norm;
+                    } else {
+                        is_moving_obj = false;
+                    }
+                    
+                    bool is_moving_partner = true;
+                    float v2x = col->partner->vel_x;
+                    float v2y = col->partner->vel_y;
+                    if (v2x != 0.0 || v2y != 0.0) {
+                        // normalize velocity:
+                        float norm = sqrtf(v2x * v2x + v2y * v2y);
+                        v2x /= norm;
+                        v2y /= norm;
+                    } else {
+                        is_moving_partner = false;
+                    }
+                    
                     float c1x = col->c_x;
                     float c1y = col->c_y;
                     float c2x = -col->c_x;
                     float c2y = -col->c_y;
                     
-                    
-                    //printf("c1x: %f\n", c1x);
-                    //printf("c1y: %f\n", c1y);
-                    //printf("c2x: %f\n", c2x);
-                    //printf("c2y: %f\n", c2y);
-                    
-                    bool is_moving1 = true;
-                    float v1x = obj->vel_x;
-                    float v1y = obj->vel_y;
-                    if (v1x != 0.0 || v1y != 0.0) {
-                        float norm = sqrtf(v1x * v1x + v1y * v1y);
-                        v1x /= norm;
-                        v1y /= norm;
-                    } else {
-                        is_moving1 = false;
-                    }
-                    
-                    /*if (obj->id == 2 || col->partner->id == 2) {
-                        printf("obj->vel_x: %f\n", obj->vel_x);
-                        printf("obj->vel_y: %f\n", obj->vel_y);
-                        printf("v1x: %f\n", v1x);
-                        printf("v1y: %f\n", v1y);
-                    }*/
-                    
-                    bool is_moving2 = true;
-                    float v2x = col->partner->vel_x;
-                    float v2y = col->partner->vel_y;
-                    if (v2x != 0.0 || v2y != 0.0) {
-                        float norm = sqrtf(v2x * v2x + v2y * v2y);
-                        v2x /= norm;
-                        v2y /= norm;
-                    } else {
-                        is_moving2 = false;
-                    }
-                    
-                    /*if (obj->id == 2 || col->partner->id == 2) {
-                        printf("col->partner->vel_x: %f\n", col->partner->vel_x);
-                        printf("col->partner->vel_y: %f\n", col->partner->vel_y);
-                        printf("v2x: %f\n", v2x);
-                        printf("v2y: %f\n", v2y);
-                    }*/
-                    
-                    // if angle not smaller than 90°:
-                    if ((is_moving1 && !((c2x < -v1y && c2y < -v1x) || 
+                    // if obj or partner is moving and 
+                    // collision angle not smaller than 90°:
+                    if ((is_moving_obj     && !((c2x < -v1y && c2y < -v1x) || 
                             (c2x > -v1y && c2y > -v1x))) ||
-                        (is_moving2 && !((c1x < -v2y && c1y < -v2x) || 
+                        (is_moving_partner && !((c1x < -v2y && c1y < -v2x) || 
                             (c1x > -v2y && c1y > -v2x)))) {
                         
+                        // calculate impulse physics:
                         collisions_impulse(obj, col->partner, c1x, c1y);
                     }
                 }
@@ -236,26 +221,26 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
 }
 
 bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
-	
-	bool collision = false;
+    
+    bool collision = false;
     
     if (obj1->obj_carries == obj2 || obj2->obj_carries == obj1) {
         
         return(false);
     }
     
-	// boundary boxes base positions:
-	int32_t x01 = (int32_t) obj1->pos_x;
-	int32_t y01 = (int32_t) obj1->pos_y;
-	int32_t x02 = (int32_t) obj2->pos_x;
-	int32_t y02 = (int32_t) obj2->pos_y;
-	
-	int32_t xw1 = x01 + obj1->surface->w;
-	int32_t yh1 = y01 + obj1->surface->h;
-	int32_t xw2 = x02 + obj2->surface->w;
-	int32_t yh2 = y02 + obj2->surface->h;
-	
-	// check collision of surfaces first:
+    // boundary boxes base positions:
+    int32_t x01 = (int32_t) obj1->pos_x;
+    int32_t y01 = (int32_t) obj1->pos_y;
+    int32_t x02 = (int32_t) obj2->pos_x;
+    int32_t y02 = (int32_t) obj2->pos_y;
+    
+    int32_t xw1 = x01 + obj1->surface->w;
+    int32_t yh1 = y01 + obj1->surface->h;
+    int32_t xw2 = x02 + obj2->surface->w;
+    int32_t yh2 = y02 + obj2->surface->h;
+    
+    // check collision of surfaces first:
     if (obj1->id == OBJECT_BACKGROUND_ID) {
         
         collision = true;
@@ -274,80 +259,80 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
             
         }
     }
-	
-	// update render list:
-	if (collision &&
+    
+    // update render list:
+    if (collision &&
         (!obj1->disable_render && !obj2->disable_render) &&
-		obj1->id != OBJECT_BACKGROUND_ID &&
-		obj2->id != OBJECT_BACKGROUND_ID) {
-		
-		collisions_update_render(obj1, obj2);
-	}
-	
+        obj1->id != OBJECT_BACKGROUND_ID &&
+        obj2->id != OBJECT_BACKGROUND_ID) {
+        
+        collisions_update_render(obj1, obj2);
+    }
+    
     if (obj1->disable_collision || obj2->disable_collision ||
         (!obj1->can_move && !obj2->can_move)) {
         collision = false;
     }
     
-	// check for pixel wise collision and calculate surface vectors:
-	if (collision && (obj1->has_moved || obj2->has_moved)) {
+    // check for pixel wise collision and calculate surface vectors:
+    if (collision && (obj1->has_moved || obj2->has_moved)) {
         
-		collision = false;
-		
-		collision_t* col1 = NULL;
+        collision = false;
+        
+        collision_t* col1 = NULL;
         collision_t* col2 = NULL;
-		uint32_t w1_bmp = obj1->wall->w_bmp;
-		uint32_t w2_bmp = obj2->wall->w_bmp;
-		
-		x01 = (int32_t) obj1->pos_x + obj1->wall->x + obj1->wall->x_shift;
-		y01 = (int32_t) obj1->pos_y + obj1->wall->y + obj1->wall->y_shift;
-		x02 = (int32_t) obj2->pos_x + obj2->wall->x + obj2->wall->x_shift;
-		y02 = (int32_t) obj2->pos_y + obj2->wall->y + obj2->wall->y_shift;
+        uint32_t w1_bmp = obj1->wall->w_bmp;
+        uint32_t w2_bmp = obj2->wall->w_bmp;
+        
+        x01 = (int32_t) obj1->pos_x + obj1->wall->x + obj1->wall->x_shift;
+        y01 = (int32_t) obj1->pos_y + obj1->wall->y + obj1->wall->y_shift;
+        x02 = (int32_t) obj2->pos_x + obj2->wall->x + obj2->wall->x_shift;
+        y02 = (int32_t) obj2->pos_y + obj2->wall->y + obj2->wall->y_shift;
 
-		int32_t w1 = obj1->wall->w;
-		int32_t h1 = obj1->wall->h;
-		int32_t w2 = obj2->wall->w;
-		int32_t h2 = obj2->wall->h;
-		
-		xw1 = x01 + w1;
-		yh1 = y01 + h1;
-		xw2 = x02 + w2;
-		yh2 = y02 + h2;
-		
-		// current position in overlapping area:
-		int32_t x1_min = 0;
-		int32_t x1_max = 0;
-		int32_t y1_min = 0;
-		int32_t y1_max = 0;
-		int32_t x2_min = 0;
-		int32_t y2_min = 0;
-		
-		// overlapping area of boundary boxes:
-		if (x01 < x02) {
-			x1_min = x02 - x01;
-			x2_min = 0;
-		} else {
-			x1_min = 0;
-			x2_min = x01 - x02;
-		}
-		if (y01 < y02) {
-			y1_min = y02 - y01;
-			y2_min = 0;
-		} else {
-			y1_min = 0;
-			y2_min = y01 - y02;
-		}
-		if (xw1 < xw2) {
-			x1_max = w1;
-		} else {
-			x1_max = w1 - (xw1 - xw2);
-		}
-		if (yh1 < yh2) {
-			y1_max = h1;
-		} else {
-			y1_max = h1 - (yh1 - yh2);
-		}
-		
+        int32_t w1 = obj1->wall->w;
+        int32_t h1 = obj1->wall->h;
+        int32_t w2 = obj2->wall->w;
+        int32_t h2 = obj2->wall->h;
+        
+        xw1 = x01 + w1;
+        yh1 = y01 + h1;
+        xw2 = x02 + w2;
+        yh2 = y02 + h2;
+        
+        // current position in overlapping area:
+        int32_t x1_min = 0;
+        int32_t x1_max = 0;
+        int32_t y1_min = 0;
+        int32_t y1_max = 0;
+        int32_t x2_min = 0;
+        int32_t y2_min = 0;
+        
+        // overlapping area of boundary boxes:
+        if (x01 < x02) {
+            x1_min = x02 - x01;
+            x2_min = 0;
+        } else {
+            x1_min = 0;
+            x2_min = x01 - x02;
+        }
+        if (y01 < y02) {
+            y1_min = y02 - y01;
+            y2_min = 0;
+        } else {
+            y1_min = 0;
+            y2_min = y01 - y02;
+        }
+        if (xw1 < xw2) {
+            x1_max = w1;
+        } else {
+            x1_max = w1 - (xw1 - xw2);
+        }
+        if (yh1 < yh2) {
+            y1_max = h1;
+        } else {
+            y1_max = h1 - (yh1 - yh2);
+        }
+        
         if (x1_max < x1_min || y1_max < y1_min) {
             return(false);
         }
@@ -413,7 +398,7 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         col1->c_y = c1y;
         col2->c_x = c2x;
         col2->c_y = c2y;
-	}
+    }
     
     return(collision);
 }
@@ -894,7 +879,7 @@ bool collisions_pixel(
 bool collisions_pixel_protected(
     int32_t x, int32_t y, uint8_t* pxl, 
     int32_t w_bmp, int32_t w, int32_t h) {
-	    
+        
     if (x < 0 || x >= w || y < 0 || y >= h) {
         return(0);
     } else {
@@ -907,23 +892,23 @@ bool collisions_pixel_protected(
 }
 
 void collisions_impulse(
-	object_t* obj1, object_t* obj2, float c1x, float c1y) {
-	
-	float v1n_pre = 0.0;
-	float v2n_pre = 0.0;
-	float v1n = 0.0;
-	float v2n = 0.0;
-	float v1r = 0.0;
-	float v2r = 0.0;
-	
-	float m1 = obj1->mass;
-	float m2 = obj2->mass;
-	float c2x = -c1x;
-	float c2y = -c1y;
-	float v1x = 0.0;
-	float v1y = 0.0;
-	float v2x = 0.0;
-	float v2y = 0.0;
+    object_t* obj1, object_t* obj2, float c1x, float c1y) {
+    
+    float v1n_pre = 0.0;
+    float v2n_pre = 0.0;
+    float v1n = 0.0;
+    float v2n = 0.0;
+    float v1r = 0.0;
+    float v2r = 0.0;
+    
+    float m1 = obj1->mass;
+    float m2 = obj2->mass;
+    float c2x = -c1x;
+    float c2y = -c1y;
+    float v1x = 0.0;
+    float v1y = 0.0;
+    float v2x = 0.0;
+    float v2y = 0.0;
     
     if (obj1->obj_carried_by != NULL) {
         m1 = m1 + obj1->obj_carried_by->mass;
@@ -936,20 +921,20 @@ void collisions_impulse(
     }
     
     if (obj1->can_move) {
-		v1x = obj1->vel_x;
-		v1y = obj1->vel_y;
-	}
-	
-	if (obj2->can_move) {
-		v2x = obj2->vel_x;
-		v2y = obj2->vel_y;
-	}
-	
-	// velocity in direction of impulse:
-	v1n_pre = c1x * v1x + c1y * v1y;
-	v2n_pre = c1x * v2x + c1y * v2y;
-	
-	// impulse:
+        v1x = obj1->vel_x;
+        v1y = obj1->vel_y;
+    }
+    
+    if (obj2->can_move) {
+        v2x = obj2->vel_x;
+        v2y = obj2->vel_y;
+    }
+    
+    // velocity in direction of impulse:
+    v1n_pre = c1x * v1x + c1y * v1y;
+    v2n_pre = c1x * v2x + c1y * v2y;
+    
+    // impulse:
     if (!obj2->can_move) {
         v1n = -v1n_pre;
     } else if (!obj1->can_move) {
@@ -958,13 +943,13 @@ void collisions_impulse(
         v1n = 2.0 * (m1 * v1n_pre + m2 * v2n_pre) / (m1 + m2) - v1n_pre;
         v2n = 2.0 * (m1 * v1n_pre + m2 * v2n_pre) / (m1 + m2) - v2n_pre;
     }
-	
-	if (obj1->can_move) {
+    
+    if (obj1->can_move) {
         // velocity vertically to impulse direction:
         v1r = c1y * v1x - c1x * v1y;
         // final velocities:
-		obj1->vel_x = c1x * v1n + c1y * v1r;
-		obj1->vel_y = c1y * v1n - c1x * v1r;
+        obj1->vel_x = c1x * v1n + c1y * v1r;
+        obj1->vel_y = c1y * v1n - c1x * v1r;
         
         obj1->vel_x -= 0.8 * c1x;
         obj1->vel_y -= 0.8 * c1y;
@@ -974,12 +959,12 @@ void collisions_impulse(
             printf("obj1->vel_x: %f\n", obj1->vel_x);
             printf("obj1->vel_y: %f\n", obj1->vel_y);
         }*/
-	}
-	
-	if (obj2->can_move) {
+    }
+    
+    if (obj2->can_move) {
         v2r = c2y * v2x - c2x * v2y;
-		obj2->vel_x = c1x * v2n + c2y * v2r;
-		obj2->vel_y = c1y * v2n - c2x * v2r;
+        obj2->vel_x = c1x * v2n + c2y * v2r;
+        obj2->vel_y = c1y * v2n - c2x * v2r;
         
         obj2->vel_x += 0.8 * c1x;
         obj2->vel_y += 0.8 * c1y;
@@ -989,26 +974,26 @@ void collisions_impulse(
             printf("obj2->vel_x: %f\n", obj2->vel_x);
             printf("obj2->vel_y: %f\n", obj2->vel_y);
         }*/
-	}
+    }
 }
 
 void collisions_update_render(object_t* obj1, object_t* obj2) {
-	
+    
     if (obj1->render_early || obj2->render_early) {
         return;
     }
     
-	float x01 = obj1->pos_x + (float) (obj1->wall->x + obj1->wall->x_shift);
-	float y01 = obj1->pos_y + (float) (obj1->wall->y + obj1->wall->y_shift);
-	float x02 = obj2->pos_x + (float) (obj2->wall->x + obj2->wall->x_shift);
-	float y02 = obj2->pos_y + (float) (obj2->wall->y + obj2->wall->y_shift);
-	
-	// absolute x values of most left/right collision pixel:
-	float xl1 = x01 + obj1->wall->lx;
-	float xr1 = x01 + obj1->wall->rx;
-	float xl2 = x02 + obj2->wall->lx;
-	float xr2 = x02 + obj2->wall->rx;
-	
+    float x01 = obj1->pos_x + (float) (obj1->wall->x + obj1->wall->x_shift);
+    float y01 = obj1->pos_y + (float) (obj1->wall->y + obj1->wall->y_shift);
+    float x02 = obj2->pos_x + (float) (obj2->wall->x + obj2->wall->x_shift);
+    float y02 = obj2->pos_y + (float) (obj2->wall->y + obj2->wall->y_shift);
+    
+    // absolute x values of most left/right collision pixel:
+    float xl1 = x01 + obj1->wall->lx;
+    float xr1 = x01 + obj1->wall->rx;
+    float xl2 = x02 + obj2->wall->lx;
+    float xr2 = x02 + obj2->wall->rx;
+    
     int8_t obj1_before_obj2 = false;
     
     if (obj1->can_move && !obj2->can_move &&
@@ -1100,20 +1085,20 @@ void collisions_update_render(object_t* obj1, object_t* obj2) {
         }
     }
     
-	// update render lists:
-	if (obj1_before_obj2) {
+    // update render lists:
+    if (obj1_before_obj2) {
         
         obj1->render_before = create_before(
             obj1->render_before, (void*) obj2, 0);
         obj2->render_after = create_before(
             obj2->render_after, (void*) obj1, 0);
-	} else {
+    } else {
         
         obj1->render_after = create_before(
             obj1->render_after, (void*) obj2, 0);
         obj2->render_before = create_before(
             obj2->render_before, (void*) obj1, 0);
-	}
+    }
 }
 
 int8_t collisions_beam(

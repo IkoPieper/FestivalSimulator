@@ -1,57 +1,57 @@
 #include "text.h"
 
 text_t* text_init() {
-	
-	text_t* txt = (text_t*) malloc(sizeof(text_t));
-	
-	txt->str = NULL;
-	txt->length = 0;
+    
+    text_t* txt = (text_t*) malloc(sizeof(text_t));
+    
+    txt->str = NULL;
+    txt->length = 0;
     txt->duration = TEXT_DURATION_DEFAULT;
     txt->autofree = false;
-	
-	if((txt->font = TTF_OpenFont("FreeSansBold.ttf", 13)) == NULL) {
-		fprintf(stderr, "Error: Font FreeSansBold.ttf is missing!");
-		return(NULL);
-	}
-	
-	return(txt);
+    
+    if((txt->font = TTF_OpenFont("FreeSansBold.ttf", 13)) == NULL) {
+        fprintf(stderr, "Error: Font FreeSansBold.ttf is missing!");
+        return(NULL);
+    }
+    
+    return(txt);
 }
 
 void text_add_string(text_t* txt, char* str) {
-	
-	uint32_t length;
-	
-	length = 0;
-	while (str[length] != '\0') {
-		length++;
-	}
+    
+    uint32_t length;
+    
+    length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
 
-	txt->str = (char *) malloc((length + 1) * sizeof(char));
-	
-	length = 0;
-	while (str[length] != '\0') {
-		txt->str[length] = str[length];
-		length++;
-	}
-	txt->str[length] = '\0';
-	txt->length = length + 1;
-	
+    txt->str = (char *) malloc((length + 1) * sizeof(char));
+    
+    length = 0;
+    while (str[length] != '\0') {
+        txt->str[length] = str[length];
+        length++;
+    }
+    txt->str[length] = '\0';
+    txt->length = length + 1;
+    
 }
 
 void text_free(text_t* txt) {
-	
-	TTF_CloseFont(txt->font);
-	free(txt->str);
-	free(txt);
+    
+    TTF_CloseFont(txt->font);
+    free(txt->str);
+    free(txt);
 }
 
 SDL_Surface* text_print_to_surface(
     TTF_Font* font, char* str, uint32_t length) {
-	
+    
     uint32_t width = 200;    // maximum text width [pixel]
-	SDL_Color fg_color = {  0,   0,   0};   // text color
+    SDL_Color fg_color = {  0,   0,   0};   // text color
     SDL_Color bg_color = {252, 255, 190};   // text background color
- 	
+    
     SDL_Surface* surf = 
         TTF_RenderUTF8_Shaded(font, str, fg_color, bg_color);
     
@@ -69,7 +69,7 @@ SDL_Surface* text_print_to_surface(
     uint32_t y = 0;     // y position on surface
     
     // first, find the surface height we need:
-	while (i < length) {
+    while (i < length) {
          
         // find word length:
         uint32_t word_length = 1;
@@ -100,8 +100,8 @@ SDL_Surface* text_print_to_surface(
         x = x + surf_word->w;
         
         SDL_FreeSurface(surf_word);
-	}
- 	
+    }
+    
     uint32_t height = y + height_row;
     
     // create transparent surface:
@@ -118,7 +118,7 @@ SDL_Surface* text_print_to_surface(
     x = 0;
     y = 0;
     
-	while (i < length) {
+    while (i < length) {
          
         // find word length:
         uint32_t word_length = 1;
@@ -150,8 +150,8 @@ SDL_Surface* text_print_to_surface(
         x = x + surf_word->w;
         
         SDL_FreeSurface(surf_word);
-	}
+    }
     
-	return(surf);
-	
+    return(surf);
+    
 }

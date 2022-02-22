@@ -24,79 +24,79 @@
 #include "animation.h"
 
 animation_t* animation_init(float dt) {
-	
-	animation_t* anim = NULL;
-	
-	anim = (animation_t*) malloc(sizeof(animation_t));
-	
-	anim->cycle_first = NULL;
-	anim->cycle = NULL;
-	anim->delay_frames = (uint32_t) (10.0 / dt);
+    
+    animation_t* anim = NULL;
+    
+    anim = (animation_t*) malloc(sizeof(animation_t));
+    
+    anim->cycle_first = NULL;
+    anim->cycle = NULL;
+    anim->delay_frames = (uint32_t) (10.0 / dt);
     anim->delay_frames_wanted = anim->delay_frames;
     anim->time_active = 0.0;
     anim->surf_changed = false;
     anim->n = 0;
-	
-	return(anim);
+    
+    return(anim);
 }
 
 void animation_free(animation_t* anim) {
-	
-	surface_ring_t* cycle;
-	surface_ring_t* cycle_next;
-	
-	cycle = anim->cycle_first;
-	
-	while (cycle != NULL) {
-		cycle_next = cycle->next;
-		SDL_FreeSurface(cycle->surf);
-		free(cycle);
-		cycle = cycle_next;
-	}
-	
-	free(anim);
+    
+    surface_ring_t* cycle;
+    surface_ring_t* cycle_next;
+    
+    cycle = anim->cycle_first;
+    
+    while (cycle != NULL) {
+        cycle_next = cycle->next;
+        SDL_FreeSurface(cycle->surf);
+        free(cycle);
+        cycle = cycle_next;
+    }
+    
+    free(anim);
 }
 
 
 void animation_add_surface(animation_t* anim, SDL_Surface* surf) {
-	
-	surface_ring_t* cycle;
-	cycle = (surface_ring_t*) malloc(sizeof(surface_ring_t));
-	
-	cycle->surf = surf;
-	cycle->next = NULL;
-	
-	if (anim->cycle_first == NULL) {
-		// add as first element:
-		anim->cycle_first = cycle;
-		anim->cycle = cycle;
-	} else {
-		// add as last element:
-		surface_ring_t* cycle_tmp = anim->cycle_first;
-		while (cycle_tmp->next != NULL) {
-			cycle_tmp = cycle_tmp->next;
-		}
-		cycle_tmp->next = cycle;
-	}
-	
+    
+    surface_ring_t* cycle;
+    cycle = (surface_ring_t*) malloc(sizeof(surface_ring_t));
+    
+    cycle->surf = surf;
+    cycle->next = NULL;
+    
+    if (anim->cycle_first == NULL) {
+        // add as first element:
+        anim->cycle_first = cycle;
+        anim->cycle = cycle;
+    } else {
+        // add as last element:
+        surface_ring_t* cycle_tmp = anim->cycle_first;
+        while (cycle_tmp->next != NULL) {
+            cycle_tmp = cycle_tmp->next;
+        }
+        cycle_tmp->next = cycle;
+    }
+    
 }
 
 SDL_Surface* animation_get_next_surface(animation_t* anim, uint64_t frame) {
-	
-	if (frame % anim->delay_frames == 0) {
+    
+    if (frame % anim->delay_frames == 0) {
         
-		if (anim->cycle->next == NULL) {
-			anim->cycle = anim->cycle_first;
+        if (anim->cycle->next == NULL) {
+            anim->cycle = anim->cycle_first;
             anim->n = 0;
-		} else {
-			anim->cycle = anim->cycle->next;
+        } else {
+            anim->cycle = anim->cycle->next;
             anim->n++;
-		}
+        }
         anim->surf_changed = true;
         
-	} else {
+    } else {
         
         anim->surf_changed = false;
     }
-	return(anim->cycle->surf);
+    return(anim->cycle->surf);
 }

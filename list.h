@@ -8,8 +8,8 @@
 typedef struct list list_t;
 
 struct list {
-	list_t* prev;
-	list_t* next;
+    list_t* prev;
+    list_t* next;
     uint32_t id;
     void* entry;
 };

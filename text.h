@@ -9,10 +9,10 @@
 typedef struct text text_t;
 
 struct text {
-	char* str;
-	uint32_t length;
-	TTF_Font* font;
-    uint32_t duration;		// how long the text is visible
+    char* str;
+    uint32_t length;
+    TTF_Font* font;
+    uint32_t duration;      // how long the text is visible
     bool autofree;          // automatically free after text is printed
 };
 

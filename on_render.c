@@ -1,9 +1,9 @@
 #include "on_render.h"
  
 void on_render(groups_t* grp, video_t* vid, float dt) {
-	
-	//Uint32 time;
-	object_t* obj_first = grp->obj_first;
+    
+    //Uint32 time;
+    object_t* obj_first = grp->obj_first;
     
     on_render_sort(obj_first);
     
@@ -19,7 +19,7 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
     // render early:
     object_t* obj = obj_first;
     
-	while (obj != NULL) {
+    while (obj != NULL) {
         
         if (!obj->disable_render) {
             
@@ -35,13 +35,13 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
         }
         
         obj = obj->next_object;
-	}
+    }
     
     // render loop:
-	obj = obj_first;
+    obj = obj_first;
     
-	while (obj != NULL) {
-		
+    while (obj != NULL) {
+        
         if (obj->render_is_in_blobb) {
             
             // render all objects in the sorted render blobb:
@@ -69,49 +69,49 @@ void on_render(groups_t* grp, video_t* vid, float dt) {
         obj->render_is_in_blobb = false;
         
         obj = obj->next_object;
-	}
+    }
     
     // render meters:
     obj = obj_first;
-	
-	while (obj != NULL) {
-		
-		if (obj->mtr != NULL) {
-			
-			on_render_meters(obj, vid);
-		}
-		
-		obj = obj->next_object;
-	}
+    
+    while (obj != NULL) {
+        
+        if (obj->mtr != NULL) {
+            
+            on_render_meters(obj, vid);
+        }
+        
+        obj = obj->next_object;
+    }
     
     on_render_item(grp->obj_hero, vid);
     
     // render texts:
-	obj = obj_first;
-	
-	while (obj != NULL) {
-		
-		if (obj->txt != NULL && obj->txt_print != 0) {
-			
+    obj = obj_first;
+    
+    while (obj != NULL) {
+        
+        if (obj->txt != NULL && obj->txt_print != 0) {
+            
             on_render_text(obj, vid, dt);
-		}
-		
-		obj = obj->next_object;
-	}
+        }
+        
+        obj = obj->next_object;
+    }
     
     // many filters possible with the following code:
-	/*uint32_t* pxl = (uint32_t*) surf->pixels;
-	uint8_t* pxl8;
-	uint8_t pxl_tmp;
-	int32_t n;
-	for (n = 0; n < surf->w * surf->h; n++) {
-		pxl8 = &pxl[n];
-		pxl_tmp = pxl8[0];
-		pxl8[0] = pxl8[2];
-		pxl8[2] = pxl_tmp;
-		
-		//pxl[n] = pxl[n] << 16;
-	}*/
+    /*uint32_t* pxl = (uint32_t*) surf->pixels;
+    uint8_t* pxl8;
+    uint8_t pxl_tmp;
+    int32_t n;
+    for (n = 0; n < surf->w * surf->h; n++) {
+        pxl8 = &pxl[n];
+        pxl_tmp = pxl8[0];
+        pxl8[0] = pxl8[2];
+        pxl8[2] = pxl_tmp;
+        
+        //pxl[n] = pxl[n] << 16;
+    }*/
     
     // all the above constructs a new 2D surface. send it to the screen:
     video_render(vid);
@@ -123,7 +123,7 @@ void on_render_sort(object_t* obj) {
     // construct render blobbs:
     while (obj != NULL) {
         
-		if (!obj->render_is_in_blobb) {
+        if (!obj->render_is_in_blobb) {
             
             if (obj->render_before != NULL ||
                 obj->render_after != NULL) {
@@ -145,8 +145,8 @@ void on_render_sort(object_t* obj) {
             }
         }
     
-		obj = obj->next_object;
-	}
+        obj = obj->next_object;
+    }
     
 }
 
@@ -358,7 +358,7 @@ void on_render_object(object_t* obj, video_t* vid) {
 }
 
 void on_render_meters(object_t* obj, video_t* vid) {
-	
+    
     list_t* lst = obj->mtr;
     
     lst = get_first(lst);
@@ -372,7 +372,7 @@ void on_render_meters(object_t* obj, video_t* vid) {
             mtr->scr_pos_x, mtr->scr_pos_y);
         
         lst = lst->next;
-    }	
+    }   
 }
 
 void on_render_item(object_t* hero, video_t* vid) {
@@ -399,26 +399,26 @@ void on_render_text(object_t* obj, video_t* vid, float dt) {
     obj->txt_next_letter += dt;
     if (obj->txt_next_letter > 1.9) {
         obj->txt_next_letter = 0.0;
-        obj->txt_print++;	// counter, add next letter
+        obj->txt_print++;   // counter, add next letter
     }
     
     text_t* txt = (text_t*) obj->txt->entry;
     char str[txt->length + 1];
     
-	uint32_t i = 0;
-	while (i < obj->txt_print && i < txt->length) {
-		str[i] = txt->str[i];
-		i++;
-	}
-	str[i] = '\0';
+    uint32_t i = 0;
+    while (i < obj->txt_print && i < txt->length) {
+        str[i] = txt->str[i];
+        i++;
+    }
+    str[i] = '\0';
     
-	if (obj->txt_print < txt->length) {
-		if (obj->txt_surface != NULL) {
-			SDL_FreeSurface(obj->txt_surface);
-		}
-		obj->txt_surface = text_print_to_surface(txt->font, str, i);
-	}
-	
+    if (obj->txt_print < txt->length) {
+        if (obj->txt_surface != NULL) {
+            SDL_FreeSurface(obj->txt_surface);
+        }
+        obj->txt_surface = text_print_to_surface(txt->font, str, i);
+    }
+    
     // determine text position. possibly close to object, otherwise at
     // edge of screen:
     int32_t x = (int32_t) obj->scr_pos_x;
@@ -441,20 +441,20 @@ void on_render_text(object_t* obj, video_t* vid, float dt) {
         y = h_dsp - h - 5;
     }
     
-	surface_on_draw(vid->surface, obj->txt_surface, x, y);
+    surface_on_draw(vid->surface, obj->txt_surface, x, y);
     
-	if (obj->txt_print > txt->duration) {
+    if (obj->txt_print > txt->duration) {
         
-		SDL_FreeSurface(obj->txt_surface);
-		obj->txt_surface = NULL;
-		obj->txt_print = 0; // disable printing
+        SDL_FreeSurface(obj->txt_surface);
+        obj->txt_surface = NULL;
+        obj->txt_print = 0; // disable printing
         
         if (txt->autofree) {
             text_free(txt);
             obj->txt = delete_single(obj->txt);
         }
-	}
-	
+    }
+    
 }
 
 void on_render_object_id(video_t* vid, object_t* obj) {
@@ -464,7 +464,7 @@ void on_render_object_id(video_t* vid, object_t* obj) {
     }
     
     SDL_Color fg_color = {0, 255, 0};   // text color
- 	
+    
     char str[8];
     snprintf(str, 8, "%d", obj->id);
     

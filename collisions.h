@@ -64,7 +64,7 @@ bool collisions_pixel_protected(
     int32_t x, int32_t y, uint8_t* pxl, int32_t w_bmp, int32_t w, int32_t h);
 
 void collisions_impulse(
-	object_t* obj1, object_t* obj2, float c1x, float c1y);
+    object_t* obj1, object_t* obj2, float c1x, float c1y);
 
 void collisions_update_render(object_t* obj, object_t* obj_b);
 

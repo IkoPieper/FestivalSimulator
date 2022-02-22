@@ -57,26 +57,26 @@ bool toggle_fullscreen(bool fullscreen, video_t* vid) {
 }
 
 bool on_execute() {
-	
+    
     bool debug = false;                 // show object id and walls
-    bool running = true;				// program running?
+    bool running = true;                // program running?
     const bool VSYNC = true;            // enable vertical sync
-	const uint16_t FPS = 60;			// frames per second
+    const uint16_t FPS = 60;            // frames per second
     float dt = 1.0;                     // time step
-    uint32_t time_start, time_end;		// to measure time per frame
-    //Uint32 time;						// to measure time for debug
-    uint64_t frame = 0;					// current frame
+    uint32_t time_start, time_end;      // to measure time per frame
+    //Uint32 time;                      // to measure time for debug
+    uint64_t frame = 0;                 // current frame
     bool fullscreen = false;            // fullscreen mode
     uint8_t lock_fullscreen_key = 0;
     uint8_t area = 2;                   // area / level to start the game with
     
     sound_t* snd = sound_init();
     
-	video_t* vid = video_init(VSYNC);
-	if (vid == NULL) {
-		fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
-		return(true);
-	}
+    video_t* vid = video_init(VSYNC);
+    if (vid == NULL) {
+        fprintf(stderr, "Initialization of sdl, ttf, or video failed!\n");
+        return(true);
+    }
     if (debug) {
         vid->show_ids = true;
         vid->show_walls = true;
@@ -88,31 +88,31 @@ bool on_execute() {
         dt = 60.0 / (float) FPS;
     }
     
-	object_t* obj = on_init_objects(vid, dt, area);
+    object_t* obj = on_init_objects(vid, dt, area);
     groups_t* grp = groups_init(obj);
     tasks_init(grp);
- 	verletbox_t* vbox = verletbox_init(obj);
- 	
- 	bool* keys = (bool*) malloc(9 * sizeof(bool));
-	for (uint8_t i = 0; i < 9; i++) {
-		keys[i] = false;
-	}
+    verletbox_t* vbox = verletbox_init(obj);
     
-	SDL_Event event;
+    bool* keys = (bool*) malloc(9 * sizeof(bool));
+    for (uint8_t i = 0; i < 9; i++) {
+        keys[i] = false;
+    }
     
-	while (running) {
-		
+    SDL_Event event;
+    
+    while (running) {
+        
         if (!VSYNC) {
             
             time_start = SDL_GetTicks();
         }
-		
         
         
-		while (SDL_PollEvent(&event)) {
-			
-			on_event(&event, keys);
-		}
+        
+        while (SDL_PollEvent(&event)) {
+            
+            on_event(&event, keys);
+        }
         
         if (lock_fullscreen_key) {
             
@@ -129,19 +129,19 @@ bool on_execute() {
             running = 0;
         }
         
-		//time = SDL_GetTicks();
+        //time = SDL_GetTicks();
         
         /*printf("\n-------------------\n");
         printf("FRAME: %" PRId64 "\n", frame);
         printf("-------------------\n\n");*/
         
-		on_loop(grp, snd, vbox, keys, frame, dt);
+        on_loop(grp, snd, vbox, keys, frame, dt);
         
-		//printf("time for on_loop: %d\n", SDL_GetTicks() - time);
-		//time = SDL_GetTicks();
-		on_render(grp, vid, dt);
-		//printf("time for on_render: %d\n", SDL_GetTicks() - time);
-		
+        //printf("time for on_loop: %d\n", SDL_GetTicks() - time);
+        //time = SDL_GetTicks();
+        on_render(grp, vid, dt);
+        //printf("time for on_render: %d\n", SDL_GetTicks() - time);
+        
         if (change_area(grp, &area)) {
             
             on_cleanup_area(grp, snd, vbox);
@@ -151,7 +151,7 @@ bool on_execute() {
             vbox = verletbox_init(obj);
         }
         
-		// ensure constant frame rate:
+        // ensure constant frame rate:
         if (!VSYNC) {
             
             time_end = SDL_GetTicks();
@@ -162,20 +162,20 @@ bool on_execute() {
             }
         }
         
-		frame++;
-	}
+        frame++;
+    }
     
     SDL_SaveBMP(vid->surface, "last_frame.bmp");
 
-	
-	on_cleanup(grp, vid, snd, vbox, keys);
+    
+    on_cleanup(grp, vid, snd, vbox, keys);
  
-	return(false);
+    return(false);
 }
  
 int main(int argc, char** argv) {
-	
-	on_execute();
-	
-	return(0);
+    
+    on_execute();
+    
+    return(0);
 }

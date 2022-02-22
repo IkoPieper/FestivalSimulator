@@ -8,14 +8,14 @@ typedef struct surface_ring surface_ring_t;
 typedef struct animation animation_t;
 
 struct surface_ring {
-	surface_ring_t* next;
-	SDL_Surface* surf;
+    surface_ring_t* next;
+    SDL_Surface* surf;
 };
 
 struct animation {
-	surface_ring_t* cycle;
-	surface_ring_t* cycle_first;
-	uint32_t delay_frames;          // frames to wait for next surf
+    surface_ring_t* cycle;
+    surface_ring_t* cycle_first;
+    uint32_t delay_frames;          // frames to wait for next surf
     uint32_t delay_frames_wanted;   // the original value from config
     float time_active;              // time animation is active
     bool surf_changed;              // true for one frame if surface 
