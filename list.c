@@ -144,9 +144,7 @@ void take_out(list_t* current) {
 
 void insert_before(list_t* current, list_t* added) {
     
-    if (current == NULL) {
-        added->prev = NULL;
-        added->next = NULL;
+    if (current == NULL || added == NULL) {
         return;
     }
     
@@ -162,9 +160,7 @@ void insert_before(list_t* current, list_t* added) {
 
 void insert_after(list_t* current, list_t* added) {
     
-    if (current == NULL) {
-        added->prev = NULL;
-        added->next = NULL;
+    if (current == NULL || added == NULL) {
         return;
     }
     
@@ -180,7 +176,7 @@ void insert_after(list_t* current, list_t* added) {
 
 void insert_first(list_t* current, list_t* added) {
     
-    if (current == NULL) {
+    if (current == NULL || added == NULL) {
         return;
     }
     
@@ -191,7 +187,7 @@ void insert_first(list_t* current, list_t* added) {
 
 void insert_last(list_t* current, list_t* added) {
     
-    if (current == NULL) {
+    if (current == NULL || added == NULL) {
         return;
     }
     
@@ -257,7 +253,7 @@ bool share_entry(list_t* lst1, list_t* lst2) {
 // TEST FUNCTION
 /*
 int main(int argc, char** argv) {
-	
+    
     int a = 1;
     int b = 2;
     int c = 3;
@@ -272,7 +268,7 @@ int main(int argc, char** argv) {
         printf("%d\n", * (int*) current->entry);
         current = get_next(current);
     }
-	
+    
     printf("Find b:\n");
     current = find(numbers, &b);
     printf("%d\n", * (int*) current->entry);
@@ -297,7 +293,7 @@ int main(int argc, char** argv) {
         printf("%d\n", * (int*) current->entry);
         current = get_next(current);
     }
-	
+    
     printf("Swap a and c:\n");
     swap(get_first(numbers), get_last(numbers));
     
@@ -323,5 +319,5 @@ int main(int argc, char** argv) {
         current = get_next(current);
     }
     
-	return(0);
+    return(0);
 }*/
