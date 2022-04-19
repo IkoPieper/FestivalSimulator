@@ -1,9 +1,5 @@
 #include "list.h"
 
-/* FOR TEST FUNCTION: */
-#include <stdio.h>
-
-
 list_t* create(void* entry, uint32_t id) {
     
     list_t* current = (list_t*) malloc(sizeof(list_t));
@@ -252,6 +248,8 @@ bool share_entry(list_t* lst1, list_t* lst2) {
 
 // TEST FUNCTION
 /*
+#include <stdio.h>
+
 int main(int argc, char** argv) {
     
     int a = 1;

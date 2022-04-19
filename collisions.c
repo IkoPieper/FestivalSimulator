@@ -69,11 +69,12 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
     // this saves a lot of computations:
     
     // iterate over verlet boxes:
-    uint32_t x, y, x2, y2, x2_min, y2_min, x2_max, y2_max;
-    bool collision = false;
+    uint32_t x, y, x2, y2, x2_max, y2_max;
+    //bool collision = false;
     object_t* obj_b = NULL;
     
     for (x = 0; x < vbox->num_w; x++) {
+        
         for (y = 0; y < vbox->num_h; y++) {
             
             obj = verletbox_get_first_object(vbox->boxes[x][y]);
@@ -81,26 +82,22 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
             while (obj != NULL) {
                 
                 // iterate over verlet box of obj and surrounding ones:
-                if (y == 0) {
-                    y2_min = 0;
-                } else {
-                    y2_min = y;
-                }
+                
                 if (y == vbox->num_h-1) {
-                    y2_max = vbox->num_h-1;
+                    y2_max = y;
                 } else {
                     y2_max = y + 1;
                 }
                 if (x == vbox->num_w-1) {
-                    x2_max = vbox->num_w-1;
+                    x2_max = x;
                 } else {
                     x2_max = x + 1;
                 }
                 
-                for (y2 = y2_min; y2 <= y2_max; y2++) {
+                for (y2 = y; y2 <= y2_max; y2++) {
                     
-                    if (x == 0) {
-                        x2_min = 0;
+                    /*if (x == 0) {
+                        x2_min = x;
                     } else {
                         if (y == y2) {
                             // omit previous box already iterated:
@@ -108,9 +105,11 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                         } else {
                             x2_min = x - 1;
                         }
-                    }
+                    }*/
                 
-                    for (x2 = x2_min; x2 <= x2_max; x2++) {
+                    //for (x2 = x2_min; x2 <= x2_max; x2++) {
+                    
+                    for (x2 = x; x2 <= x2_max; x2++) {
                     
                         if (x2 == x && y2 == y) {   // same vbox as obj
                             // only objects after obj:
@@ -123,11 +122,11 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                         // interactions with other objects in vbox:
                         while (obj_b != NULL) {
                             
-                            collision = collisions_check(obj, obj_b, dt);
+                            collisions_check(obj, obj_b, dt);
+                            //collision = collisions_check(obj, obj_b, dt);
                             
-                            // disable collission for some time? 
-                            // is this used?:
-                            if (!collision) {
+                            // disable collission for some time:
+                            /*if (!collision) {
                                 if (obj->obj_escape_col == obj_b) {
                                     if (obj->obj_escape_col_time < 0.0) {
                                         obj->obj_escape_col = NULL;
@@ -143,7 +142,7 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
                                         obj_b->obj_escape_col_time -= dt;
                                     }
                                 }
-                            }
+                            }*/
                             
                             // get next object obj_b:
                             obj_b = obj_b->next_vbox;

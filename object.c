@@ -81,7 +81,7 @@ object_t* object_add(object_t* obj, uint32_t id) {
     
     // thrown by another object (usually after carried by):
     obj_new->obj_escape_col = NULL;
-    obj_new->obj_escape_col_time = -1.0;
+    //obj_new->obj_escape_col_time = -1.0;
     
     // facing direction:
     obj_new->facing = OBJECT_FACING_SOUTH;
@@ -835,7 +835,7 @@ void put_down(object_t* obj) {
     
     object_t* obj_target = obj->obj_carries;
     obj_target->obj_escape_col = obj;
-    obj_target->obj_escape_col_time = 60.0;
+    //obj_target->obj_escape_col_time = 60.0;
     obj->obj_carries = NULL;
     obj_target->obj_carried_by = NULL;
     obj_target->vel_x = 0.0;
