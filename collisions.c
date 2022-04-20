@@ -81,14 +81,16 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
             
             while (obj != NULL) {
                 
-                // iterate over verlet box of obj and surrounding ones:
+                // iterate over verlet box of obj and surrounding ones. 
+                // but omit previous boxes x2 = x - 1 and y2 = y - 1 that 
+                // have already been iterated:
                 
-                if (y == vbox->num_h-1) {
+                if (y == vbox->num_h - 1) {
                     y2_max = y;
                 } else {
                     y2_max = y + 1;
                 }
-                if (x == vbox->num_w-1) {
+                if (x == vbox->num_w - 1) {
                     x2_max = x;
                 } else {
                     x2_max = x + 1;
@@ -221,13 +223,45 @@ void collisions(groups_t* grp, verletbox_t* vbox, float dt) {
 
 bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
     
-    bool collision = false;
-    
     if (obj1->obj_carries == obj2 || obj2->obj_carries == obj1) {
         
         return(false);
     }
     
+    // boundary boxes base positions:
+    int32_t x01 = (int32_t) obj1->pos_x;
+    int32_t y01 = (int32_t) obj1->pos_y;
+    int32_t x02 = (int32_t) obj2->pos_x;
+    int32_t y02 = (int32_t) obj2->pos_y;
+    
+    int32_t xw1 = x01 + obj1->surface->w;
+    int32_t yh1 = y01 + obj1->surface->h;
+    int32_t xw2 = x02 + obj2->surface->w;
+    int32_t yh2 = y02 + obj2->surface->h;
+    
+    // check collision of surfaces first:
+    if (obj1->id != OBJECT_BACKGROUND_ID && obj2->id != OBJECT_BACKGROUND_ID) {
+        
+        // check for collision of boundary boxes:
+        if (xw2 > x01 && x02 < xw1 && 
+            yh2 > y01 && y02 < yh1) {
+            
+            // update render list:
+            collisions_update_render(obj1, obj2);
+            
+        } else {
+            
+            return(false);
+        }
+    }
+    
+    if (obj1->disable_collision || obj2->disable_collision ||
+        (!obj1->can_move && !obj2->can_move)) {
+        
+        return(false);
+    }
+    
+    /*
     // boundary boxes base positions:
     int32_t x01 = (int32_t) obj1->pos_x;
     int32_t y01 = (int32_t) obj1->pos_y;
@@ -271,12 +305,10 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
     if (obj1->disable_collision || obj2->disable_collision ||
         (!obj1->can_move && !obj2->can_move)) {
         collision = false;
-    }
+    } */
     
     // check for pixel wise collision and calculate surface vectors:
-    if (collision && (obj1->has_moved || obj2->has_moved)) {
-        
-        collision = false;
+    if (obj1->has_moved || obj2->has_moved) {
         
         collision_t* col1 = NULL;
         collision_t* col2 = NULL;
@@ -336,7 +368,7 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
             return(false);
         }
         
-        collision = collisions_detect_pixel_collision(
+        bool collision = collisions_detect_pixel_collision(
             obj1->wall->pxl, obj2->wall->pxl, 
             x1_min, x1_max, y1_min, y1_max, w1_bmp, w1, h1,
             x2_min, y2_min, w2_bmp, w2, h2);
@@ -344,9 +376,6 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         if (!collision) {
             return(false);
         }
-        
-        //printf("\n---------------------- collisions_check() pixel collision ----------------------\n");
-        //printf("obj1->id: %d, obj2->id: %d\n", obj1->id, obj2->id); 
         
         // find the two pixels that are zero for both objects. the line 
         // between them is the collision surface (90° to c).
@@ -363,24 +392,10 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         
         if (c1x == 666.0) {
             // obj1 is buried inside obj2:
-            /*c1x = obj1->vel_x;
-            c1y = obj1->vel_y;
-            float norm = sqrtf(c1x * c1x + c1y * c1y);
-            c1x /= norm;
-            c1y /= norm;
-            c2x = -c1x;
-            c2y = -c1y;*/ // old solution caused segmentation fault in SDL2 lib
             return(false);
             
         } else if (c2x == 666.0) {
             // obj2 is buried inside obj1:
-            /*c2x = obj2->vel_x;
-            c2y = obj2->vel_y;
-            float norm = sqrtf(c2x * c2x + c2y * c2y);
-            c2x /= norm;
-            c2y /= norm;
-            c1x = -c2x;
-            c1y = -c2y;*/
             return(false);
         }
         
@@ -399,7 +414,7 @@ bool collisions_check(object_t* obj1, object_t* obj2, float dt) {
         col2->c_y = c2y;
     }
     
-    return(collision);
+    return(true);
 }
 
 bool collisions_detect_pixel_collision(
@@ -977,6 +992,10 @@ void collisions_impulse(
 }
 
 void collisions_update_render(object_t* obj1, object_t* obj2) {
+    
+    if (obj1->disable_render || obj2->disable_render) {
+        return;
+    }
     
     if (obj1->render_early || obj2->render_early) {
         return;
